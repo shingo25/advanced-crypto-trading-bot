@@ -1,0 +1,65 @@
+# Whale-EMA Trend Strategy
+name: whale_ema
+description: "EMA crossover with whale flow confirmation"
+timeframe: "1h"
+enabled: true
+
+# Parameters
+parameters:
+  ema_fast: 20
+  ema_slow: 50
+  whale_flow_threshold: 0.1
+  
+# Technical indicators
+indicators: |
+  df['ema20'] = ta.EMA(df['close'], 20)
+  df['ema50'] = ta.EMA(df['close'], 50)
+  df = merge_whale_flow(df)  # カスタム関数でWhale Flowデータを結合
+
+# Entry conditions
+entry_long: |
+  cond = (df['ema20'] > df['ema50']) & (df['whale_flow'] > params['whale_flow_threshold'])
+  df.loc[cond, 'enter_long'] = 1
+
+entry_short: |
+  cond = (df['ema20'] < df['ema50']) & (df['whale_flow'] < -params['whale_flow_threshold'])
+  df.loc[cond, 'enter_short'] = 1
+
+# Exit conditions
+exit_long: |
+  cond = (df['ema20'] < df['ema50']) | (df['whale_flow'] < -params['whale_flow_threshold'])
+  df.loc[cond, 'exit_long'] = 1
+
+exit_short: |
+  cond = (df['ema20'] > df['ema50']) | (df['whale_flow'] > params['whale_flow_threshold'])
+  df.loc[cond, 'exit_short'] = 1
+
+# Risk management
+roi:
+  "0": 0.05    # 5% take profit
+  "30": 0.03   # 3% after 30 minutes
+  "60": 0.02   # 2% after 1 hour
+  "120": 0.01  # 1% after 2 hours
+
+stoploss: -0.02  # -2% stop loss
+
+# Position sizing
+position_sizing:
+  method: "kelly"
+  kelly_fraction_cap: 0.3
+  max_position_size: 0.08
+
+# Backtesting
+backtest:
+  start_date: "2023-01-01"
+  end_date: "2024-01-01"
+  initial_capital: 10000
+  
+# Data sources
+data_sources:
+  - name: "binance_ohlcv"
+    symbol: "BTCUSDT"
+    timeframe: "1h"
+  - name: "glassnode_whale_flow"
+    symbol: "BTC"
+    timeframe: "1h"
