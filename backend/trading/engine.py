@@ -103,25 +103,10 @@ class Position:
 
 
 class TradingEngine:
-    """ライブトレーディングエンジン"""
+    """ライブトレーディングエンジン（リファクタリング版）"""
     
-    def __init__(self):
-        self.orders: Dict[str, Order] = {}
-        self.positions: Dict[str, Position] = {}
-        self.order_counter = 0
-        self.is_running = False
-        self.exchange_adapters = {}
-        self.strategies = {}
-        self.price_data = {}
-        
-        # イベントハンドラー
-        self.on_order_filled: Optional[Callable] = None
-        self.on_position_opened: Optional[Callable] = None
-        self.on_position_closed: Optional[Callable] = None
-        self.on_error: Optional[Callable] = None
-        
-        # 設定
-        self.config = {
+    def __init__(self, config: Dict = None):
+        self.config = config or {
             'max_concurrent_orders': 10,
             'order_timeout': 300,  # 5分
             'price_update_interval': 1.0,  # 1秒
@@ -134,23 +119,56 @@ class TradingEngine:
             }
         }
         
+        # 管理クラスの初期化
+        from .order_manager import OrderManager
+        from .position_manager import PositionManager
+        from .risk_manager import RiskManager
+        
+        self.order_manager = OrderManager(self.config)
+        self.position_manager = PositionManager(self.config)
+        self.risk_manager = RiskManager(self.config)
+        
+        # 状態管理
+        self.is_running = False
+        self.exchange_adapters = {}
+        self.strategies = {}
+        self.price_data = {}
+        
+        # イベントハンドラー
+        self.on_order_filled: Optional[Callable] = None
+        self.on_position_opened: Optional[Callable] = None
+        self.on_position_closed: Optional[Callable] = None
+        self.on_error: Optional[Callable] = None
+        
         # 統計
         self.stats = {
-            'total_orders': 0,
-            'filled_orders': 0,
-            'cancelled_orders': 0,
-            'total_volume': 0.0,
-            'total_pnl': 0.0,
-            'daily_pnl': 0.0,
             'start_time': None,
             'uptime': 0.0
         }
         
-        logger.info("TradingEngine initialized")
+        # イベントハンドラーを設定
+        self._setup_event_handlers()
+        
+        logger.info("TradingEngine initialized (refactored version)")
+    
+    def _setup_event_handlers(self):
+        """イベントハンドラーを設定"""
+        # 注文管理のイベント
+        self.order_manager.on_order_filled = self._on_order_filled
+        self.order_manager.on_error = self._on_error
+        
+        # ポジション管理のイベント
+        self.position_manager.on_position_opened = self._on_position_opened
+        self.position_manager.on_position_closed = self._on_position_closed
+        
+        # リスク管理のイベント
+        self.risk_manager.on_risk_violation = self._on_risk_violation
+        self.risk_manager.on_emergency_stop = self._on_emergency_stop
     
     def add_exchange_adapter(self, name: str, adapter):
         """取引所アダプタを追加"""
         self.exchange_adapters[name] = adapter
+        self.order_manager.add_exchange_adapter(name, adapter)
         logger.info(f"Exchange adapter added: {name}")
     
     def add_strategy(self, name: str, strategy):
@@ -167,13 +185,9 @@ class TradingEngine:
                     strategy_name: Optional[str] = None) -> Order:
         """注文を作成"""
         
-        # 注文IDを生成
-        order_id = f"order_{self.order_counter:06d}"
-        self.order_counter += 1
-        
-        # 注文を作成
-        order = Order(
-            id=order_id,
+        # リスクチェック
+        temp_order = Order(
+            id="temp",
             symbol=symbol,
             side=side,
             order_type=order_type,
@@ -182,106 +196,48 @@ class TradingEngine:
             strategy_name=strategy_name
         )
         
-        # バリデーション
-        if not self._validate_order(order):
-            order.update_status(OrderStatus.REJECTED)
-            return order
+        if not self.risk_manager.check_order_risk(
+            temp_order, 
+            self.position_manager.get_all_positions(),
+            self.position_manager.stats['total_pnl']
+        ):
+            temp_order.update_status(OrderStatus.REJECTED)
+            logger.warning(f"Order rejected by risk manager: {symbol}")
+            return temp_order
         
-        # 注文を保存
-        self.orders[order_id] = order
-        
-        # 注文を実行
-        if not self.config['enable_dry_run']:
-            self._execute_order(order)
-        else:
-            # デモモードでは即座に約定
-            self._simulate_order_fill(order)
-        
-        self.stats['total_orders'] += 1
-        logger.info(f"Order created: {order_id} {side.value} {amount} {symbol}")
-        
-        return order
+        # 注文管理クラスに委譲
+        return self.order_manager.create_order(
+            symbol=symbol,
+            side=side,
+            order_type=order_type,
+            amount=amount,
+            price=price,
+            strategy_name=strategy_name
+        )
     
     def cancel_order(self, order_id: str) -> bool:
         """注文をキャンセル"""
-        if order_id not in self.orders:
-            logger.warning(f"Order not found: {order_id}")
-            return False
-        
-        order = self.orders[order_id]
-        
-        if not order.is_active():
-            logger.warning(f"Order is not active: {order_id}")
-            return False
-        
-        if not self.config['enable_dry_run']:
-            # 実際の取引所で注文をキャンセル
-            success = self._cancel_order_on_exchange(order)
-            if not success:
-                return False
-        
-        order.update_status(OrderStatus.CANCELLED)
-        self.stats['cancelled_orders'] += 1
-        logger.info(f"Order cancelled: {order_id}")
-        
-        return True
+        return self.order_manager.cancel_order(order_id)
     
     def get_order(self, order_id: str) -> Optional[Order]:
         """注文を取得"""
-        return self.orders.get(order_id)
+        return self.order_manager.get_order(order_id)
     
     def get_active_orders(self) -> List[Order]:
         """アクティブな注文を取得"""
-        return [order for order in self.orders.values() if order.is_active()]
+        return self.order_manager.get_active_orders()
     
     def get_position(self, symbol: str) -> Optional[Position]:
         """ポジションを取得"""
-        return self.positions.get(symbol)
+        return self.position_manager.get_position(symbol)
     
     def get_all_positions(self) -> Dict[str, Position]:
         """すべてのポジションを取得"""
-        return self.positions.copy()
+        return self.position_manager.get_all_positions()
     
     def close_position(self, symbol: str, strategy_name: Optional[str] = None) -> bool:
         """ポジションを閉じる"""
-        if symbol not in self.positions:
-            logger.warning(f"Position not found: {symbol}")
-            return False
-        
-        position = self.positions[symbol]
-        
-        # 反対方向の注文を作成
-        opposite_side = OrderSide.SELL if position.side == OrderSide.BUY else OrderSide.BUY
-        
-        order = self.create_order(
-            symbol=symbol,
-            side=opposite_side,
-            order_type=OrderType.MARKET,
-            amount=position.amount,
-            strategy_name=strategy_name
-        )
-        
-        if order.is_filled():
-            # ポジションが存在するかチェック（_update_positionで削除されている可能性がある）
-            if symbol in self.positions:
-                # 実現損益を計算
-                if position.side == OrderSide.BUY:
-                    realized_pnl = (order.filled_price - position.entry_price) * position.amount
-                else:
-                    realized_pnl = (position.entry_price - order.filled_price) * position.amount
-                
-                self.stats['total_pnl'] += realized_pnl
-                self.stats['daily_pnl'] += realized_pnl
-                
-                logger.info(f"Position closed: {symbol}, PnL: {realized_pnl:.2f}")
-                
-                # イベントハンドラーを呼び出し
-                if self.on_position_closed:
-                    self.on_position_closed(symbol, realized_pnl)
-            
-            return True
-        
-        return False
+        return self.position_manager.close_position(symbol) is not None
     
     def update_price(self, symbol: str, price: float):
         """価格を更新"""
@@ -290,9 +246,57 @@ class TradingEngine:
             'timestamp': datetime.now(timezone.utc)
         }
         
-        # ポジションの未実現損益を更新
-        if symbol in self.positions:
-            self.positions[symbol].update_price(price)
+        # ポジション管理クラスに委譲
+        self.position_manager.update_price(symbol, price)
+        
+        # リスクチェック
+        violations = self.risk_manager.check_position_risk(
+            self.position_manager.get_all_positions(),
+            self.position_manager.stats['total_pnl']
+        )
+        
+        # 緊急停止チェック
+        if self.risk_manager.should_emergency_stop(
+            self.position_manager.get_all_positions(),
+            self.position_manager.stats['total_pnl']
+        ):
+            logger.critical("Emergency stop triggered, stopping engine")
+            asyncio.create_task(self.stop())
+    
+    def _on_order_filled(self, order: Order):
+        """注文約定時の処理"""
+        # ポジションを更新
+        self.position_manager.update_position(order)
+        
+        # 外部イベントハンドラーを呼び出し
+        if self.on_order_filled:
+            self.on_order_filled(order)
+    
+    def _on_position_opened(self, position: Position):
+        """ポジション開始時の処理"""
+        if self.on_position_opened:
+            self.on_position_opened(position)
+    
+    def _on_position_closed(self, symbol: str, realized_pnl: float):
+        """ポジション終了時の処理"""
+        if self.on_position_closed:
+            self.on_position_closed(symbol, realized_pnl)
+    
+    def _on_risk_violation(self, violations: List[str]):
+        """リスク違反時の処理"""
+        for violation in violations:
+            logger.warning(f"Risk violation: {violation}")
+    
+    def _on_emergency_stop(self, reason: str, value: float):
+        """緊急停止時の処理"""
+        logger.critical(f"Emergency stop: {reason} = {value}")
+        # 必要に応じて追加処理
+    
+    def _on_error(self, error_message: str):
+        """エラー時の処理"""
+        logger.error(error_message)
+        if self.on_error:
+            self.on_error(error_message)
     
     def _validate_order(self, order: Order) -> bool:
         """注文を検証"""
@@ -552,18 +556,20 @@ class TradingEngine:
         if self.stats['start_time']:
             self.stats['uptime'] = (datetime.now(timezone.utc) - self.stats['start_time']).total_seconds()
         
+        # 各管理クラスの統計を統合
+        order_stats = self.order_manager.get_statistics()
+        position_stats = self.position_manager.get_statistics()
+        risk_stats = self.risk_manager.get_statistics()
+        
         return {
-            'total_orders': self.stats['total_orders'],
-            'filled_orders': self.stats['filled_orders'],
-            'cancelled_orders': self.stats['cancelled_orders'],
-            'fill_rate': self.stats['filled_orders'] / max(self.stats['total_orders'], 1),
-            'total_volume': self.stats['total_volume'],
-            'total_pnl': self.stats['total_pnl'],
-            'daily_pnl': self.stats['daily_pnl'],
-            'active_orders': len(self.get_active_orders()),
-            'open_positions': len(self.positions),
-            'uptime': self.stats['uptime'],
-            'is_running': self.is_running
+            'engine': {
+                'is_running': self.is_running,
+                'uptime': self.stats['uptime'],
+                'start_time': self.stats['start_time'].isoformat() if self.stats['start_time'] else None
+            },
+            'orders': order_stats,
+            'positions': position_stats,
+            'risk': risk_stats
         }
     
     def get_health_status(self) -> Dict[str, Any]:
@@ -571,11 +577,12 @@ class TradingEngine:
         return {
             'is_running': self.is_running,
             'active_orders': len(self.get_active_orders()),
-            'open_positions': len(self.positions),
-            'total_pnl': self.stats['total_pnl'],
-            'daily_pnl': self.stats['daily_pnl'],
+            'open_positions': len(self.get_all_positions()),
+            'total_pnl': self.position_manager.stats['total_pnl'],
+            'daily_pnl': self.position_manager.stats['daily_pnl'],
             'uptime': self.stats['uptime'],
-            'last_update': datetime.now(timezone.utc).isoformat()
+            'last_update': datetime.now(timezone.utc).isoformat(),
+            'risk_violations': self.risk_manager.stats['risk_violations']
         }
     
     def export_state(self) -> Dict[str, Any]:

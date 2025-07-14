@@ -2,12 +2,14 @@ from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
 from backend.core.config import settings
+from backend.core.database import get_db, get_user_by_username, get_user_by_id, Database
+from backend.models.user import User
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -46,17 +48,45 @@ def decode_token(token: str) -> Dict[str, Any]:
         )
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict[str, Any]:
-    """現在のユーザーを取得"""
-    payload = decode_token(token)
-    username: str = payload.get("sub")
-    if username is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    return {"username": username, "role": payload.get("role", "viewer")}
+def get_token_from_request(request: Request, token: Optional[str] = Depends(oauth2_scheme)) -> Optional[str]:
+    """リクエストからトークンを取得（BearerヘッダーまたはhttpOnlyクッキー）"""
+    if token:
+        return token
+    
+    # httpOnlyクッキーからトークンを取得
+    cookie_token = request.cookies.get("access_token")
+    if cookie_token:
+        return cookie_token
+    
+    return None
+
+
+async def get_current_user(request: Request, db: Database = Depends(get_db)) -> Dict[str, Any]:
+    """現在のユーザーを取得し、データベースで検証"""
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    token = get_token_from_request(request)
+    if not token:
+        raise credentials_exception
+    
+    try:
+        payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    
+    # データベースでユーザーの存在を確認
+    user = get_user_by_username(username)
+    if user is None:
+        raise credentials_exception
+    
+    return user
 
 
 async def require_admin(current_user: Dict[str, Any] = Depends(get_current_user)) -> Dict[str, Any]:
@@ -67,3 +97,15 @@ async def require_admin(current_user: Dict[str, Any] = Depends(get_current_user)
             detail="Admin access required"
         )
     return current_user
+
+
+def authenticate_user(username: str, password: str) -> Optional[Dict[str, Any]]:
+    """ユーザー認証"""
+    user = get_user_by_username(username)
+    if not user:
+        return None
+    
+    if not verify_password(password, user["password_hash"]):
+        return None
+    
+    return user

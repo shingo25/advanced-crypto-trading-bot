@@ -1,6 +1,7 @@
 import duckdb
 from pathlib import Path
 import logging
+from typing import Optional, List, Dict, Any
 from backend.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -147,3 +148,72 @@ def init_db():
         )
     
     logger.info("Database initialized successfully")
+
+
+def get_db() -> Database:
+    """データベースセッションを取得"""
+    return db
+
+
+def get_user_by_username(username: str) -> Optional[Dict[str, Any]]:
+    """ユーザー名でユーザーを取得"""
+    result = db.fetchone(
+        "SELECT id, username, password_hash, role, created_at FROM users WHERE username = ?",
+        [username]
+    )
+    if result:
+        return {
+            "id": result[0],
+            "username": result[1],
+            "password_hash": result[2],
+            "role": result[3],
+            "created_at": result[4]
+        }
+    return None
+
+
+def get_user_by_id(user_id: int) -> Optional[Dict[str, Any]]:
+    """ユーザーIDでユーザーを取得"""
+    result = db.fetchone(
+        "SELECT id, username, password_hash, role, created_at FROM users WHERE id = ?",
+        [user_id]
+    )
+    if result:
+        return {
+            "id": result[0],
+            "username": result[1],
+            "password_hash": result[2],
+            "role": result[3],
+            "created_at": result[4]
+        }
+    return None
+
+
+def create_user(username: str, password_hash: str, role: str = "viewer") -> Dict[str, Any]:
+    """ユーザーを作成"""
+    db.execute(
+        "INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)",
+        [username, password_hash, role]
+    )
+    return get_user_by_username(username)
+
+
+def update_user(user_id: int, **kwargs) -> Optional[Dict[str, Any]]:
+    """ユーザー情報を更新"""
+    if not kwargs:
+        return get_user_by_id(user_id)
+    
+    set_clause = ", ".join([f"{key} = ?" for key in kwargs.keys()])
+    values = list(kwargs.values()) + [user_id]
+    
+    db.execute(
+        f"UPDATE users SET {set_clause} WHERE id = ?",
+        values
+    )
+    return get_user_by_id(user_id)
+
+
+def delete_user(user_id: int) -> bool:
+    """ユーザーを削除"""
+    result = db.execute("DELETE FROM users WHERE id = ?", [user_id])
+    return result.rowcount > 0
