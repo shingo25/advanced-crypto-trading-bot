@@ -1,10 +1,12 @@
 # 🚀 Advanced Crypto Trading Bot
 
-高度な暗号通貨取引ボットシステム - 16種類の戦略を実装したマルチエクスチェンジ対応の自動取引システム
+高度な暗号通貨取引ボットシステム - Supabase統合、Vercelデプロイ対応の次世代自動取引プラットフォーム
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-![Python](https://img.shields.io/badge/python-3.9+-blue)
-![Node.js](https://img.shields.io/badge/node.js-22.x-green)
+![Python](https://img.shields.io/badge/python-3.12+-blue)
+![Node.js](https://img.shields.io/badge/node.js-18.x-green)
+![Supabase](https://img.shields.io/badge/supabase-enabled-green)
+![Vercel](https://img.shields.io/badge/vercel-deployed-black)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 ## 📋 目次

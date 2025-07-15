@@ -32,6 +32,7 @@ yarn-error.log*
 .env.local
 .env.*.local
 .env.age
+.env.production
 
 # Data
 *.parquet
@@ -55,3 +56,4 @@ logs/
 # Test coverage
 coverage/
 .coverage.*
+.vercel

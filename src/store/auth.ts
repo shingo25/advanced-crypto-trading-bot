@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { authApi, setAuthenticatedState, clearAuthenticatedState, getAuthenticatedState } from '@/lib/api';
+import { shouldUseMockData } from '@/lib/mockData';
 
 interface User {
   id: string;
@@ -67,6 +68,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   initialize: () => {
     if (typeof window !== 'undefined') {
+      // モックデータモードの場合は自動ログイン
+      if (shouldUseMockData()) {
+        set({
+          user: {
+            id: '1',
+            username: 'admin',
+            email: 'admin@example.com'
+          },
+          isAuthenticated: true,
+          isLoading: false,
+          error: null
+        });
+        return;
+      }
+      
       const isAuth = getAuthenticatedState();
       if (isAuth) {
         // 実際の実装では、認証状態の有効性を確認する
