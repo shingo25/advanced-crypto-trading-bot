@@ -3,7 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import logging
 from backend.core.config import settings
-from backend.api import auth, strategies, backtest, config, trades
+from backend.api import auth, strategies
+# TODO: Update these modules to use Supabase SDK
+# from backend.api import backtest, config, trades
 from backend.core.database import init_db
 from backend.core.logging import setup_logging
 
@@ -36,9 +38,10 @@ app.add_middleware(
 # Include routers
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(strategies.router, prefix="/strategies", tags=["strategies"])
-app.include_router(backtest.router, prefix="/backtest", tags=["backtest"])
-app.include_router(config.router, prefix="/config", tags=["config"])
-app.include_router(trades.router, prefix="/trades", tags=["trades"])
+# TODO: Update these modules to use Supabase SDK
+# app.include_router(backtest.router, prefix="/backtest", tags=["backtest"])
+# app.include_router(config.router, prefix="/config", tags=["config"])
+# app.include_router(trades.router, prefix="/trades", tags=["trades"])
 
 
 @app.get("/")
@@ -49,3 +52,7 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
+
+# Vercel handler
+handler = app

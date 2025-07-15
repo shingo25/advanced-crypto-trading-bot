@@ -1,0 +1,22 @@
+# Core Framework
+fastapi==0.109.0
+uvicorn[standard]==0.25.0
+
+# Auth & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+cryptography==41.0.7
+
+# Config & Utilities
+python-dotenv==1.0.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# Database & Supabase
+supabase==2.4.2
+
+# Async & Networking
+httpx==0.26.0
+
+# Monitoring & Logging
+loguru==0.7.2

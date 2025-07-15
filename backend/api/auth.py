@@ -25,7 +25,7 @@ class LoginRequest(BaseModel):
 @router.post("/login", response_model=Token)
 async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends()):
     """ログイン"""
-    user = authenticate_user(form_data.username, form_data.password)
+    user = await authenticate_user(form_data.username, form_data.password)
     if not user:
         logger.warning(f"Failed login attempt for username: {form_data.username}")
         raise HTTPException(

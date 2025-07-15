@@ -21,6 +21,11 @@ class Settings(BaseSettings):
     # Database
     DUCKDB_PATH: str = "./data/crypto_bot.duckdb"
     
+    # Supabase
+    SUPABASE_URL: str = ""
+    SUPABASE_ANON_KEY: str = ""
+    SUPABASE_SERVICE_ROLE_KEY: str = ""
+    
     # API Keys
     BINANCE_API_KEY: str = ""
     BINANCE_SECRET: str = ""
@@ -37,7 +42,12 @@ class Settings(BaseSettings):
     RATE_LIMIT_PER_MINUTE: int = 100
     
     # CORS
-    ALLOWED_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8000"]
+    ALLOWED_ORIGINS: List[str] = [
+        "http://localhost:3000", 
+        "http://localhost:8000",
+        "https://*.vercel.app",
+        "https://crypto-bot-frontend.vercel.app"
+    ]
     
     # Notifications
     NTFY_TOPIC: str = "crypto-bot-alerts"
