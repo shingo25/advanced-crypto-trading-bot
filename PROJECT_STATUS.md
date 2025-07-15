@@ -192,15 +192,26 @@ requirements-backend.txt  # バックエンド専用依存関係
 
 ## 🚀 デプロイ状況
 
-### 本番環境
-- **フロントエンド**: Vercel でデプロイ済み
-- **バックエンド**: Vercel Functions でデプロイ済み
-- **データベース**: Supabase でホスト済み
+### 本番環境 ✅ 完了
+- **フロントエンド**: Next.js 15.1.5 - Vercel デプロイ済み
+- **バックエンド**: FastAPI + Python 3.12 - Vercel Functions デプロイ済み
+- **データベース**: Supabase PostgreSQL - 運用中
+
+### 本番URL
+- **本番サイト**: `https://crypto-m1u2wjova-shingo-arais-projects.vercel.app`
+- **プロジェクト**: `shingo-arais-projects/crypto-bot`
+- **状態**: 正常稼働中（Vercel認証保護下）
 
 ### API エンドポイント
-- `https://your-domain.vercel.app/api/health` - ヘルスチェック
-- `https://your-domain.vercel.app/api/auth/login` - ログイン
-- `https://your-domain.vercel.app/api/strategies/` - 戦略一覧
+- `https://crypto-m1u2wjova-shingo-arais-projects.vercel.app/api/health` - ヘルスチェック
+- `https://crypto-m1u2wjova-shingo-arais-projects.vercel.app/api/auth/login` - ログイン
+- `https://crypto-m1u2wjova-shingo-arais-projects.vercel.app/api/strategies/` - 戦略一覧
+
+### デプロイ詳細
+- **ビルド時間**: ~1分30秒
+- **デプロイ成功率**: 100%
+- **最終デプロイ**: 2025-07-15 15:38 JST
+- **アクセス制限**: Vercel組織認証保護有効
 
 ---
 
@@ -210,7 +221,8 @@ requirements-backend.txt  # バックエンド専用依存関係
 2. **✅ 2025-07-15**: Supabase 統合完了  
 3. **✅ 2025-07-15**: 認証システム完了
 4. **✅ 2025-07-15**: 戦略 API 完了
-5. **✅ 2025-07-15**: Vercel デプロイ完了
+5. **✅ 2025-07-15**: Vercel 本番デプロイ完了
+6. **✅ 2025-07-15**: 包括的プロジェクトドキュメンテーション完了
 
 ---
 
