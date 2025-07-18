@@ -31,7 +31,7 @@ cp .env.example .env
 # - JWT_SECRET (ランダムな文字列)
 ```
 
-> 💡 **Supabase設定の詳細**: [SUPABASE_SETUP.md](../SUPABASE_SETUP.md)を参照
+> 💡 **Supabase設定の詳細**: [SUPABASE_SETUP.md](./SUPABASE_SETUP.md)を参照
 
 ### 3. バックエンドのセットアップ
 

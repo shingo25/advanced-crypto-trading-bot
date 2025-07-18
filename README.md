@@ -59,13 +59,17 @@ cd frontend && npm install && npm run dev
 
 ## 📖 ドキュメント
 
+**📚 [📋 完全ドキュメント集](./docs/README.md)** - すべてのドキュメントの総合インデックス
+
+### クイックアクセス
+
 | ドキュメント | 説明 |
 |-------------|------|
 | [🚀 Getting Started](./docs/GETTING_STARTED.md) | 5分で始める完全ガイド |
 | [🏗️ Architecture](./docs/ARCHITECTURE.md) | システム設計とアーキテクチャ |
-| [🗺️ Roadmap](./docs/PHASE2_ROADMAP.md) | Phase2-3の実装計画 |
+| [🗺️ Phase2 Roadmap](./docs/PHASE2_ROADMAP.md) | Phase2-3の実装計画 |
 | [📚 API Reference](./docs/API_REFERENCE.md) | 完全APIリファレンス |
-| [🔧 Development Guide](./CONTRIBUTING.md) | 開発ガイド |
+| [🔧 Contributing Guide](./docs/CONTRIBUTING.md) | 開発参加ガイド |
 
 ## 📊 プロジェクト構造
 
@@ -139,7 +143,7 @@ crypto-bot/
 
 1. **Issue報告**: [GitHub Issues](https://github.com/yourusername/advanced-crypto-trading-bot/issues)
 2. **機能提案**: [GitHub Discussions](https://github.com/yourusername/advanced-crypto-trading-bot/discussions)
-3. **プルリクエスト**: [Contributing Guide](./CONTRIBUTING.md)
+3. **プルリクエスト**: [Contributing Guide](./docs/CONTRIBUTING.md)
 
 ### 開発者向けクイックスタート
 
