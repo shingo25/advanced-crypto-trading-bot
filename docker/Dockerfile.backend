@@ -1,62 +1,84 @@
-# Stage 1: Build ta-lib C library from source
-FROM python:3.12-slim as builder
+#
+# --- Stage 1: Builder ---
+# TA-Libソースビルドとpythonパッケージのコンパイルステージ
+#
+FROM python:3.12-slim AS builder
 
-# Install build dependencies for ta-lib
+WORKDIR /app
+
+# ビルドに必要なツールをインストール
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    python3-dev \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Download and build ta-lib C library
-WORKDIR /tmp
+# TA-Libをソースからビルド・インストール
 RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
     tar -xzf ta-lib-0.4.0-src.tar.gz && \
-    cd ta-lib && \
-    ./configure --prefix=/usr/local && \
+    cd ta-lib/ && \
+    ./configure --prefix=/usr && \
     make && \
-    make install
+    make install && \
+    cd .. && \
+    rm -rf ta-lib ta-lib-0.4.0-src.tar.gz
 
-# Stage 2: Final application image
+# 仮想環境を作成してPythonパッケージをインストール
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# requirements.txtをコピーしてパッケージをインストール
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+
+#
+# --- Stage 2: Final ---
+# 実行環境のみのスリムなイメージ
+#
 FROM python:3.12-slim
 
 WORKDIR /app
 
-# Install runtime dependencies only
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# セキュリティのため非rootユーザーを作成
+RUN useradd --create-home --shell /bin/bash appuser
+
+# ヘルスチェック用にcurlのみインストール
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy compiled ta-lib library and headers from builder stage
-COPY --from=builder /usr/local/lib/ /usr/local/lib/
-COPY --from=builder /usr/local/include/ /usr/local/include/
+# TA-Libライブラリとヘッダーをbuilderからコピー
+COPY --from=builder /usr/lib/libta_lib* /usr/lib/
+COPY --from=builder /usr/include/ta-lib /usr/include/ta-lib
 
-# Register ta-lib library with system linker
-RUN echo "/usr/local/lib" > /etc/ld.so.conf.d/ta-lib.conf && ldconfig
+# builderステージから仮想環境をコピー
+COPY --from=builder /opt/venv /opt/venv
 
-# Copy requirements files
-COPY requirements.txt requirements-test.txt ./
+# アプリケーションコードをコピー（所有者をappuserに設定）
+COPY --chown=appuser:appuser backend/ ./backend/
+COPY --chown=appuser:appuser config/ ./config/
+COPY --chown=appuser:appuser scripts/ ./scripts/
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# 必要なディレクトリを作成して権限設定
+RUN mkdir -p /app/data /app/logs && \
+    chown -R appuser:appuser /app/data /app/logs
 
-# Copy backend source code
-COPY backend/ ./backend/
-COPY config/ ./config/
-COPY scripts/ ./scripts/
+# 非rootユーザーに切り替え
+USER appuser
 
-# Create necessary directories
-RUN mkdir -p /app/data /app/logs
-
-# Set environment variables
+# 環境変数を設定
+ENV PATH="/opt/venv/bin:$PATH"
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 
-# Expose port
+# ポートを公開
 EXPOSE 8000
 
-# Health check
+# ヘルスチェック
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Run the application
-CMD ["python", "-m", "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# アプリケーション起動
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
