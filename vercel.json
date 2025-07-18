@@ -1,16 +1,5 @@
 {
   "buildCommand": "cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/out",
-  "installCommand": "echo 'Skip install'",
-  "functions": {
-    "backend/main.py": {
-      "runtime": "python3.9"
-    }
-  },
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/backend/main.py"
-    }
-  ]
+  "installCommand": "echo 'Skip install'"
 }

@@ -1,0 +1,31 @@
+# CI/CD用の最小限の依存関係
+# 重いパッケージ (ta-lib, duckdb, freqtrade) は除外
+
+# Core Framework
+fastapi==0.109.0
+uvicorn==0.25.0
+python-multipart==0.0.6
+
+# Auth & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# Config & Utilities
+python-dotenv==1.0.0
+pydantic==2.5.3
+PyYAML==6.0.1
+click==8.1.7
+
+# Database (lightweight)
+sqlalchemy==2.0.25
+asyncpg==0.29.0
+
+# Basic Data Processing
+numpy==1.26.3
+
+# Async & Networking
+httpx==0.26.0
+tenacity==8.2.3
+
+# Logging
+loguru==0.7.2
