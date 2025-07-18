@@ -1,26 +1,37 @@
-# Backend Dockerfile for crypto trading bot
-FROM python:3.12-slim
+# Stage 1: Build ta-lib C library from source
+FROM python:3.12-slim as builder
 
-WORKDIR /app
-
-# Install system dependencies for ta-lib and others
+# Install build dependencies for ta-lib
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     wget \
-    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install ta-lib C library
+# Download and build ta-lib C library
 WORKDIR /tmp
 RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
     tar -xzf ta-lib-0.4.0-src.tar.gz && \
     cd ta-lib && \
-    ./configure --prefix=/usr && \
+    ./configure --prefix=/usr/local && \
     make && \
-    make install && \
-    rm -rf /tmp/*
+    make install
+
+# Stage 2: Final application image
+FROM python:3.12-slim
 
 WORKDIR /app
+
+# Install runtime dependencies only
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy compiled ta-lib library and headers from builder stage
+COPY --from=builder /usr/local/lib/ /usr/local/lib/
+COPY --from=builder /usr/local/include/ /usr/local/include/
+
+# Register ta-lib library with system linker
+RUN echo "/usr/local/lib" > /etc/ld.so.conf.d/ta-lib.conf && ldconfig
 
 # Copy requirements files
 COPY requirements.txt requirements-test.txt ./
