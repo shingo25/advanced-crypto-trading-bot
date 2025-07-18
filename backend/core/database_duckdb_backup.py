@@ -197,13 +197,16 @@ def get_user_by_id(user_id: int) -> Optional[Dict[str, Any]]:
 
 def create_user(
     username: str, password_hash: str, role: str = "viewer"
-) -> Dict[str, Any]:
+) -> Optional[Dict[str, Any]]:
     """ユーザーを作成"""
     db.execute(
         "INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)",
         [username, password_hash, role],
     )
-    return get_user_by_username(username)
+    user = get_user_by_username(username)
+    if user is None:
+        raise ValueError(f"Failed to create user: {username}")
+    return user
 
 
 def update_user(user_id: int, **kwargs) -> Optional[Dict[str, Any]]:

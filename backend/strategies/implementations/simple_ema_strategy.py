@@ -1,4 +1,4 @@
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 import logging
 
 from ..base import BaseStrategy, Signal
@@ -14,7 +14,7 @@ class SimpleEMAStrategy(BaseStrategy):
         name: str = "Simple EMA Strategy",
         symbol: str = "BTCUSDT",
         timeframe: str = "1h",
-        parameters: Dict[str, Any] = None,
+        parameters: Optional[Dict[str, Any]] = None,
     ):
         # デフォルトパラメータ
         default_params = {
@@ -31,9 +31,9 @@ class SimpleEMAStrategy(BaseStrategy):
         super().__init__(name, symbol, timeframe, default_params)
 
         # シンプルなデータ保存用
-        self.price_data = []
-        self.ema_fast_values = []
-        self.ema_slow_values = []
+        self.price_data: List[float] = []
+        self.ema_fast_values: List[float] = []
+        self.ema_slow_values: List[float] = []
 
         logger.info(
             f"Simple EMA Strategy initialized: fast={self.parameters['ema_fast']}, slow={self.parameters['ema_slow']}"
@@ -79,7 +79,7 @@ class SimpleEMAStrategy(BaseStrategy):
 
     def generate_signals(self, data) -> List[Signal]:
         """売買シグナルを生成"""
-        signals = []
+        signals: List[Signal] = []
 
         if not data or len(data) < self.parameters["required_data_length"]:
             return signals

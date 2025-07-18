@@ -95,9 +95,9 @@ class GlassnodeClient:
         params = {"a": symbol, "f": "JSON", "i": "1h"}
 
         if since:
-            params["s"] = int(since.timestamp())
+            params["s"] = str(int(since.timestamp()))
         if until:
-            params["u"] = int(until.timestamp())
+            params["u"] = str(int(until.timestamp()))
 
         try:
             # 実際のエンドポイントは複数の指標から合成
@@ -142,9 +142,9 @@ class GlassnodeClient:
         params = {"a": symbol, "f": "JSON", "i": "24h"}
 
         if since:
-            params["s"] = int(since.timestamp())
+            params["s"] = str(int(since.timestamp()))
         if until:
-            params["u"] = int(until.timestamp())
+            params["u"] = str(int(until.timestamp()))
 
         try:
             nvt_data = await self._make_request("indicators/nvt", params)
@@ -182,9 +182,9 @@ class GlassnodeClient:
         params = {"a": symbol, "f": "JSON", "i": "24h"}
 
         if since:
-            params["s"] = int(since.timestamp())
+            params["s"] = str(int(since.timestamp()))
         if until:
-            params["u"] = int(until.timestamp())
+            params["u"] = str(int(until.timestamp()))
 
         try:
             nupl_data = await self._make_request("indicators/nupl", params)
@@ -365,7 +365,7 @@ class OnChainDataCollector:
         logger.info("OnChain data tables created")
 
     async def collect_whale_flows(
-        self, symbols: List[str] = None, since: Optional[datetime] = None
+        self, symbols: Optional[List[str]] = None, since: Optional[datetime] = None
     ) -> Dict[str, List[WhaleFlowData]]:
         """ホエールフローデータを収集"""
         if not self.glassnode_client:
@@ -393,7 +393,7 @@ class OnChainDataCollector:
         return results
 
     async def collect_nvt_data(
-        self, symbols: List[str] = None, since: Optional[datetime] = None
+        self, symbols: Optional[List[str]] = None, since: Optional[datetime] = None
     ) -> Dict[str, List[NVTData]]:
         """NVTデータを収集"""
         if not self.glassnode_client:
@@ -421,7 +421,7 @@ class OnChainDataCollector:
         return results
 
     async def collect_miner_outflows(
-        self, symbols: List[str] = None, since: Optional[datetime] = None
+        self, symbols: Optional[List[str]] = None, since: Optional[datetime] = None
     ) -> Dict[str, List[MinerOutflowData]]:
         """マイナーアウトフローデータを収集"""
         if not self.cryptoquant_client:

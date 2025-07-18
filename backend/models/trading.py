@@ -38,8 +38,8 @@ class StrategiesModel:
         self,
         user_id: str,
         name: str,
-        description: str = None,
-        parameters: Dict[str, Any] = None,
+        description: Optional[str] = None,
+        parameters: Optional[Dict[str, Any]] = None,
         is_active: bool = False,
     ) -> Optional[Dict[str, Any]]:
         """新しい戦略を作成"""
@@ -84,10 +84,10 @@ class StrategiesModel:
             logger.error(f"戦略無効化エラー (ID: {strategy_id}): {e}")
             return False
 
-    def get_active_strategies(self, user_id: str = None) -> List[Dict[str, Any]]:
+    def get_active_strategies(self, user_id: Optional[str] = None) -> List[Dict[str, Any]]:
         """アクティブな戦略を取得"""
         try:
-            filters = {"is_active": True}
+            filters: Dict[str, Any] = {"is_active": True}
             if user_id:
                 filters["user_id"] = user_id
             return self.table.select("*", **filters)
@@ -137,9 +137,9 @@ class TradesModel:
         amount: float,
         price: float,
         exchange_id: str,
-        strategy_id: str = None,
-        order_id: str = None,
-        fee: float = None,
+        strategy_id: Optional[str] = None,
+        order_id: Optional[str] = None,
+        fee: Optional[float] = None,
     ) -> Optional[Dict[str, Any]]:
         """新しい取引を記録"""
         try:

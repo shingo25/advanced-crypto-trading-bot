@@ -149,15 +149,15 @@ async def update_strategy(
             raise HTTPException(status_code=403, detail="Access denied")
 
         # 更新データを準備
-        updates = {}
+        updates: Dict[str, Any] = {}
         if strategy_update.name is not None:
             updates["name"] = strategy_update.name
         if strategy_update.description is not None:
             updates["description"] = strategy_update.description
         if strategy_update.parameters is not None:
-            updates["parameters"] = strategy_update.parameters
+            updates["parameters"] = dict(strategy_update.parameters)
         if strategy_update.is_active is not None:
-            updates["is_active"] = strategy_update.is_active
+            updates["is_active"] = bool(strategy_update.is_active)
 
         if not updates:
             # 変更がない場合は既存の戦略を返す

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Any, List, Optional, Union
+from __future__ import annotations
 
 try:
     import pandas as pd
@@ -47,7 +48,7 @@ class BaseStrategy(ABC):
         name: str,
         symbol: str = "BTCUSDT",
         timeframe: str = "1h",
-        parameters: Dict[str, Any] = None,
+        parameters: Optional[Dict[str, Any]] = None,
     ):
         self.name = name
         self.symbol = symbol
@@ -58,7 +59,7 @@ class BaseStrategy(ABC):
         self.state = StrategyState()
 
         # 履歴データ
-        self.data = [] if not HAS_PANDAS else pd.DataFrame()
+        self.data: Union[List[Any], Any] = [] if not HAS_PANDAS else pd.DataFrame()
         self.signals: List[Signal] = []
 
         # パフォーマンス追跡
@@ -99,9 +100,12 @@ class BaseStrategy(ABC):
         if len(self.data) == 0:
             self.data = pd.DataFrame([new_row])
         else:
-            self.data = pd.concat(
-                [self.data, pd.DataFrame([new_row])], ignore_index=True
-            )
+            if hasattr(self.data, 'tail'):
+                self.data = pd.concat(
+                    [self.data, pd.DataFrame([new_row])], ignore_index=True
+                )
+            else:
+                self.data = pd.DataFrame([new_row])
 
         # 最新の一定期間のデータのみを保持
         max_length = self.parameters.get("max_history_length", 1000)
@@ -142,7 +146,7 @@ class BaseStrategy(ABC):
             self.state.entry_time = timestamp
 
         elif action == "exit_long":
-            if self.state.is_long:
+            if self.state.is_long and self.state.entry_price is not None:
                 pnl = (price - self.state.entry_price) * 1.0  # 簡略化
                 self._update_trade_stats(pnl)
                 self.state.is_long = False
@@ -156,7 +160,7 @@ class BaseStrategy(ABC):
             self.state.entry_time = timestamp
 
         elif action == "exit_short":
-            if self.state.is_short:
+            if self.state.is_short and self.state.entry_price is not None:
                 pnl = (self.state.entry_price - price) * 1.0  # 簡略化
                 self._update_trade_stats(pnl)
                 self.state.is_short = False
@@ -237,8 +241,11 @@ class TechnicalIndicators:
                     result.append(avg)
             return result
 
-        # pandas版は元のまま
-        return data.rolling(window=period).mean()
+        # pandas版は元のまま（pandasがある場合のみ）
+        if hasattr(data, 'rolling'):
+            return data.rolling(window=period).mean()
+        else:
+            return data
 
     @staticmethod
     def ema(data: Union[List[float], Any], period: int) -> Union[List[float], Any]:
@@ -262,8 +269,11 @@ class TechnicalIndicators:
 
             return result
 
-        # pandas版は元のまま
-        return data.ewm(span=period).mean()
+        # pandas版は元のまま（pandasがある場合のみ）
+        if hasattr(data, 'ewm'):
+            return data.ewm(span=period).mean()
+        else:
+            return data
 
     @staticmethod
     def rsi(data: List[float], period: int = 14) -> List[float]:
@@ -281,12 +291,14 @@ class TechnicalIndicators:
                 change = data[i] - data[i - 1]
                 if change > 0:
                     gains.append(change)
-                    losses.append(0)
+                    losses.append(0.0)
                 else:
-                    gains.append(0)
+                    gains.append(0.0)
                     losses.append(abs(change))
 
             # RSIを計算
+            avg_gain = 0.0
+            avg_loss = 0.0
             for i in range(period - 1, len(gains)):
                 if i == period - 1:
                     avg_gain = sum(gains[:period]) / period
@@ -296,27 +308,30 @@ class TechnicalIndicators:
                     avg_loss = (avg_loss * (period - 1) + losses[i]) / period
 
                 if avg_loss == 0:
-                    rsi_val = 100
+                    rsi_val = 100.0
                 else:
                     rs = avg_gain / avg_loss
-                    rsi_val = 100 - (100 / (1 + rs))
+                    rsi_val = 100.0 - (100.0 / (1 + rs))
 
                 result.append(rsi_val)
 
             return result
 
         # pandas版は元のまま
-        delta = data.diff()
-        gain = delta.where(delta > 0, 0)
-        loss = -delta.where(delta < 0, 0)
+        if HAS_PANDAS and hasattr(data, 'diff'):
+            delta = data.diff()
+            gain = delta.where(delta > 0, 0)
+            loss = -delta.where(delta < 0, 0)
 
-        avg_gain = gain.rolling(window=period).mean()
-        avg_loss = loss.rolling(window=period).mean()
+            avg_gain = gain.rolling(window=period).mean()
+            avg_loss = loss.rolling(window=period).mean()
 
-        rs = avg_gain / avg_loss
-        rsi = 100 - (100 / (1 + rs))
+            rs = avg_gain / avg_loss
+            rsi = 100 - (100 / (1 + rs))
 
-        return rsi
+            return rsi
+        else:
+            return [0.0] * len(data)
 
     @staticmethod
     def macd(
@@ -334,14 +349,17 @@ class TechnicalIndicators:
             return {"macd": macd_line, "signal": signal_line, "histogram": histogram}
 
         # pandas版は元のまま
-        ema_fast = TechnicalIndicators.ema(data, fast)
-        ema_slow = TechnicalIndicators.ema(data, slow)
+        if HAS_PANDAS and hasattr(data, 'ewm'):
+            ema_fast = TechnicalIndicators.ema(data, fast)
+            ema_slow = TechnicalIndicators.ema(data, slow)
 
-        macd_line = ema_fast - ema_slow
-        signal_line = TechnicalIndicators.ema(macd_line, signal)
-        histogram = macd_line - signal_line
+            macd_line = ema_fast - ema_slow
+            signal_line = TechnicalIndicators.ema(macd_line, signal)
+            histogram = macd_line - signal_line
 
-        return {"macd": macd_line, "signal": signal_line, "histogram": histogram}
+            return {"macd": macd_line, "signal": signal_line, "histogram": histogram}
+        else:
+            return {"macd": [0.0] * len(data), "signal": [0.0] * len(data), "histogram": [0.0] * len(data)}
 
     @staticmethod
     def bollinger_bands(
@@ -372,13 +390,16 @@ class TechnicalIndicators:
             return {"sma": sma_values, "upper": upper_band, "lower": lower_band}
 
         # pandas版は元のまま
-        sma = TechnicalIndicators.sma(data, period)
-        std = data.rolling(window=period).std()
+        if HAS_PANDAS and hasattr(data, 'rolling'):
+            sma = TechnicalIndicators.sma(data, period)
+            std = data.rolling(window=period).std()
 
-        upper_band = sma + (std * std_dev)
-        lower_band = sma - (std * std_dev)
+            upper_band = sma + (std * std_dev)
+            lower_band = sma - (std * std_dev)
 
-        return {"sma": sma, "upper": upper_band, "lower": lower_band}
+            return {"sma": sma, "upper": upper_band, "lower": lower_band}
+        else:
+            return {"sma": [0.0] * len(data), "upper": [0.0] * len(data), "lower": [0.0] * len(data)}
 
 
 class StrategyValidator:

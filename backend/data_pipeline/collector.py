@@ -97,7 +97,7 @@ class DataCollector:
 
             except Exception as e:
                 logger.error(f"Error collecting funding rate for {symbol}: {e}")
-                funding_rates[symbol] = None
+                funding_rates[symbol] = {"error": str(e)}
 
         return funding_rates
 
@@ -118,7 +118,7 @@ class DataCollector:
 
             except Exception as e:
                 logger.error(f"Error collecting open interest for {symbol}: {e}")
-                open_interests[symbol] = None
+                open_interests[symbol] = {"error": str(e)}
 
         return open_interests
 
@@ -129,7 +129,7 @@ class DataCollector:
         since: Optional[datetime] = None,
     ) -> Dict[str, Dict[str, List[OHLCV]]]:
         """複数シンボル・時間枠のOHLCVデータを並列収集"""
-        results = {}
+        results: Dict[str, Dict[str, List[OHLCV]]] = {}
 
         # 並列実行用のタスクを作成
         tasks = []

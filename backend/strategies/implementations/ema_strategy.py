@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 import logging
 
 from ..base import BaseStrategy, Signal, TechnicalIndicators
@@ -21,7 +21,7 @@ class EMAStrategy(BaseStrategy):
         name: str = "EMA Strategy",
         symbol: str = "BTCUSDT",
         timeframe: str = "1h",
-        parameters: Dict[str, Any] = None,
+        parameters: Optional[Dict[str, Any]] = None,
     ):
         # デフォルトパラメータ
         default_params = {
@@ -97,7 +97,7 @@ class EMAStrategy(BaseStrategy):
     def generate_signals(self, data: pd.DataFrame) -> List[Signal]:
         """売買シグナルを生成"""
 
-        signals = []
+        signals: List[Signal] = []
 
         if len(data) < self.parameters["required_data_length"]:
             return signals
@@ -222,7 +222,14 @@ class EMAStrategy(BaseStrategy):
         if len(self.data) < self.parameters["required_data_length"]:
             return {"status": "insufficient_data"}
 
-        current = self.data.iloc[-1]
+        # pandas DataFrameの場合の処理
+        if hasattr(self.data, 'iloc'):
+            current = self.data.iloc[-1]
+        else:
+            # リストの場合の処理
+            current = self.data[-1] if self.data else None
+            if current is None:
+                return {"status": "insufficient_data"}
 
         analysis = {
             "timestamp": current["timestamp"],
@@ -356,13 +363,13 @@ class EMAStrategy(BaseStrategy):
         if not returns:
             return 0.0
 
-        returns = np.array(returns)
+        returns_array = np.array(returns)
 
         if metric == "sharpe_ratio":
-            return np.mean(returns) / np.std(returns) if np.std(returns) > 0 else 0.0
+            return float(np.mean(returns_array) / np.std(returns_array) if np.std(returns_array) > 0 else 0.0)
         elif metric == "total_return":
-            return np.sum(returns)
+            return float(np.sum(returns_array))
         elif metric == "win_rate":
-            return np.mean(returns > 0)
+            return float(np.mean(returns_array > 0))
         else:
-            return np.mean(returns) / np.std(returns) if np.std(returns) > 0 else 0.0
+            return float(np.mean(returns_array) / np.std(returns_array) if np.std(returns_array) > 0 else 0.0)

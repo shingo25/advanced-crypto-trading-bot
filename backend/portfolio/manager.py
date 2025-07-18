@@ -100,7 +100,7 @@ class Portfolio:
 
     def get_rebalance_suggestions(self) -> List[Dict[str, Any]]:
         """リバランス提案を取得"""
-        suggestions = []
+        suggestions: List[Dict[str, Any]] = []
 
         if self.total_value < self.min_trade_amount:
             return suggestions
@@ -195,7 +195,7 @@ class PortfolioManager:
         logger.info("PortfolioManager initialized")
 
     def create_portfolio(
-        self, name: str, initial_allocation: Dict[str, float] = None
+        self, name: str, initial_allocation: Optional[Dict[str, float]] = None
     ) -> Portfolio:
         """ポートフォリオを作成"""
         portfolio = Portfolio(name=name)
