@@ -354,9 +354,19 @@ class TechnicalIndicators:
             ema_fast = TechnicalIndicators.ema(data, fast)
             ema_slow = TechnicalIndicators.ema(data, slow)
 
-            macd_line = ema_fast - ema_slow
-            signal_line = TechnicalIndicators.ema(macd_line, signal)
-            histogram = macd_line - signal_line
+            # 型安全な計算のため、リストの場合は要素ごとに計算
+            if isinstance(ema_fast, list) and isinstance(ema_slow, list):
+                macd_line = [f - s for f, s in zip(ema_fast, ema_slow)]
+                signal_line = TechnicalIndicators.ema(macd_line, signal)
+                if isinstance(signal_line, list):
+                    histogram = [m - s for m, s in zip(macd_line, signal_line)]
+                else:
+                    histogram = [0.0] * len(macd_line)
+            else:
+                # pandas Series の場合
+                macd_line = ema_fast - ema_slow  # type: ignore
+                signal_line = TechnicalIndicators.ema(macd_line, signal)
+                histogram = macd_line - signal_line  # type: ignore
 
             return {"macd": macd_line, "signal": signal_line, "histogram": histogram}
         else:
