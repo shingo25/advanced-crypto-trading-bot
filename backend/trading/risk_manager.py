@@ -244,9 +244,7 @@ class RiskManager:
             ]
 
             if len(similar_positions) > 3:  # 3つ以上の類似ポジション
-                logger.warning(
-                    "Correlation limit exceeded: too many similar positions"
-                )
+                logger.warning("Correlation limit exceeded: too many similar positions")
                 self.stats["correlation_violations"] += 1
                 return False
 

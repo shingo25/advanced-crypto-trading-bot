@@ -80,7 +80,7 @@ describe('Auth Store', () => {
     // TODO: Fix this test - mocking API functions is complex
     // Mock localStorage
     const mockToken = 'stored-token';
-    
+
     Object.defineProperty(window, 'localStorage', {
       value: {
         getItem: jest.fn().mockReturnValue(mockToken),
