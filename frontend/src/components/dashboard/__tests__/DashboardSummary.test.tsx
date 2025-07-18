@@ -19,13 +19,13 @@ const mockSummary = {
   active_orders: 1,
   portfolio: {
     assets: {
-      'BTCUSDT': {
+      BTCUSDT: {
         balance: 0.5,
         market_value: 25000,
         actual_weight: 0.5,
-        target_weight: 0.4
-      }
-    }
+        target_weight: 0.4,
+      },
+    },
   },
   recent_trades: [
     {
@@ -34,9 +34,9 @@ const mockSummary = {
       amount: 0.1,
       price: 50000,
       pnl: 100,
-      timestamp: '2023-01-01T00:00:00Z'
-    }
-  ]
+      timestamp: '2023-01-01T00:00:00Z',
+    },
+  ],
 };
 
 describe('DashboardSummary', () => {
@@ -45,7 +45,7 @@ describe('DashboardSummary', () => {
       summary: mockSummary,
       fetchSummary: jest.fn(),
       fetchPerformanceData: jest.fn(),
-      performanceData: null
+      performanceData: null,
     });
   });
 
@@ -71,7 +71,7 @@ describe('DashboardSummary', () => {
       summary: null,
       fetchSummary: jest.fn(),
       fetchPerformanceData: jest.fn(),
-      performanceData: null
+      performanceData: null,
     });
 
     render(

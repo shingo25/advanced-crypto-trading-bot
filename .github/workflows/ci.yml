@@ -58,7 +58,8 @@ jobs:
       - name: 📦 Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libta-lib-dev
+          sudo apt-get install -y build-essential
+          # Skip ta-lib installation for CI/CD - use requirements-minimal.txt instead
 
       - name: 📦 Install dependencies
         run: |
@@ -125,10 +126,10 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: 📦 Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: 🎨 Code formatting check (Prettier)
-        run: npx prettier --check .
+        run: npx prettier --check . --ignore-path .gitignore
 
       - name: 📝 Lint check (ESLint)
         run: npm run lint
@@ -200,8 +201,8 @@ jobs:
 
       - name: 📦 Install dependencies
         run: |
-          pip install -r requirements.txt
-          cd frontend && npm ci
+          pip install -r requirements-minimal.txt
+          cd frontend && npm install
 
       - name: 🌐 Run E2E tests
         run: |

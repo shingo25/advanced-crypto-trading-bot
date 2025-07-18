@@ -20,20 +20,15 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
 } from '@mui/material';
-import {
-  PlayArrow,
-  Stop,
-  Settings,
-  TrendingUp,
-  TrendingDown
-} from '@mui/icons-material';
+import { PlayArrow, Stop, Settings, TrendingUp, TrendingDown } from '@mui/icons-material';
 import { useStrategyStore } from '@/store/strategies';
 import type { Strategy } from '@/types/api';
 
 export default function StrategyList() {
-  const { strategies, fetchStrategies, startStrategy, stopStrategy, isLoading, error } = useStrategyStore();
+  const { strategies, fetchStrategies, startStrategy, stopStrategy, isLoading, error } =
+    useStrategyStore();
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     strategy: Strategy | null;
@@ -48,7 +43,7 @@ export default function StrategyList() {
     return new Intl.NumberFormat('ja-JP', {
       style: 'percent',
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     }).format(value);
   };
 
@@ -82,7 +77,7 @@ export default function StrategyList() {
     setConfirmDialog({
       open: true,
       strategy,
-      action: strategy.status === 'running' ? 'stop' : 'start'
+      action: strategy.status === 'running' ? 'stop' : 'start',
     });
   };
 
@@ -180,7 +175,9 @@ export default function StrategyList() {
                       )}
                       <Typography
                         variant="body2"
-                        color={strategy.performance.total_return > 0 ? 'success.main' : 'error.main'}
+                        color={
+                          strategy.performance.total_return > 0 ? 'success.main' : 'error.main'
+                        }
                         fontWeight="bold"
                       >
                         {formatPercent(strategy.performance.total_return)}
@@ -203,9 +200,7 @@ export default function StrategyList() {
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2">
-                      {strategy.performance.total_trades}
-                    </Typography>
+                    <Typography variant="body2">{strategy.performance.total_trades}</Typography>
                   </TableCell>
                   <TableCell>
                     <Box sx={{ display: 'flex', gap: 1 }}>
@@ -230,15 +225,8 @@ export default function StrategyList() {
       </Paper>
 
       {/* 確認ダイアログ */}
-      <Dialog
-        open={confirmDialog.open}
-        onClose={handleCancelAction}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>
-          戦略{confirmDialog.action === 'start' ? '開始' : '停止'}の確認
-        </DialogTitle>
+      <Dialog open={confirmDialog.open} onClose={handleCancelAction} maxWidth="sm" fullWidth>
+        <DialogTitle>戦略{confirmDialog.action === 'start' ? '開始' : '停止'}の確認</DialogTitle>
         <DialogContent>
           <Typography>
             戦略「{confirmDialog.strategy?.name}」を
@@ -246,9 +234,7 @@ export default function StrategyList() {
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCancelAction}>
-            キャンセル
-          </Button>
+          <Button onClick={handleCancelAction}>キャンセル</Button>
           <Button
             onClick={handleConfirmAction}
             variant="contained"

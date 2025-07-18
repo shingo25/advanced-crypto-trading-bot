@@ -8,7 +8,7 @@ interface DashboardState {
   isLoading: boolean;
   error: string | null;
   lastUpdated: Date | null;
-  
+
   // アクション
   fetchSummary: () => Promise<void>;
   fetchPerformanceData: (period?: string) => Promise<void>;
@@ -25,19 +25,19 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
 
   fetchSummary: async () => {
     set({ isLoading: true, error: null });
-    
+
     try {
       const summary = await dashboardApi.getSummary();
       set({
         summary,
         isLoading: false,
         error: null,
-        lastUpdated: new Date()
+        lastUpdated: new Date(),
       });
     } catch (error: any) {
       set({
         isLoading: false,
-        error: error.response?.data?.detail || 'データの取得に失敗しました'
+        error: error.response?.data?.detail || 'データの取得に失敗しました',
       });
     }
   },
@@ -49,7 +49,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     } catch (error: any) {
       console.error('Performance data fetch error:', error);
       set({
-        error: error.response?.data?.detail || 'パフォーマンスデータの取得に失敗しました'
+        error: error.response?.data?.detail || 'パフォーマンスデータの取得に失敗しました',
       });
     }
   },
@@ -59,12 +59,12 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     if (currentSummary) {
       set({
         summary: { ...currentSummary, ...data },
-        lastUpdated: new Date()
+        lastUpdated: new Date(),
       });
     }
   },
 
   clearError: () => {
     set({ error: null });
-  }
+  },
 }));

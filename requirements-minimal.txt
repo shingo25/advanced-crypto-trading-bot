@@ -30,6 +30,7 @@ numpy==1.26.3
 # Trading & Market Data (basic only)
 ccxt==4.2.25
 ta==0.11.0
+# ta-lib excluded for CI/CD - use in production only
 
 # Async & Networking
 httpx==0.26.0

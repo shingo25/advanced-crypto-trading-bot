@@ -20,7 +20,7 @@ describe('Auth Store', () => {
 
   it('initializes with default state', () => {
     const { user, isAuthenticated, loading, error } = useAuthStore.getState();
-    
+
     expect(user).toBeNull();
     expect(isAuthenticated).toBeFalsy();
     expect(loading).toBeFalsy();
@@ -31,7 +31,7 @@ describe('Auth Store', () => {
     const mockUser = { username: 'testuser' };
     mockAuthApi.login.mockResolvedValueOnce({
       user: mockUser,
-      token: 'test-token'
+      token: 'test-token',
     });
 
     const { login } = useAuthStore.getState();
@@ -59,7 +59,7 @@ describe('Auth Store', () => {
     // Set initial authenticated state
     useAuthStore.setState({
       user: { username: 'testuser' },
-      isAuthenticated: true
+      isAuthenticated: true,
     });
 
     const { logout } = useAuthStore.getState();
@@ -74,14 +74,14 @@ describe('Auth Store', () => {
     // Mock localStorage
     const mockToken = 'stored-token';
     const mockUser = { username: 'stored-user' };
-    
+
     Object.defineProperty(window, 'localStorage', {
       value: {
         getItem: jest.fn().mockReturnValue(mockToken),
         setItem: jest.fn(),
         removeItem: jest.fn(),
       },
-      writable: true
+      writable: true,
     });
 
     mockAuthApi.verify.mockResolvedValueOnce(mockUser);

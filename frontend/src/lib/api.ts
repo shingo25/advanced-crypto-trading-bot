@@ -1,20 +1,20 @@
 import axios from 'axios';
-import type { 
-  Strategy, 
-  Portfolio, 
-  Position, 
-  Order, 
-  Alert, 
+import type {
+  Strategy,
+  Portfolio,
+  Position,
+  Order,
+  Alert,
   DashboardSummary,
   PerformanceData,
   AuthResponse,
-  ApiError 
+  ApiError,
 } from '@/types/api';
-import { 
-  mockDashboardSummary, 
-  mockStrategies, 
-  generateMockPerformanceData, 
-  shouldUseMockData 
+import {
+  mockDashboardSummary,
+  mockStrategies,
+  generateMockPerformanceData,
+  shouldUseMockData,
 } from '@/lib/mockData';
 
 // API設定
@@ -66,9 +66,9 @@ export const authApi = {
     try {
       const response = await apiClient.post('/api/auth/login', {
         username,
-        password
+        password,
       });
-      
+
       setAuthenticatedState(true);
       return response.data;
     } catch (error) {
@@ -100,7 +100,7 @@ export const authApi = {
       clearAuthenticatedState();
       throw error;
     }
-  }
+  },
 };
 
 // ダッシュボードAPI
@@ -109,7 +109,7 @@ export const dashboardApi = {
     if (shouldUseMockData()) {
       return mockDashboardSummary;
     }
-    
+
     try {
       const response = await apiClient.get('/api/dashboard/summary');
       return response.data;
@@ -123,7 +123,7 @@ export const dashboardApi = {
     if (shouldUseMockData()) {
       return generateMockPerformanceData();
     }
-    
+
     try {
       const response = await apiClient.get(`/api/performance/history?period=${period}`);
       return response.data;
@@ -131,7 +131,7 @@ export const dashboardApi = {
       console.warn('API call failed, using mock data for performance history');
       return generateMockPerformanceData();
     }
-  }
+  },
 };
 
 // 戦略API
@@ -140,7 +140,7 @@ export const strategyApi = {
     if (shouldUseMockData()) {
       return mockStrategies;
     }
-    
+
     try {
       const response = await apiClient.get('/api/strategies');
       return response.data;
@@ -152,13 +152,13 @@ export const strategyApi = {
 
   async getStrategy(id: string): Promise<Strategy> {
     if (shouldUseMockData()) {
-      const strategy = mockStrategies.find(s => s.id === id);
+      const strategy = mockStrategies.find((s) => s.id === id);
       if (!strategy) {
         throw new Error(`Strategy with id ${id} not found`);
       }
       return strategy;
     }
-    
+
     const response = await apiClient.get(`/api/strategies/${id}`);
     return response.data;
   },
@@ -166,35 +166,35 @@ export const strategyApi = {
   async startStrategy(id: string): Promise<void> {
     if (shouldUseMockData()) {
       console.log(`Mock: Starting strategy ${id}`);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       return;
     }
-    
+
     await apiClient.post(`/api/strategies/${id}/start`);
   },
 
   async stopStrategy(id: string): Promise<void> {
     if (shouldUseMockData()) {
       console.log(`Mock: Stopping strategy ${id}`);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       return;
     }
-    
+
     await apiClient.post(`/api/strategies/${id}/stop`);
   },
 
   async updateStrategy(id: string, data: Partial<Strategy>): Promise<Strategy> {
     if (shouldUseMockData()) {
-      const strategy = mockStrategies.find(s => s.id === id);
+      const strategy = mockStrategies.find((s) => s.id === id);
       if (!strategy) {
         throw new Error(`Strategy with id ${id} not found`);
       }
       return { ...strategy, ...data };
     }
-    
+
     const response = await apiClient.put(`/api/strategies/${id}`, data);
     return response.data;
-  }
+  },
 };
 
 // ポートフォリオAPI
@@ -212,7 +212,7 @@ export const portfolioApi = {
   async getOrders(): Promise<Order[]> {
     const response = await apiClient.get('/api/orders');
     return response.data;
-  }
+  },
 };
 
 // アラートAPI
@@ -228,7 +228,7 @@ export const alertApi = {
 
   async acknowledgeAllAlerts(): Promise<void> {
     await apiClient.post('/api/alerts/acknowledge-all');
-  }
+  },
 };
 
 // WebSocket管理
@@ -284,8 +284,10 @@ export class WebSocketManager {
   private attemptReconnect(onMessage: (data: any) => void, onError?: (error: Event) => void) {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
-      console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
-      
+      console.log(
+        `Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})`
+      );
+
       setTimeout(() => {
         this.connect(onMessage, onError);
       }, this.reconnectDelay * this.reconnectAttempts);

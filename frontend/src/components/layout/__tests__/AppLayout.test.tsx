@@ -17,7 +17,7 @@ describe('AppLayout', () => {
       logout: jest.fn(),
       initialize: jest.fn(),
       loading: false,
-      error: null
+      error: null,
     });
   });
 
