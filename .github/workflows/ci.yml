@@ -64,7 +64,7 @@ jobs:
       - name: 📦 Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements-ci.txt
+          pip install -r requirements-test.txt
           pip install -r requirements-dev.txt
 
       - name: 🎨 Code formatting check (Ruff)
@@ -92,9 +92,9 @@ jobs:
         run: |
           pip install pip-audit
           # JSONレポート生成（警告モード）
-          pip-audit --requirement requirements-ci.txt --requirement requirements-dev.txt --format json --output pip-audit-report.json --exit-zero || echo "JSON report generated with vulnerabilities"
+          pip-audit --requirement requirements-test.txt --requirement requirements-dev.txt --format json --output pip-audit-report.json --exit-zero || echo "JSON report generated with vulnerabilities"
           # MVP段階: 警告モードで実行（CI/CDを止めない）
-          pip-audit --requirement requirements-ci.txt --requirement requirements-dev.txt --exit-zero || echo "⚠️ Vulnerabilities detected - tracking as technical debt"
+          pip-audit --requirement requirements-test.txt --requirement requirements-dev.txt --exit-zero || echo "⚠️ Vulnerabilities detected - tracking as technical debt"
 
       - name: 🧪 Run unit tests
         run: |
