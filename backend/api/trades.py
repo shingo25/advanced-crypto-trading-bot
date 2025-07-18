@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 from backend.core.security import get_current_user
-from backend.core.database import db
+from backend.core.database import get_db
 import json
 import logging
 
@@ -75,9 +75,10 @@ async def get_trades(
     current_user: dict = Depends(get_current_user),
 ):
     """取引履歴を取得"""
+    db = get_db()
     query = """
-        SELECT id, strategy_id, symbol, side, price, amount, fee, 
-               realized_pnl, timestamp 
+        SELECT id, strategy_id, symbol, side, price, amount, fee,
+               realized_pnl, timestamp
         FROM trades
     """
     params = []
@@ -111,8 +112,9 @@ async def get_positions(
     strategy_id: Optional[int] = None, current_user: dict = Depends(get_current_user)
 ):
     """ポジション一覧を取得"""
+    db = get_db()
     query = """
-        SELECT id, strategy_id, symbol, side, entry_price, amount, 
+        SELECT id, strategy_id, symbol, side, entry_price, amount,
                unrealized_pnl, opened_at, closed_at
         FROM positions
     """

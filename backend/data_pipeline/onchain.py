@@ -7,7 +7,7 @@ import logging
 from pathlib import Path
 
 from backend.core.config import settings
-from backend.core.database import db
+from backend.core.database import get_db
 
 logger = logging.getLogger(__name__)
 
@@ -359,6 +359,7 @@ class OnChainDataCollector:
             """,
         ]
 
+        db = get_db()
         for table_sql in tables:
             db.execute(table_sql)
 
@@ -450,12 +451,13 @@ class OnChainDataCollector:
 
     async def _save_whale_flows_to_db(self, whale_flows: List[WhaleFlowData]):
         """ホエールフローデータをデータベースに保存"""
+        db = get_db()
         for flow in whale_flows:
             try:
                 db.execute(
                     """
-                    INSERT OR REPLACE INTO whale_flows 
-                    (timestamp, symbol, inflow, outflow, net_flow) 
+                    INSERT OR REPLACE INTO whale_flows
+                    (timestamp, symbol, inflow, outflow, net_flow)
                     VALUES (?, ?, ?, ?, ?)
                     """,
                     [
@@ -471,12 +473,13 @@ class OnChainDataCollector:
 
     async def _save_nvt_data_to_db(self, nvt_data: List[NVTData]):
         """NVTデータをデータベースに保存"""
+        db = get_db()
         for nvt in nvt_data:
             try:
                 db.execute(
                     """
-                    INSERT OR REPLACE INTO nvt_data 
-                    (timestamp, symbol, nvt_ratio, nvt_signal) 
+                    INSERT OR REPLACE INTO nvt_data
+                    (timestamp, symbol, nvt_ratio, nvt_signal)
                     VALUES (?, ?, ?, ?)
                     """,
                     [nvt.timestamp, nvt.symbol, nvt.nvt_ratio, nvt.nvt_signal],
@@ -486,12 +489,13 @@ class OnChainDataCollector:
 
     async def _save_miner_outflows_to_db(self, outflows: List[MinerOutflowData]):
         """マイナーアウトフローデータをデータベースに保存"""
+        db = get_db()
         for outflow in outflows:
             try:
                 db.execute(
                     """
-                    INSERT OR REPLACE INTO miner_outflows 
-                    (timestamp, symbol, outflow_amount, outflow_value_usd) 
+                    INSERT OR REPLACE INTO miner_outflows
+                    (timestamp, symbol, outflow_amount, outflow_value_usd)
                     VALUES (?, ?, ?, ?)
                     """,
                     [

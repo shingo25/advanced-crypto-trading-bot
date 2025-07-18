@@ -15,8 +15,22 @@ class ProfilesModel:
     """Profilesテーブルの操作を管理"""
 
     def __init__(self):
-        self.connection = get_supabase_connection()
-        self.table = SupabaseTable("profiles", self.connection)
+        self._connection = None
+        self._table = None
+
+    @property
+    def connection(self):
+        """遅延初期化でSupabase接続を取得"""
+        if self._connection is None:
+            self._connection = get_supabase_connection()
+        return self._connection
+
+    @property
+    def table(self):
+        """遅延初期化でSupabaseテーブルを取得"""
+        if self._table is None:
+            self._table = SupabaseTable("profiles", self.connection)
+        return self._table
 
     def get_profile_by_id(self, user_id: str) -> Optional[Dict[str, Any]]:
         """IDでプロファイルを取得"""
@@ -71,8 +85,22 @@ class ExchangesModel:
     """Exchangesテーブルの操作を管理"""
 
     def __init__(self):
-        self.connection = get_supabase_connection()
-        self.table = SupabaseTable("exchanges", self.connection)
+        self._connection = None
+        self._table = None
+
+    @property
+    def connection(self):
+        """遅延初期化でSupabase接続を取得"""
+        if self._connection is None:
+            self._connection = get_supabase_connection()
+        return self._connection
+
+    @property
+    def table(self):
+        """遅延初期化でSupabaseテーブルを取得"""
+        if self._table is None:
+            self._table = SupabaseTable("exchanges", self.connection)
+        return self._table
 
     def get_user_exchanges(self, user_id: str) -> List[Dict[str, Any]]:
         """ユーザーの取引所一覧を取得"""

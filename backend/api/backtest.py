@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 from datetime import date
 from backend.core.security import get_current_user, require_admin
-from backend.core.database import db
+from backend.core.database import get_db
 import json
 import logging
 
@@ -40,6 +40,7 @@ async def run_backtest(
     current_user: dict = Depends(require_admin),
 ):
     """バックテストを実行"""
+    db = get_db()
     # 戦略の存在確認
     strategy = db.fetchone(
         "SELECT id, name FROM strategies WHERE id = ?", [backtest_request.strategy_id]
@@ -63,9 +64,10 @@ async def get_backtest_results(
     strategy_id: Optional[int] = None, current_user: dict = Depends(get_current_user)
 ):
     """バックテスト結果を取得"""
+    db = get_db()
     query = """
-        SELECT id, strategy_id, start_date, end_date, initial_capital, 
-               final_capital, total_trades, win_rate, sharpe_ratio, 
+        SELECT id, strategy_id, start_date, end_date, initial_capital,
+               final_capital, total_trades, win_rate, sharpe_ratio,
                max_drawdown, results
         FROM backtests
     """
@@ -101,10 +103,11 @@ async def get_backtest_result(
     backtest_id: int, current_user: dict = Depends(get_current_user)
 ):
     """特定のバックテスト結果を取得"""
+    db = get_db()
     result = db.fetchone(
         """
-        SELECT id, strategy_id, start_date, end_date, initial_capital, 
-               final_capital, total_trades, win_rate, sharpe_ratio, 
+        SELECT id, strategy_id, start_date, end_date, initial_capital,
+               final_capital, total_trades, win_rate, sharpe_ratio,
                max_drawdown, results
         FROM backtests WHERE id = ?
         """,
@@ -132,6 +135,7 @@ async def get_backtest_result(
 def _run_backtest_task(backtest_request: BacktestRequest, username: str):
     """バックテストを実行するタスク（バックグラウンド処理）"""
     try:
+        db = get_db()
         # TODO: 実際のバックテストロジックを実装
         # 現在はダミーデータを返す
 
@@ -155,8 +159,8 @@ def _run_backtest_task(backtest_request: BacktestRequest, username: str):
         db.execute(
             """
             INSERT INTO backtests (
-                strategy_id, start_date, end_date, initial_capital, 
-                final_capital, total_trades, win_rate, sharpe_ratio, 
+                strategy_id, start_date, end_date, initial_capital,
+                final_capital, total_trades, win_rate, sharpe_ratio,
                 max_drawdown, results
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,

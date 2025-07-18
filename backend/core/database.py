@@ -71,15 +71,24 @@ class Database:
             raise
 
 
-# グローバルデータベースインスタンス
-db = Database()
+# グローバルデータベースインスタンス（遅延初期化）
+_db_instance: Optional[Database] = None
+
+
+def _get_database_instance() -> Database:
+    """Databaseインスタンスを遅延初期化で取得"""
+    global _db_instance
+    if _db_instance is None:
+        _db_instance = Database()
+    return _db_instance
 
 
 def init_db():
     """データベースを初期化（Supabaseのスキーマは既に作成済み）"""
     try:
         # 接続テスト
-        if not db.health_check():
+        db_instance = _get_database_instance()
+        if not db_instance.health_check():
             raise Exception("Supabase接続に失敗しました")
 
         logger.info("Supabase database connection verified")
@@ -89,7 +98,7 @@ def init_db():
         if not existing_admin:
             # 管理者ユーザー用のUUIDを生成
             admin_user_id = str(uuid.uuid4())
-            admin_profile = db.profiles_model.create_profile(
+            admin_profile = db_instance.profiles_model.create_profile(
                 user_id=admin_user_id, username=settings.ADMIN_USERNAME
             )
 
@@ -107,13 +116,14 @@ def init_db():
 
 def get_db() -> Database:
     """データベースセッションを取得"""
-    return db
+    return _get_database_instance()
 
 
 def get_user_by_username(username: str) -> Optional[Dict[str, Any]]:
     """ユーザー名でユーザーを取得"""
     try:
-        profile = db.profiles_model.get_profile_by_username(username)
+        db_instance = _get_database_instance()
+        profile = db_instance.profiles_model.get_profile_by_username(username)
         if profile:
             return {
                 "id": profile["id"],
@@ -137,7 +147,8 @@ def get_user_by_id(user_id) -> Optional[Dict[str, Any]]:
         if isinstance(user_id, int):
             user_id = str(user_id)
 
-        profile = db.profiles_model.get_profile_by_id(user_id)
+        db_instance = _get_database_instance()
+        profile = db_instance.profiles_model.get_profile_by_id(user_id)
         if profile:
             return {
                 "id": profile["id"],
@@ -160,7 +171,10 @@ def create_user(
         # 新しいUUIDを生成
         user_id = str(uuid.uuid4())
 
-        profile = db.profiles_model.create_profile(user_id=user_id, username=username)
+        db_instance = _get_database_instance()
+        profile = db_instance.profiles_model.create_profile(
+            user_id=user_id, username=username
+        )
 
         if profile:
             # Supabaseスキーマにパスワードハッシュとロールが含まれていない場合は
@@ -196,7 +210,8 @@ def update_user(user_id, **kwargs) -> Optional[Dict[str, Any]]:
         }
 
         if updatable_fields:
-            updated_profile = db.profiles_model.update_profile(
+            db_instance = _get_database_instance()
+            updated_profile = db_instance.profiles_model.update_profile(
                 user_id, **updatable_fields
             )
             if updated_profile:

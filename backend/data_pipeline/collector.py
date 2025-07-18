@@ -8,7 +8,7 @@ from pathlib import Path
 
 from backend.exchanges.factory import ExchangeFactory
 from backend.exchanges.base import AbstractExchangeAdapter, TimeFrame, OHLCV
-from backend.core.database import db
+from backend.core.database import get_db
 
 logger = logging.getLogger(__name__)
 
@@ -187,8 +187,8 @@ class DataCollector:
         try:
             # 簡易的な保存（実際はテーブル定義が必要）
             query = """
-            INSERT OR REPLACE INTO funding_rates 
-            (timestamp, symbol, funding_rate, next_funding_time) 
+            INSERT OR REPLACE INTO funding_rates
+            (timestamp, symbol, funding_rate, next_funding_time)
             VALUES (?, ?, ?, ?)
             """
 
@@ -203,6 +203,7 @@ class DataCollector:
             )
             """
 
+            db = get_db()
             db.execute(create_table_query)
             db.execute(
                 query,
@@ -222,8 +223,8 @@ class DataCollector:
         try:
             # 簡易的な保存（実際はテーブル定義が必要）
             query = """
-            INSERT OR REPLACE INTO open_interests 
-            (timestamp, symbol, open_interest, open_interest_value) 
+            INSERT OR REPLACE INTO open_interests
+            (timestamp, symbol, open_interest, open_interest_value)
             VALUES (?, ?, ?, ?)
             """
 
@@ -238,6 +239,7 @@ class DataCollector:
             )
             """
 
+            db = get_db()
             db.execute(create_table_query)
             db.execute(
                 query,
