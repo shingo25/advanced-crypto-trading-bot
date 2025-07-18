@@ -1,0 +1,43 @@
+# FastAPI Backend Dockerfile - Simplified without ta-lib
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# セキュリティのため非rootユーザーを作成
+RUN useradd --create-home --shell /bin/bash appuser
+
+# システムパッケージの最小限インストール
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# requirements.txtをコピーしてPythonパッケージをインストール
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# アプリケーションコードをコピー（所有者をappuserに設定）
+COPY --chown=appuser:appuser backend/ ./backend/
+COPY --chown=appuser:appuser config/ ./config/
+COPY --chown=appuser:appuser scripts/ ./scripts/
+
+# 必要なディレクトリを作成して権限設定
+RUN mkdir -p /app/data /app/logs && \
+    chown -R appuser:appuser /app/data /app/logs
+
+# 非rootユーザーに切り替え
+USER appuser
+
+# 環境変数を設定
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+# ポートを公開
+EXPOSE 8000
+
+# ヘルスチェック
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# アプリケーション起動
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

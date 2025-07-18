@@ -25,14 +25,17 @@ export interface Portfolio {
   asset_count: number;
   created_at: string;
   last_rebalance: string | null;
-  assets: Record<string, {
-    balance: number;
-    current_price: number;
-    market_value: number;
-    target_weight: number;
-    actual_weight: number;
-    asset_type: string;
-  }>;
+  assets: Record<
+    string,
+    {
+      balance: number;
+      current_price: number;
+      market_value: number;
+      target_weight: number;
+      actual_weight: number;
+      asset_type: string;
+    }
+  >;
 }
 
 export interface Position {

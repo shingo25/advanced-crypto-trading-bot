@@ -1,5 +1,10 @@
 import { create } from 'zustand';
-import { authApi, setAuthenticatedState, clearAuthenticatedState, getAuthenticatedState } from '@/lib/api';
+import {
+  authApi,
+  setAuthenticatedState,
+  clearAuthenticatedState,
+  getAuthenticatedState,
+} from '@/lib/api';
 
 interface User {
   id: string;
@@ -12,7 +17,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  
+
   // アクション
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
@@ -28,28 +33,29 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   login: async (username: string, password: string) => {
     set({ isLoading: true, error: null });
-    
+
     try {
       const response = await authApi.login(username, password);
-      
+
       setAuthenticatedState(true);
-      
+
       set({
         user: response.user,
         isAuthenticated: true,
         isLoading: false,
-        error: null
+        error: null,
       });
     } catch (error: any) {
-      const errorMessage = typeof error === 'string' 
-        ? error 
-        : error?.response?.data?.detail || error?.message || 'ログインに失敗しました';
-      
+      const errorMessage =
+        typeof error === 'string'
+          ? error
+          : error?.response?.data?.detail || error?.message || 'ログインに失敗しました';
+
       set({
         user: null,
         isAuthenticated: false,
         isLoading: false,
-        error: errorMessage
+        error: errorMessage,
       });
       throw error;
     }
@@ -61,7 +67,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       user: null,
       isAuthenticated: false,
       isLoading: false,
-      error: null
+      error: null,
     });
   },
 
@@ -74,11 +80,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           user: {
             id: '1',
             username: 'admin',
-            email: 'admin@example.com'
+            email: 'admin@example.com',
           },
           isAuthenticated: true,
           isLoading: false,
-          error: null
+          error: null,
         });
       }
     }
@@ -86,5 +92,5 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   clearError: () => {
     set({ error: null });
-  }
+  },
 }));

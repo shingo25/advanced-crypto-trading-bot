@@ -60,9 +60,9 @@
 ## 🛠 技術スタック
 
 ### バックエンド
-- **Python 3.9+** - メイン開発言語
+- **Python 3.12+** - メイン開発言語
 - **FastAPI** - 高性能Web APIフレームワーク
-- **DuckDB** - 高速分析用データベース
+- **Supabase PostgreSQL** - 本番データベース (DuckDBから移行済み)
 - **CCXT** - 暗号通貨取引所統合ライブラリ
 - **Pandas** - データ分析・操作
 - **NumPy** - 数値計算
@@ -129,10 +129,11 @@ cat docs/GETTING_STARTED.md
 
 ### 現在のデプロイ状況
 
-- **フロントエンド**: Vercel にデプロイ済み
+- **フロントエンド**: Vercel にデプロイ済み (`https://crypto-m1u2wjova-shingo-arais-projects.vercel.app`)
 - **バックエンドAPI**: Vercel Functions にデプロイ済み  
 - **データベース**: Supabase PostgreSQL 運用中
 - **認証**: Supabase Auth + JWT 実装済み
+- **CI/CD**: GitHub Actions による自動テスト・セキュリティスキャン実装済み
 
 
 ## 📊 戦略一覧

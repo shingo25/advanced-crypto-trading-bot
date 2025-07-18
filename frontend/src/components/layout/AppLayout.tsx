@@ -18,7 +18,7 @@ import {
   Menu,
   MenuItem,
   Badge,
-  Divider
+  Divider,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -28,7 +28,7 @@ import {
   Settings,
   Notifications,
   AccountCircle,
-  Logout
+  Logout,
 } from '@mui/icons-material';
 import { useAuthStore } from '@/store/auth';
 
@@ -43,7 +43,7 @@ const menuItems = [
   { text: '戦略管理', icon: <TrendingUp />, path: '/strategies' },
   { text: 'ポートフォリオ', icon: <AccountBalanceWallet />, path: '/portfolio' },
   { text: 'アラート', icon: <Notifications />, path: '/alerts' },
-  { text: '設定', icon: <Settings />, path: '/settings' }
+  { text: '設定', icon: <Settings />, path: '/settings' },
 ];
 
 export default function AppLayout({ children }: AppLayoutProps) {
@@ -127,15 +127,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
             暗号通貨取引ボット
           </Typography>
           <IconButton color="inherit" onClick={handleMenuClick}>
-            <Avatar sx={{ width: 32, height: 32 }}>
-              {user?.username.charAt(0).toUpperCase()}
-            </Avatar>
+            <Avatar sx={{ width: 32, height: 32 }}>{user?.username.charAt(0).toUpperCase()}</Avatar>
           </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-          >
+          <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
             <MenuItem onClick={handleMenuClose}>
               <ListItemIcon>
                 <AccountCircle fontSize="small" />
@@ -151,10 +145,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           </Menu>
         </Toolbar>
       </AppBar>
-      <Box
-        component="nav"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-      >
+      <Box component="nav" sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}>
         <Drawer
           variant="temporary"
           open={mobileOpen}

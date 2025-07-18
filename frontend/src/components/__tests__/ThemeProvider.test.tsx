@@ -22,7 +22,7 @@ describe('ThemeProvider', () => {
 
     const content = screen.getByTestId('themed-content');
     expect(content).toBeInTheDocument();
-    
+
     // Check that MUI theme is applied by checking for CssBaseline styles
     expect(document.head.querySelector('style')).toBeTruthy();
   });

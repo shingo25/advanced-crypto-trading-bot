@@ -1,22 +1,13 @@
 'use client';
 
-import {
-  Grid,
-  Paper,
-  Typography,
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  Avatar
-} from '@mui/material';
+import { Grid, Paper, Typography, Box, Card, CardContent, Chip, Avatar } from '@mui/material';
 import {
   TrendingUp,
   TrendingDown,
   AccountBalanceWallet,
   PlayArrow,
   SwapHoriz,
-  Notifications
+  Notifications,
 } from '@mui/icons-material';
 import { useDashboardStore } from '@/store/dashboard';
 
@@ -61,9 +52,7 @@ function SummaryCard({ title, value, subtitle, icon, color = 'info', trend }: Su
               </Box>
             )}
           </Box>
-          <Avatar sx={{ bgcolor: `${color}.main`, width: 56, height: 56 }}>
-            {icon}
-          </Avatar>
+          <Avatar sx={{ bgcolor: `${color}.main`, width: 56, height: 56 }}>{icon}</Avatar>
         </Box>
       </CardContent>
     </Card>
@@ -86,7 +75,7 @@ export default function DashboardSummary() {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(amount);
   };
 
@@ -94,7 +83,7 @@ export default function DashboardSummary() {
     return new Intl.NumberFormat('ja-JP', {
       style: 'percent',
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     }).format(value);
   };
 
@@ -105,7 +94,7 @@ export default function DashboardSummary() {
       <Typography variant="h4" component="h1" gutterBottom>
         ダッシュボード
       </Typography>
-      
+
       <Grid container spacing={3}>
         {/* 総資産 */}
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -192,7 +181,7 @@ export default function DashboardSummary() {
                   p: 1,
                   border: 1,
                   borderColor: 'divider',
-                  borderRadius: 1
+                  borderRadius: 1,
                 }}
               >
                 <Box>
@@ -204,13 +193,15 @@ export default function DashboardSummary() {
                   </Typography>
                 </Box>
                 <Box sx={{ textAlign: 'right' }}>
-                  <Typography variant="subtitle1">
-                    {formatCurrency(asset.market_value)}
-                  </Typography>
+                  <Typography variant="subtitle1">{formatCurrency(asset.market_value)}</Typography>
                   <Chip
                     label={formatPercent(asset.actual_weight)}
                     size="small"
-                    color={Math.abs(asset.actual_weight - asset.target_weight) > 0.05 ? 'warning' : 'success'}
+                    color={
+                      Math.abs(asset.actual_weight - asset.target_weight) > 0.05
+                        ? 'warning'
+                        : 'success'
+                    }
                   />
                 </Box>
               </Box>
@@ -236,7 +227,7 @@ export default function DashboardSummary() {
                     p: 1,
                     bgcolor: trade.pnl > 0 ? 'success.light' : 'error.light',
                     borderRadius: 1,
-                    opacity: 0.7
+                    opacity: 0.7,
                   }}
                 >
                   <Box>
@@ -251,12 +242,13 @@ export default function DashboardSummary() {
                     <Typography variant="body2">
                       {trade.amount} @ {formatCurrency(trade.price)}
                     </Typography>
-                    <Typography 
-                      variant="body2" 
+                    <Typography
+                      variant="body2"
                       fontWeight="bold"
                       color={trade.pnl > 0 ? 'success.main' : 'error.main'}
                     >
-                      {trade.pnl > 0 ? '+' : ''}{formatCurrency(trade.pnl)}
+                      {trade.pnl > 0 ? '+' : ''}
+                      {formatCurrency(trade.pnl)}
                     </Typography>
                   </Box>
                 </Box>
@@ -264,9 +256,7 @@ export default function DashboardSummary() {
             ))}
           </Grid>
         ) : (
-          <Typography color="text.secondary">
-            最近の取引はありません
-          </Typography>
+          <Typography color="text.secondary">最近の取引はありません</Typography>
         )}
       </Paper>
     </Box>

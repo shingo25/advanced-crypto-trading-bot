@@ -10,23 +10,23 @@ import {
   Typography,
   Alert,
   Container,
-  CircularProgress
+  CircularProgress,
 } from '@mui/material';
 import { useAuthStore } from '@/store/auth';
 
 export default function LoginForm() {
   const router = useRouter();
   const { login, isLoading, error, clearError } = useAuthStore();
-  
+
   const [formData, setFormData] = useState({
     username: '',
-    password: ''
+    password: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
     if (error) {
       clearError();
     }
@@ -34,7 +34,7 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       await login(formData.username, formData.password);
       router.push('/dashboard');
@@ -46,7 +46,7 @@ export default function LoginForm() {
 
   const renderErrorMessage = () => {
     if (!error) return null;
-    
+
     // エラーが文字列の場合はそのまま表示
     if (typeof error === 'string') {
       return (
@@ -55,7 +55,7 @@ export default function LoginForm() {
         </Alert>
       );
     }
-    
+
     // エラーがオブジェクトの場合は適切に処理
     return (
       <Alert severity="error" sx={{ mb: 2 }}>
@@ -81,9 +81,9 @@ export default function LoginForm() {
           <Typography variant="body1" align="center" color="text.secondary" gutterBottom>
             ログインして取引ボットを管理
           </Typography>
-          
+
           {renderErrorMessage()}
-          
+
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
               margin="normal"
@@ -118,18 +118,16 @@ export default function LoginForm() {
               sx={{ mt: 3, mb: 2 }}
               disabled={isLoading}
             >
-              {isLoading ? (
-                <CircularProgress size={24} />
-              ) : (
-                'ログイン'
-              )}
+              {isLoading ? <CircularProgress size={24} /> : 'ログイン'}
             </Button>
           </Box>
-          
+
           <Box sx={{ mt: 2, p: 2, backgroundColor: 'grey.50', borderRadius: 1 }}>
             <Typography variant="body2" color="text.secondary">
-              <strong>デモアカウント:</strong><br />
-              ユーザー名: demo<br />
+              <strong>デモアカウント:</strong>
+              <br />
+              ユーザー名: demo
+              <br />
               パスワード: demo
             </Typography>
           </Box>

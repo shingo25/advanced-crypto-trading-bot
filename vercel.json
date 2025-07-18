@@ -1,18 +1,5 @@
 {
-  "build": {
-    "env": {
-      "PYTHONPATH": "."
-    }
-  },
-  "functions": {
-    "backend/main.py": {
-      "runtime": "python3.12"
-    }
-  },
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/backend/main.py"
-    }
-  ]
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/out",
+  "installCommand": "echo 'Skip install'"
 }

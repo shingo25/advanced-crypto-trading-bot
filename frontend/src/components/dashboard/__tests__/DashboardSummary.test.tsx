@@ -19,13 +19,13 @@ const mockSummary = {
   active_orders: 1,
   portfolio: {
     assets: {
-      'BTCUSDT': {
+      BTCUSDT: {
         balance: 0.5,
         market_value: 25000,
         actual_weight: 0.5,
-        target_weight: 0.4
-      }
-    }
+        target_weight: 0.4,
+      },
+    },
   },
   recent_trades: [
     {
@@ -34,9 +34,9 @@ const mockSummary = {
       amount: 0.1,
       price: 50000,
       pnl: 100,
-      timestamp: '2023-01-01T00:00:00Z'
-    }
-  ]
+      timestamp: '2023-01-01T00:00:00Z',
+    },
+  ],
 };
 
 describe('DashboardSummary', () => {
@@ -45,7 +45,12 @@ describe('DashboardSummary', () => {
       summary: mockSummary,
       fetchSummary: jest.fn(),
       fetchPerformanceData: jest.fn(),
-      performanceData: null
+      performanceData: [],
+      isLoading: false,
+      error: null,
+      lastUpdated: null,
+      updateSummary: jest.fn(),
+      clearError: jest.fn(),
     });
   });
 
@@ -71,7 +76,12 @@ describe('DashboardSummary', () => {
       summary: null,
       fetchSummary: jest.fn(),
       fetchPerformanceData: jest.fn(),
-      performanceData: null
+      performanceData: [],
+      isLoading: false,
+      error: null,
+      lastUpdated: null,
+      updateSummary: jest.fn(),
+      clearError: jest.fn(),
     });
 
     render(
@@ -91,7 +101,7 @@ describe('DashboardSummary', () => {
     );
 
     expect(screen.getByText('$10,000')).toBeInTheDocument();
-    expect(screen.getByText('$500')).toBeInTheDocument();
+    expect(screen.getByText('$500 (5.00%)')).toBeInTheDocument();
   });
 
   it('displays portfolio assets', () => {
@@ -115,6 +125,6 @@ describe('DashboardSummary', () => {
 
     expect(screen.getByText('最近の取引')).toBeInTheDocument();
     expect(screen.getByText('BTCUSDT - BUY')).toBeInTheDocument();
-    expect(screen.getByText('$100')).toBeInTheDocument();
+    expect(screen.getByText('+$100')).toBeInTheDocument();
   });
 });
