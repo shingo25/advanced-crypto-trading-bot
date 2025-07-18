@@ -330,7 +330,7 @@ class PortfolioOptimizer:
         import random
 
         # ランダムな重みを生成
-        raw_weights = [random.random() for _ in assets]
+        raw_weights = [random.random() for _ in assets]  # nosec B311
         total_weight = sum(raw_weights)
 
         # 正規化
