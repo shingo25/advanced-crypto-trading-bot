@@ -170,32 +170,20 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: 🏗️ Build Docker images
-        uses: docker/compose-action@v2
-        with:
-          compose-files: |
-            docker-compose.yml
-          command: build --no-cache
+        run: docker-compose build --no-cache
 
       - name: 🧪 Test Docker containers
-        uses: docker/compose-action@v2
-        with:
-          compose-files: |
-            docker-compose.yml
-          command: up -d
+        run: docker-compose up -d
 
       - name: ⏳ Wait for services to start
         run: sleep 30
 
       - name: 🔍 Check container status
-        run: docker ps
+        run: docker-compose ps
 
       - name: 🧹 Cleanup Docker containers
         if: always()
-        uses: docker/compose-action@v2
-        with:
-          compose-files: |
-            docker-compose.yml
-          command: down
+        run: docker-compose down
 
   # 🌐 エンドツーエンドテスト
   e2e-tests:
