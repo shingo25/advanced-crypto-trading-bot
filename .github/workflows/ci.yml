@@ -70,7 +70,7 @@ jobs:
       - name: 🎨 Code formatting check (Ruff)
         run: |
           pip install ruff
-          ruff format --check backend/
+          ruff format backend/ --check
 
       - name: 📝 Lint check (Ruff)
         run: |

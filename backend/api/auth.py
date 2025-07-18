@@ -3,7 +3,11 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
-from backend.core.security import authenticate_user, create_access_token, get_current_user
+from backend.core.security import (
+    authenticate_user,
+    create_access_token,
+    get_current_user,
+)
 from backend.core.config import settings
 from backend.models.user import UserResponse
 import logging
@@ -33,13 +37,13 @@ async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depen
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     access_token_expires = timedelta(hours=settings.JWT_EXPIRATION_HOURS)
     access_token = create_access_token(
         data={"sub": user["username"], "role": user["role"]},
-        expires_delta=access_token_expires
+        expires_delta=access_token_expires,
     )
-    
+
     # httpOnlyクッキーに設定
     response.set_cookie(
         key="access_token",
@@ -47,9 +51,9 @@ async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depen
         httponly=True,
         secure=settings.ENVIRONMENT == "production",
         samesite="strict",
-        max_age=settings.JWT_EXPIRATION_HOURS * 3600
+        max_age=settings.JWT_EXPIRATION_HOURS * 3600,
     )
-    
+
     logger.info(f"User {user['username']} logged in successfully")
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -68,19 +72,21 @@ async def get_current_user_info(current_user: dict = Depends(get_current_user)):
         id=current_user["id"],
         username=current_user["username"],
         role=current_user["role"],
-        created_at=current_user["created_at"]
+        created_at=current_user["created_at"],
     )
 
 
 @router.post("/refresh")
-async def refresh_token(response: Response, current_user: dict = Depends(get_current_user)):
+async def refresh_token(
+    response: Response, current_user: dict = Depends(get_current_user)
+):
     """トークンを更新"""
     access_token_expires = timedelta(hours=settings.JWT_EXPIRATION_HOURS)
     access_token = create_access_token(
         data={"sub": current_user["username"], "role": current_user["role"]},
-        expires_delta=access_token_expires
+        expires_delta=access_token_expires,
     )
-    
+
     # httpOnlyクッキーを更新
     response.set_cookie(
         key="access_token",
@@ -88,8 +94,8 @@ async def refresh_token(response: Response, current_user: dict = Depends(get_cur
         httponly=True,
         secure=settings.ENVIRONMENT == "production",
         samesite="strict",
-        max_age=settings.JWT_EXPIRATION_HOURS * 3600
+        max_age=settings.JWT_EXPIRATION_HOURS * 3600,
     )
-    
+
     logger.info(f"Token refreshed for user: {current_user['username']}")
     return {"access_token": access_token, "token_type": "bearer"}

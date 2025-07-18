@@ -43,11 +43,15 @@ class ConnectionManager:
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         self.active_connections.append(websocket)
-        logger.info(f"WebSocket connection established. Total: {len(self.active_connections)}")
+        logger.info(
+            f"WebSocket connection established. Total: {len(self.active_connections)}"
+        )
 
     def disconnect(self, websocket: WebSocket):
         self.active_connections.remove(websocket)
-        logger.info(f"WebSocket connection closed. Total: {len(self.active_connections)}")
+        logger.info(
+            f"WebSocket connection closed. Total: {len(self.active_connections)}"
+        )
 
     async def send_personal_message(self, message: str, websocket: WebSocket):
         await websocket.send_text(message)
@@ -68,7 +72,7 @@ manager = ConnectionManager()
 async def get_trades(
     strategy_id: Optional[int] = None,
     limit: int = 100,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
 ):
     """取引履歴を取得"""
     query = """
@@ -77,14 +81,14 @@ async def get_trades(
         FROM trades
     """
     params = []
-    
+
     if strategy_id:
         query += " WHERE strategy_id = ?"
         params.append(strategy_id)
-    
+
     query += " ORDER BY timestamp DESC LIMIT ?"
     params.append(limit)
-    
+
     trades = db.fetchall(query, params)
     return [
         Trade(
@@ -96,7 +100,7 @@ async def get_trades(
             amount=t[5],
             fee=t[6],
             realized_pnl=t[7],
-            timestamp=t[8]
+            timestamp=t[8],
         )
         for t in trades
     ]
@@ -104,8 +108,7 @@ async def get_trades(
 
 @router.get("/positions", response_model=List[Position])
 async def get_positions(
-    strategy_id: Optional[int] = None,
-    current_user: dict = Depends(get_current_user)
+    strategy_id: Optional[int] = None, current_user: dict = Depends(get_current_user)
 ):
     """ポジション一覧を取得"""
     query = """
@@ -114,13 +117,13 @@ async def get_positions(
         FROM positions
     """
     params = []
-    
+
     if strategy_id:
         query += " WHERE strategy_id = ?"
         params.append(strategy_id)
-    
+
     query += " ORDER BY opened_at DESC"
-    
+
     positions = db.fetchall(query, params)
     return [
         Position(
@@ -132,7 +135,7 @@ async def get_positions(
             amount=p[5],
             unrealized_pnl=p[6],
             opened_at=p[7],
-            closed_at=p[8]
+            closed_at=p[8],
         )
         for p in positions
     ]
@@ -146,7 +149,7 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             # クライアントからのメッセージを受信（keepalive）
             data = await websocket.receive_text()
-            
+
             # TODO: 実際のライブトレードデータを送信
             # 現在はダミーデータを送信
             dummy_trade = {
@@ -156,11 +159,11 @@ async def websocket_endpoint(websocket: WebSocket):
                 "side": "buy",
                 "price": 43000.0,
                 "amount": 0.01,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
-            
+
             await manager.send_personal_message(json.dumps(dummy_trade), websocket)
-            
+
     except WebSocketDisconnect:
         manager.disconnect(websocket)
     except Exception as e:

@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 import logging
 from backend.core.config import settings
 from backend.api import auth, strategies
+
 # TODO: Update these modules to use Supabase SDK
 # from backend.api import backtest, config, trades
 from backend.core.database import init_db
@@ -21,11 +22,7 @@ async def lifespan(app: FastAPI):
     logger.info("Shutting down crypto bot backend...")
 
 
-app = FastAPI(
-    title="Crypto Bot API",
-    version="1.0.0",
-    lifespan=lifespan
-)
+app = FastAPI(title="Crypto Bot API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

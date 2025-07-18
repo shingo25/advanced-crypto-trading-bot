@@ -11,30 +11,30 @@ class Database:
     def __init__(self):
         self.conn = None
         self.path = settings.DUCKDB_PATH
-        
+
     def connect(self):
         """データベースに接続"""
         Path(self.path).parent.mkdir(parents=True, exist_ok=True)
         self.conn = duckdb.connect(self.path)
         logger.info(f"Connected to DuckDB at {self.path}")
-        
+
     def close(self):
         """データベース接続を閉じる"""
         if self.conn:
             self.conn.close()
             logger.info("Closed DuckDB connection")
-            
+
     def execute(self, query: str, params=None):
         """クエリを実行"""
         if not self.conn:
             self.connect()
         return self.conn.execute(query, params)
-    
+
     def fetchone(self, query: str, params=None):
         """1行取得"""
         result = self.execute(query, params)
         return result.fetchone()
-    
+
     def fetchall(self, query: str, params=None):
         """全行取得"""
         result = self.execute(query, params)
@@ -47,7 +47,7 @@ db = Database()
 def init_db():
     """データベースを初期化"""
     db.connect()
-    
+
     # テーブル作成
     queries = [
         """
@@ -118,35 +118,41 @@ def init_db():
             value JSON,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
-        """
+        """,
     ]
-    
+
     for query in queries:
         db.execute(query)
-    
+
     # デフォルト管理者ユーザーを作成
     from backend.core.security import get_password_hash
-    
-    existing_admin = db.fetchone("SELECT id FROM users WHERE username = ?", [settings.ADMIN_USERNAME])
+
+    existing_admin = db.fetchone(
+        "SELECT id FROM users WHERE username = ?", [settings.ADMIN_USERNAME]
+    )
     if not existing_admin:
         db.execute(
             "INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)",
-            [settings.ADMIN_USERNAME, get_password_hash(settings.ADMIN_PASSWORD), "admin"]
+            [
+                settings.ADMIN_USERNAME,
+                get_password_hash(settings.ADMIN_PASSWORD),
+                "admin",
+            ],
         )
         logger.info(f"Created default admin user: {settings.ADMIN_USERNAME}")
-    
+
     # デフォルト設定を挿入
     default_configs = [
         ("max_dd_pct", settings.MAX_DD_PCT),
         ("max_position_size_pct", settings.MAX_POSITION_SIZE_PCT),
     ]
-    
+
     for key, value in default_configs:
         db.execute(
             "INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)",
-            [key, {"value": value}]
+            [key, {"value": value}],
         )
-    
+
     logger.info("Database initialized successfully")
 
 
@@ -159,7 +165,7 @@ def get_user_by_username(username: str) -> Optional[Dict[str, Any]]:
     """ユーザー名でユーザーを取得"""
     result = db.fetchone(
         "SELECT id, username, password_hash, role, created_at FROM users WHERE username = ?",
-        [username]
+        [username],
     )
     if result:
         return {
@@ -167,7 +173,7 @@ def get_user_by_username(username: str) -> Optional[Dict[str, Any]]:
             "username": result[1],
             "password_hash": result[2],
             "role": result[3],
-            "created_at": result[4]
+            "created_at": result[4],
         }
     return None
 
@@ -176,7 +182,7 @@ def get_user_by_id(user_id: int) -> Optional[Dict[str, Any]]:
     """ユーザーIDでユーザーを取得"""
     result = db.fetchone(
         "SELECT id, username, password_hash, role, created_at FROM users WHERE id = ?",
-        [user_id]
+        [user_id],
     )
     if result:
         return {
@@ -184,16 +190,18 @@ def get_user_by_id(user_id: int) -> Optional[Dict[str, Any]]:
             "username": result[1],
             "password_hash": result[2],
             "role": result[3],
-            "created_at": result[4]
+            "created_at": result[4],
         }
     return None
 
 
-def create_user(username: str, password_hash: str, role: str = "viewer") -> Dict[str, Any]:
+def create_user(
+    username: str, password_hash: str, role: str = "viewer"
+) -> Dict[str, Any]:
     """ユーザーを作成"""
     db.execute(
         "INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)",
-        [username, password_hash, role]
+        [username, password_hash, role],
     )
     return get_user_by_username(username)
 
@@ -202,14 +210,11 @@ def update_user(user_id: int, **kwargs) -> Optional[Dict[str, Any]]:
     """ユーザー情報を更新"""
     if not kwargs:
         return get_user_by_id(user_id)
-    
+
     set_clause = ", ".join([f"{key} = ?" for key in kwargs.keys()])
     values = list(kwargs.values()) + [user_id]
-    
-    db.execute(
-        f"UPDATE users SET {set_clause} WHERE id = ?",
-        values
-    )
+
+    db.execute(f"UPDATE users SET {set_clause} WHERE id = ?", values)
     return get_user_by_id(user_id)
 
 
