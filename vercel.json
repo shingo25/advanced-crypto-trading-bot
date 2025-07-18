@@ -1,9 +1,6 @@
 {
-  "build": {
-    "env": {
-      "PYTHONPATH": "."
-    }
-  },
+  "buildCommand": "cd frontend && npm run build",
+  "outputDirectory": "frontend/out",
   "functions": {
     "backend/main.py": {
       "runtime": "python3.12"

@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Vercel最適化
-  output: 'standalone',
+  output: 'export',
+  trailingSlash: true,
   
   // 開発環境でのAPI proxy設定
   async rewrites() {
