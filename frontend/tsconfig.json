@@ -13,6 +13,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "types": ["jest", "@types/jest", "@testing-library/jest-dom", "node"],
     "plugins": [
       {
         "name": "next"
@@ -23,6 +24,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "next-env.d.ts", "out/types/**/*.ts"],
+  "include": ["**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "next-env.d.ts", "out/types/**/*.ts", "jest.setup.js", "types/**/*.d.ts"],
   "exclude": ["node_modules"]
 }

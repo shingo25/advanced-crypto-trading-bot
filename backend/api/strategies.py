@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
-from backend.core.security import get_current_user, require_admin
+from backend.core.security import get_current_user
 from backend.models.trading import get_strategies_model
 import logging
 

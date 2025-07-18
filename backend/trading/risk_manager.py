@@ -4,8 +4,8 @@
 
 import logging
 from typing import Dict, List, Optional, Callable, Any
-from datetime import datetime, timezone, timedelta
-from .engine import Position, Order, OrderSide
+from datetime import datetime, timezone
+from .engine import Position, Order
 
 logger = logging.getLogger(__name__)
 
@@ -138,7 +138,7 @@ class RiskManager:
         # 極度のドローダウン
         extreme_drawdown_threshold = self.risk_limits["max_drawdown"] * 2
         if self._calculate_current_drawdown(current_pnl) > extreme_drawdown_threshold:
-            logger.critical(f"Emergency stop triggered: extreme drawdown")
+            logger.critical("Emergency stop triggered: extreme drawdown")
             self.stats["emergency_stops"] += 1
             if self.on_emergency_stop:
                 self.on_emergency_stop(
@@ -245,7 +245,7 @@ class RiskManager:
 
             if len(similar_positions) > 3:  # 3つ以上の類似ポジション
                 logger.warning(
-                    f"Correlation limit exceeded: too many similar positions"
+                    "Correlation limit exceeded: too many similar positions"
                 )
                 self.stats["correlation_violations"] += 1
                 return False

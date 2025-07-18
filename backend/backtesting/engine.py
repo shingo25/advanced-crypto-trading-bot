@@ -1,14 +1,14 @@
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Any, Optional, Tuple
-from datetime import datetime, timezone
+from typing import Dict, List, Any, Optional
+from datetime import datetime
 from dataclasses import dataclass, asdict
 from enum import Enum
 import logging
 from pathlib import Path
 
 from backend.risk.position_sizing import RiskManager
-from backend.fee_models.base import FeeModel, TradeType
+from backend.fee_models.base import TradeType
 from backend.fee_models.exchanges import FeeModelFactory
 
 logger = logging.getLogger(__name__)
@@ -432,7 +432,7 @@ class BacktestEngine:
             symbol=symbol,
             side=OrderSide.BUY,
             price=execution_price,
-            amount=position_size,
+            amount=position.size,
             fee=fee,
             realized_pnl=realized_pnl,
             strategy_name=strategy_name,

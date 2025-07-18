@@ -3,7 +3,6 @@ from typing import Dict, Any, List, Optional, Union
 
 try:
     import pandas as pd
-    import numpy as np
 
     HAS_PANDAS = True
 except ImportError:

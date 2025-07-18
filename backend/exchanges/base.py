@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Optional
 from datetime import datetime
 import pandas as pd
 from dataclasses import dataclass

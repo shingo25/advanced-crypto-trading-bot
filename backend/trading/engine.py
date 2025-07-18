@@ -8,9 +8,6 @@ from typing import Dict, List, Optional, Any, Callable
 from datetime import datetime, timezone
 from dataclasses import dataclass, field
 from enum import Enum
-import json
-import time
-from concurrent.futures import ThreadPoolExecutor
 
 logger = logging.getLogger(__name__)
 
@@ -260,7 +257,7 @@ class TradingEngine:
         self.position_manager.update_price(symbol, price)
 
         # リスクチェック
-        violations = self.risk_manager.check_position_risk(
+        self.risk_manager.check_position_risk(
             self.position_manager.get_all_positions(),
             self.position_manager.stats["total_pnl"],
         )

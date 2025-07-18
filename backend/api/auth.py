@@ -1,6 +1,5 @@
 from datetime import timedelta
-from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from backend.core.security import (

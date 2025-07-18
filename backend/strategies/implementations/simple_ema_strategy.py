@@ -1,8 +1,7 @@
-from typing import Dict, Any, List, Optional
-from datetime import datetime
+from typing import Dict, Any, List
 import logging
 
-from ..base import BaseStrategy, Signal, StrategyState
+from ..base import BaseStrategy, Signal
 
 logger = logging.getLogger(__name__)
 

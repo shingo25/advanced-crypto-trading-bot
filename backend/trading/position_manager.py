@@ -4,7 +4,7 @@
 
 import logging
 from typing import Dict, List, Optional, Callable, Any
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from .engine import Position, Order, OrderSide
 
 logger = logging.getLogger(__name__)
@@ -168,7 +168,6 @@ class PositionManager:
         # ポジションの未実現損益を更新
         if symbol in self.positions:
             position = self.positions[symbol]
-            old_pnl = position.unrealized_pnl
             position.update_price(price)
 
             # 未実現損益の統計を更新

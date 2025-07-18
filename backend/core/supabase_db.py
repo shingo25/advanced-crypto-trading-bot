@@ -3,7 +3,6 @@ Supabase SDKベースのデータベース接続層
 SQLAlchemyの代替として、Supabase SDKを使用したデータベース操作を提供
 """
 
-import os
 from typing import Optional, List, Dict, Any
 from supabase import create_client, Client
 from backend.core.config import settings
@@ -49,7 +48,7 @@ class SupabaseConnection:
         """接続の健全性をチェック"""
         try:
             # 簡単なクエリで接続をテスト
-            response = self.client.table("profiles").select("id").limit(1).execute()
+            self.client.table("profiles").select("id").limit(1).execute()
             return True
         except Exception as e:
             logger.error(f"接続ヘルスチェック失敗: {e}")

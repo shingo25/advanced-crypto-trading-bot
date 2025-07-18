@@ -2,10 +2,9 @@
 取引関連のデータモデル（Supabase SDK版）
 """
 
-from typing import Optional, List, Dict, Any, Union
+from typing import Optional, List, Dict, Any
 from datetime import datetime
 from backend.core.supabase_db import SupabaseTable, get_supabase_connection
-import json
 import logging
 
 logger = logging.getLogger(__name__)

@@ -1,7 +1,7 @@
 import duckdb
 from pathlib import Path
 import logging
-from typing import Optional, List, Dict, Any
+from typing import Optional, Dict, Any
 from backend.core.config import settings
 
 logger = logging.getLogger(__name__)

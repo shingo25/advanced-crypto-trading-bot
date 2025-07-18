@@ -3,7 +3,7 @@ Supabase SDKベースのデータベース操作（DuckDB移植版）
 """
 
 from typing import Optional, Dict, Any
-from backend.models.user import get_profiles_model, get_exchanges_model
+from backend.models.user import get_profiles_model
 from backend.core.supabase_db import get_supabase_connection
 from backend.core.config import settings
 import logging

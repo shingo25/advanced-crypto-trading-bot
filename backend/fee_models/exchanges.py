@@ -1,5 +1,4 @@
 from .base import FeeModel, TradeType
-from typing import Dict
 
 
 class BinanceFeeModel(FeeModel):

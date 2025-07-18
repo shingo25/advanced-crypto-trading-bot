@@ -1,8 +1,7 @@
 import ccxt
 import asyncio
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Optional
 from datetime import datetime, timezone
-import pandas as pd
 from tenacity import (
     retry,
     stop_after_attempt,

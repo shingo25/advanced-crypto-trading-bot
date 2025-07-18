@@ -134,7 +134,6 @@ async def authenticate_user(username: str, password: str) -> Optional[Dict[str, 
 
         if response.user:
             user_id = response.user.id
-            user_email = response.user.email
             user_metadata = response.user.user_metadata or {}
 
             # profilesテーブルからユーザー情報を取得

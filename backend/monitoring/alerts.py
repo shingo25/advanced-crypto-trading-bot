@@ -3,12 +3,11 @@
 """
 
 import logging
-from typing import Dict, List, Optional, Any, Callable
+from typing import Dict, List, Optional, Any
 from datetime import datetime, timezone, timedelta
 from dataclasses import dataclass, field
 from enum import Enum
 import json
-import asyncio
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart

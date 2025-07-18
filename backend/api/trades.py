@@ -60,7 +60,7 @@ class ConnectionManager:
         for connection in self.active_connections:
             try:
                 await connection.send_text(message)
-            except:
+            except Exception:
                 # 接続が切れた場合は削除
                 self.active_connections.remove(connection)
 
@@ -148,7 +148,7 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             # クライアントからのメッセージを受信（keepalive）
-            data = await websocket.receive_text()
+            await websocket.receive_text()
 
             # TODO: 実際のライブトレードデータを送信
             # 現在はダミーデータを送信

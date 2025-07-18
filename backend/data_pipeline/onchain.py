@@ -2,11 +2,9 @@ import asyncio
 import httpx
 from typing import Dict, Any, Optional, List
 from datetime import datetime, timezone, timedelta
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 import logging
 from pathlib import Path
-import pandas as pd
-import json
 
 from backend.core.config import settings
 from backend.core.database import db

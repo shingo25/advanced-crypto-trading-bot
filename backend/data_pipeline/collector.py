@@ -1,18 +1,14 @@
 import asyncio
 import logging
-from typing import List, Dict, Any, Optional, Callable
+from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta, timezone
 from dataclasses import asdict
 import pandas as pd
 from pathlib import Path
-import pyarrow as pa
-import pyarrow.parquet as pq
-from concurrent.futures import ThreadPoolExecutor
 
 from backend.exchanges.factory import ExchangeFactory
 from backend.exchanges.base import AbstractExchangeAdapter, TimeFrame, OHLCV
 from backend.core.database import db
-from backend.core.config import settings
 
 logger = logging.getLogger(__name__)
 
