@@ -84,7 +84,9 @@ class StrategiesModel:
             logger.error(f"戦略無効化エラー (ID: {strategy_id}): {e}")
             return False
 
-    def get_active_strategies(self, user_id: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_active_strategies(
+        self, user_id: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
         """アクティブな戦略を取得"""
         try:
             filters: Dict[str, Any] = {"is_active": True}

@@ -30,8 +30,10 @@ class Database:
     def health_check(self):
         """接続の健全性をチェック"""
         return self.connection.health_check()
-    
-    def execute(self, query: str, params: Optional[Union[Dict[str, Any], List[Any]]] = None) -> Any:
+
+    def execute(
+        self, query: str, params: Optional[Union[Dict[str, Any], List[Any]]] = None
+    ) -> Any:
         """SQL文を実行"""
         try:
             # Supabaseの場合、適切なクエリをORM経由で実行
@@ -41,8 +43,10 @@ class Database:
         except Exception as e:
             logger.error(f"Error executing query: {e}")
             raise
-    
-    def fetchall(self, query: str, params: Optional[Union[Dict[str, Any], List[Any]]] = None) -> List[Any]:
+
+    def fetchall(
+        self, query: str, params: Optional[Union[Dict[str, Any], List[Any]]] = None
+    ) -> List[Any]:
         """クエリを実行し、すべての結果を取得"""
         try:
             # Supabaseの場合、適切なクエリをORM経由で実行
@@ -52,8 +56,10 @@ class Database:
         except Exception as e:
             logger.error(f"Error fetching all: {e}")
             raise
-    
-    def fetchone(self, query: str, params: Optional[Union[Dict[str, Any], List[Any]]] = None) -> Optional[Any]:
+
+    def fetchone(
+        self, query: str, params: Optional[Union[Dict[str, Any], List[Any]]] = None
+    ) -> Optional[Any]:
         """クエリを実行し、単一の結果を取得"""
         try:
             # Supabaseの場合、適切なクエリをORM経由で実行

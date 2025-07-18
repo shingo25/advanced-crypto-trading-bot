@@ -223,7 +223,7 @@ class EMAStrategy(BaseStrategy):
             return {"status": "insufficient_data"}
 
         # pandas DataFrameの場合の処理
-        if hasattr(self.data, 'iloc'):
+        if hasattr(self.data, "iloc"):
             current = self.data.iloc[-1]
         else:
             # リストの場合の処理
@@ -366,10 +366,18 @@ class EMAStrategy(BaseStrategy):
         returns_array = np.array(returns)
 
         if metric == "sharpe_ratio":
-            return float(np.mean(returns_array) / np.std(returns_array) if np.std(returns_array) > 0 else 0.0)
+            return float(
+                np.mean(returns_array) / np.std(returns_array)
+                if np.std(returns_array) > 0
+                else 0.0
+            )
         elif metric == "total_return":
             return float(np.sum(returns_array))
         elif metric == "win_rate":
             return float(np.mean(returns_array > 0))
         else:
-            return float(np.mean(returns_array) / np.std(returns_array) if np.std(returns_array) > 0 else 0.0)
+            return float(
+                np.mean(returns_array) / np.std(returns_array)
+                if np.std(returns_array) > 0
+                else 0.0
+            )

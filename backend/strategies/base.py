@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import Dict, Any, List, Optional, Union
-from __future__ import annotations
 
 try:
     import pandas as pd
@@ -100,7 +101,7 @@ class BaseStrategy(ABC):
         if len(self.data) == 0:
             self.data = pd.DataFrame([new_row])
         else:
-            if hasattr(self.data, 'tail'):
+            if hasattr(self.data, "tail"):
                 self.data = pd.concat(
                     [self.data, pd.DataFrame([new_row])], ignore_index=True
                 )
@@ -242,7 +243,7 @@ class TechnicalIndicators:
             return result
 
         # pandas版は元のまま（pandasがある場合のみ）
-        if hasattr(data, 'rolling'):
+        if hasattr(data, "rolling"):
             return data.rolling(window=period).mean()
         else:
             return data
@@ -270,7 +271,7 @@ class TechnicalIndicators:
             return result
 
         # pandas版は元のまま（pandasがある場合のみ）
-        if hasattr(data, 'ewm'):
+        if hasattr(data, "ewm"):
             return data.ewm(span=period).mean()
         else:
             return data
@@ -318,7 +319,7 @@ class TechnicalIndicators:
             return result
 
         # pandas版は元のまま
-        if HAS_PANDAS and hasattr(data, 'diff'):
+        if HAS_PANDAS and hasattr(data, "diff"):
             delta = data.diff()
             gain = delta.where(delta > 0, 0)
             loss = -delta.where(delta < 0, 0)
@@ -349,7 +350,7 @@ class TechnicalIndicators:
             return {"macd": macd_line, "signal": signal_line, "histogram": histogram}
 
         # pandas版は元のまま
-        if HAS_PANDAS and hasattr(data, 'ewm'):
+        if HAS_PANDAS and hasattr(data, "ewm"):
             ema_fast = TechnicalIndicators.ema(data, fast)
             ema_slow = TechnicalIndicators.ema(data, slow)
 
@@ -359,7 +360,11 @@ class TechnicalIndicators:
 
             return {"macd": macd_line, "signal": signal_line, "histogram": histogram}
         else:
-            return {"macd": [0.0] * len(data), "signal": [0.0] * len(data), "histogram": [0.0] * len(data)}
+            return {
+                "macd": [0.0] * len(data),
+                "signal": [0.0] * len(data),
+                "histogram": [0.0] * len(data),
+            }
 
     @staticmethod
     def bollinger_bands(
@@ -390,7 +395,7 @@ class TechnicalIndicators:
             return {"sma": sma_values, "upper": upper_band, "lower": lower_band}
 
         # pandas版は元のまま
-        if HAS_PANDAS and hasattr(data, 'rolling'):
+        if HAS_PANDAS and hasattr(data, "rolling"):
             sma = TechnicalIndicators.sma(data, period)
             std = data.rolling(window=period).std()
 
@@ -399,7 +404,11 @@ class TechnicalIndicators:
 
             return {"sma": sma, "upper": upper_band, "lower": lower_band}
         else:
-            return {"sma": [0.0] * len(data), "upper": [0.0] * len(data), "lower": [0.0] * len(data)}
+            return {
+                "sma": [0.0] * len(data),
+                "upper": [0.0] * len(data),
+                "lower": [0.0] * len(data),
+            }
 
 
 class StrategyValidator:
