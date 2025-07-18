@@ -3,16 +3,19 @@ const nextConfig = {
   // Vercel最適化
   output: 'export',
   trailingSlash: true,
+  distDir: 'out',
   
-  // 開発環境でのAPI proxy設定
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'http://localhost:8000/api/:path*',
-      },
-    ];
-  },
+  // 開発環境でのAPI proxy設定 (export モードでは無効)
+  ...(process.env.NODE_ENV === 'development' ? {
+    async rewrites() {
+      return [
+        {
+          source: '/api/:path*',
+          destination: 'http://localhost:8000/api/:path*',
+        },
+      ];
+    },
+  } : {}),
   
   // 環境変数の設定
   env: {
