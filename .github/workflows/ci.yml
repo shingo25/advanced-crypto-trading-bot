@@ -172,6 +172,9 @@ jobs:
       - name: 🏗️ Build Docker images
         run: docker compose build --no-cache
 
+      - name: 📄 Create .env file for CI
+        run: cp .env.example .env
+
       - name: 🧪 Test Docker containers
         run: docker compose up -d
 
