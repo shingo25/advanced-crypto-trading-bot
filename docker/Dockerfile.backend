@@ -1,41 +1,4 @@
-#
-# --- Stage 1: Builder ---
-# TA-Libソースビルドとpythonパッケージのコンパイルステージ
-#
-FROM python:3.12-slim AS builder
-
-WORKDIR /app
-
-# ビルドに必要なツールをインストール
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    python3-dev \
-    wget \
-    && rm -rf /var/lib/apt/lists/*
-
-# TA-Libをソースからビルド・インストール
-RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
-    tar -xzf ta-lib-0.4.0-src.tar.gz && \
-    cd ta-lib/ && \
-    ./configure --prefix=/usr && \
-    make && \
-    make install && \
-    cd .. && \
-    rm -rf ta-lib ta-lib-0.4.0-src.tar.gz
-
-# 仮想環境を作成してPythonパッケージをインストール
-RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-
-# requirements.txtをコピーしてパッケージをインストール
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-
-#
-# --- Stage 2: Final ---
-# 実行環境のみのスリムなイメージ
-#
+# FastAPI Backend Dockerfile - Simplified without ta-lib
 FROM python:3.12-slim
 
 WORKDIR /app
@@ -43,18 +6,15 @@ WORKDIR /app
 # セキュリティのため非rootユーザーを作成
 RUN useradd --create-home --shell /bin/bash appuser
 
-# ヘルスチェック用にcurlのみインストール
+# システムパッケージの最小限インストール
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# TA-Libライブラリとヘッダーをbuilderからコピー
-COPY --from=builder /usr/lib/libta_lib* /usr/lib/
-COPY --from=builder /usr/include/ta-lib /usr/include/ta-lib
-
-# builderステージから仮想環境をコピー
-COPY --from=builder /opt/venv /opt/venv
+# requirements.txtをコピーしてPythonパッケージをインストール
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # アプリケーションコードをコピー（所有者をappuserに設定）
 COPY --chown=appuser:appuser backend/ ./backend/
@@ -69,7 +29,6 @@ RUN mkdir -p /app/data /app/logs && \
 USER appuser
 
 # 環境変数を設定
-ENV PATH="/opt/venv/bin:$PATH"
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 
