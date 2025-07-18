@@ -1,0 +1,30 @@
+# CODEOWNERS - コードオーナーシップ定義
+# このファイルで各ディレクトリ・ファイルのレビュー担当者を指定します
+
+# Global owners - 全体の設定や重要なファイル
+* @shingo25
+
+# Backend - Python/FastAPI関連
+/backend/ @shingo25
+/requirements*.txt @shingo25
+/database/ @shingo25
+
+# Frontend - Next.js/TypeScript関連
+/frontend/ @shingo25
+
+# Infrastructure & Deployment
+/vercel.json @shingo25
+/docker-compose.yml @shingo25
+/.github/ @shingo25
+
+# Documentation
+/docs/ @shingo25
+/README.md @shingo25
+/CONTRIBUTING.md @shingo25
+
+# Configuration
+/config/ @shingo25
+/.editorconfig @shingo25
+
+# Security related
+/SECURITY.md @shingo25

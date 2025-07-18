@@ -1,0 +1,59 @@
+name: "✨ 機能要望"
+description: "新しい機能やの改善を提案してください"
+title: "feat: [機能の概要]"
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        機能要望ありがとうございます。あなたのアイデアを詳しく教えてください。
+  - type: textarea
+    id: problem
+    attributes:
+      label: "解決したい問題"
+      description: "現在、どのような問題や不便を感じていますか？"
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: "提案する解決策"
+      description: "どのような機能・改善があれば問題が解決されますか？"
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "代替案"
+      description: "他にも考えられる解決策があれば記載してください"
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "優先度"
+      description: "この機能の重要度を教えてください"
+      options:
+        - "High - 必須機能"
+        - "Medium - あると便利"
+        - "Low - 将来的に検討"
+    validations:
+      required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: "関連コンポーネント"
+      description: "どの部分に関連する機能ですか？"
+      options:
+        - "Backend API"
+        - "Frontend UI"
+        - "Database"
+        - "Trading Strategy"
+        - "Authentication"
+        - "Documentation"
+        - "Other"
+    validations:
+      required: true
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: "追加情報"
+      description: "その他、実装に役立つ情報があれば記載してください"

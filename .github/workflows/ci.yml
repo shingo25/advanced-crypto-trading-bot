@@ -1,0 +1,265 @@
+name: 🚀 CI/CD Pipeline
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+
+env:
+  NODE_VERSION: '20'
+  PYTHON_VERSION: '3.12'
+
+jobs:
+  # 🔒 セキュリティスキャン (最優先)
+  security-scan:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Run TruffleHog OSS
+        id: trufflebehog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+
+      - name: 🔍 Run git-secrets
+        run: |
+          git clone https://github.com/awslabs/git-secrets.git
+          cd git-secrets
+          make install
+          cd ..
+          git secrets --register-aws
+          git secrets --install
+          git secrets --scan
+
+  # 🐍 バックエンドテスト
+  backend-tests:
+    name: 🐍 Backend Tests
+    runs-on: ubuntu-latest
+    needs: security-scan
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 📦 Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: 🎨 Code formatting check (Ruff)
+        run: |
+          pip install ruff
+          ruff format --check backend/
+
+      - name: 📝 Lint check (Ruff)
+        run: |
+          ruff check backend/
+
+      - name: 🧐 Type checking (MyPy)
+        run: |
+          pip install mypy
+          mypy backend/ --ignore-missing-imports
+
+      - name: 🛡️ Security analysis (Bandit)
+        run: |
+          pip install bandit
+          bandit -r backend/ -f json -o bandit-report.json
+          bandit -r backend/
+
+      - name: 🔍 Dependency vulnerability scan
+        run: |
+          pip install pip-audit
+          pip-audit --requirement requirements.txt --format json --output pip-audit-report.json
+          pip-audit --requirement requirements.txt
+
+      - name: 🧪 Run unit tests
+        run: |
+          python -m pytest tests/ -v --cov=backend --cov-report=xml --cov-report=term-missing
+
+      - name: 📊 Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: backend
+          name: backend-coverage
+
+  # 🎨 フロントエンドテスト
+  frontend-tests:
+    name: 🎨 Frontend Tests
+    runs-on: ubuntu-latest
+    needs: security-scan
+    
+    defaults:
+      run:
+        working-directory: ./frontend
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🎨 Code formatting check (Prettier)
+        run: npx prettier --check .
+
+      - name: 📝 Lint check (ESLint)
+        run: npm run lint
+
+      - name: 🧐 Type checking (TypeScript)
+        run: npx tsc --noEmit
+
+      - name: 🔍 Dependency vulnerability scan
+        run: npm audit --audit-level=high
+
+      - name: 🧪 Run unit tests
+        run: npm test -- --coverage --watchAll=false
+
+      - name: 🏗️ Build check
+        run: npm run build
+
+      - name: 📊 Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./frontend/coverage/clover.xml
+          flags: frontend
+          name: frontend-coverage
+
+  # 🐳 Docker Build Test
+  docker-build:
+    name: 🐳 Docker Build Test
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐳 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🏗️ Build Docker image
+        run: |
+          docker-compose build --no-cache
+
+      - name: 🧪 Test Docker containers
+        run: |
+          docker-compose up -d
+          sleep 30
+          docker-compose ps
+          docker-compose down
+
+  # 🌐 エンドツーエンドテスト
+  e2e-tests:
+    name: 🌐 E2E Tests
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 🟢 Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: 📦 Install dependencies
+        run: |
+          pip install -r requirements.txt
+          cd frontend && npm ci
+
+      - name: 🌐 Run E2E tests
+        run: |
+          python -m pytest tests/e2e_test_ema.py -v
+
+  # 📈 コード品質チェック
+  code-quality:
+    name: 📈 Code Quality
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # 🚀 デプロイ準備チェック
+  deployment-check:
+    name: 🚀 Deployment Check
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests, docker-build, e2e-tests]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: ✅ All checks passed
+        run: |
+          echo "🎉 All CI/CD checks passed!"
+          echo "📦 Ready for deployment"
+          echo "🔗 Frontend: Ready for Vercel"
+          echo "🗄️ Backend: Ready for Vercel Functions"
+          echo "🌐 Database: Supabase ready"
+
+  # 📊 セキュリティレポート
+  security-report:
+    name: 📊 Security Report
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+    if: always()
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📊 Generate security report
+        run: |
+          echo "## 🔒 Security Scan Results" > security-report.md
+          echo "- TruffleHog: Secret scanning" >> security-report.md
+          echo "- Bandit: Python security analysis" >> security-report.md
+          echo "- npm audit: Node.js dependency scan" >> security-report.md
+          echo "- pip-audit: Python dependency scan" >> security-report.md
+          
+      - name: 📤 Upload security report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report
+          path: security-report.md
