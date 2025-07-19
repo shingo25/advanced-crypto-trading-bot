@@ -21,7 +21,7 @@ crypto-botプロジェクトのSupabase統合のための設定手順です。
 3. 左側メニューの **Settings** (⚙️) をクリック
 4. **API** セクションを選択
 5. 以下をコピー：
-   - **Project URL** 
+   - **Project URL**
    - **anon** (public) key → `SUPABASE_ANON_KEY`
    - **service_role** (secret) key → `SUPABASE_SERVICE_ROLE_KEY`
 

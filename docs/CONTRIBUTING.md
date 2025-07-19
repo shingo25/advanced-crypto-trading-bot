@@ -73,7 +73,7 @@ pre-commit install
 
 # VS Code 拡張機能のインストール（推奨）
 # - Python
-# - Black Formatter  
+# - Black Formatter
 # - Prettier
 # - TypeScript
 ```
@@ -136,7 +136,7 @@ prettier --write frontend/src/
 flake8 backend/
 npm run lint  # フロントエンド
 
-# 5. 型チェック  
+# 5. 型チェック
 mypy backend/
 npm run type-check  # フロントエンド
 ```
@@ -188,7 +188,7 @@ git push origin feature/your-feature-name
 git commit -m "Add: Bollinger Bands trading strategy
 
 - Implement BB indicator calculation
-- Add entry/exit signal logic  
+- Add entry/exit signal logic
 - Include risk management parameters
 - Add comprehensive unit tests
 
@@ -209,7 +209,7 @@ pyramid
     title Testing Pyramid
     section Unit Tests
         description 70% - 個別モジュール
-    section Integration Tests  
+    section Integration Tests
         description 20% - API・DB連携
     section E2E Tests
         description 10% - ユーザーフロー
@@ -229,7 +229,7 @@ def test_strategy_signal_generation():
 
 # 2. API テスト
 def test_strategy_creation_endpoint():
-    response = client.post("/strategies/", 
+    response = client.post("/strategies/",
                           json={"name": "Test", "parameters": {}},
                           headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 201
@@ -291,7 +291,7 @@ python test_backend_deployment.py
 
 ### 変更詳細
 - [ ] 新機能: XXX を追加
-- [ ] バグ修正: YYY を修正  
+- [ ] バグ修正: YYY を修正
 - [ ] ドキュメント: ZZZ を更新
 
 ## 🧪 テスト
@@ -393,24 +393,24 @@ def calculate_rsi(prices, period=14):
 # 良い例
 class TradingStrategy:
     """取引戦略の基底クラス"""
-    
+
     def __init__(self, symbol: str, timeframe: str) -> None:
         self.symbol = symbol
         self.timeframe = timeframe
         self._indicators: Dict[str, Any] = {}
-    
+
     def generate_signal(self, data: pd.DataFrame) -> Signal:
         """シグナルを生成する
-        
+
         Args:
             data: OHLCV データ
-            
+
         Returns:
             売買シグナル
         """
         if len(data) < self.min_periods:
             return Signal.HOLD
-            
+
         return self._calculate_signal(data)
 
 # 悪い例
@@ -488,20 +488,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
-          
+
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          
+
       - name: Run tests
         run: |
           pytest --cov=backend --cov-report=xml
-          
+
       - name: Upload coverage
         uses: codecov/codecov-action@v3
 ```
@@ -514,7 +514,7 @@ jobs:
 
 #### ❌ 絶対にコミットしてはいけないもの
 - API キー・シークレット
-- パスワード・トークン  
+- パスワード・トークン
 - プライベートキー
 - データベース接続文字列
 - ユーザーの個人情報
@@ -539,7 +539,7 @@ gpg --encrypt --recipient your@email.com secrets.txt
 # ❌ 悪い例
 query = f"SELECT * FROM users WHERE id = {user_id}"
 
-# ✅ 良い例  
+# ✅ 良い例
 query = "SELECT * FROM users WHERE id = %s"
 cursor.execute(query, (user_id,))
 
