@@ -124,6 +124,33 @@ CREATE INDEX idx_settings_user_id ON public.settings(user_id);
 ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can manage their own settings." ON public.settings FOR ALL USING (auth.uid() = user_id);
 
+-- 8. price_data テーブル
+-- 取引所から取得したOHLCV価格データを保存します。
+CREATE TABLE public.price_data (
+    id bigserial NOT NULL PRIMARY KEY,
+    exchange text NOT NULL,
+    symbol text NOT NULL,
+    timeframe text NOT NULL,
+    timestamp timestamp with time zone NOT NULL,
+    open_price numeric(20,8) NOT NULL,
+    high_price numeric(20,8) NOT NULL,
+    low_price numeric(20,8) NOT NULL,
+    close_price numeric(20,8) NOT NULL,
+    volume numeric(20,8) NOT NULL,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+    UNIQUE(exchange, symbol, timeframe, timestamp)
+);
+
+-- インデックス（パフォーマンス最適化）
+CREATE INDEX idx_price_data_exchange_symbol ON public.price_data(exchange, symbol);
+CREATE INDEX idx_price_data_timeframe ON public.price_data(timeframe);
+CREATE INDEX idx_price_data_timestamp ON public.price_data(timestamp DESC);
+CREATE INDEX idx_price_data_composite ON public.price_data(exchange, symbol, timeframe, timestamp DESC);
+
+-- price_dataテーブルのRLS設定（パブリックデータなので読み取り専用）
+ALTER TABLE public.price_data ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Anyone can read price data." ON public.price_data FOR SELECT USING (true);
+CREATE POLICY "Service can manage price data." ON public.price_data FOR ALL USING (true);
 
 -- 最後に、新規ユーザーが作成されたときに自動でprofilesを作成するトリガーを設定するの。
 -- これ、とっても便利よ。
