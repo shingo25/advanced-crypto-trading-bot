@@ -130,7 +130,8 @@ def generate_mock_performance_data(period: str = "7d") -> List[Dict[str, Any]]:
         date = now - timedelta(days=period_days - i)
 
         # ランダムな価格変動を生成（-3% to +3%）
-        daily_change = random.uniform(-0.03, 0.03)
+        # nosec B311: デモ用のテストデータ生成のため、暗号学的に安全である必要はない
+        daily_change = random.uniform(-0.03, 0.03)  # nosec B311
         current_value *= 1 + daily_change
 
         # 最大値を更新

@@ -35,9 +35,18 @@ import PriceWebSocket from '@/components/realtime/PriceWebSocket';
 import { useAuthStore } from '@/store/auth';
 
 const AVAILABLE_SYMBOLS = [
-  'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT',
-  'SOLUSDT', 'XRPUSDT', 'DOTUSDT', 'AVAXUSDT',
-  'MATICUSDT', 'LINKUSDT', 'UNIUSDT', 'LTCUSDT'
+  'BTCUSDT',
+  'ETHUSDT',
+  'BNBUSDT',
+  'ADAUSDT',
+  'SOLUSDT',
+  'XRPUSDT',
+  'DOTUSDT',
+  'AVAXUSDT',
+  'MATICUSDT',
+  'LINKUSDT',
+  'UNIUSDT',
+  'LTCUSDT',
 ];
 
 const LAYOUT_OPTIONS = [
@@ -52,7 +61,10 @@ export default function RealtimeDashboard() {
 
   // State
   const [selectedSymbols, setSelectedSymbols] = useState([
-    'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT'
+    'BTCUSDT',
+    'ETHUSDT',
+    'BNBUSDT',
+    'ADAUSDT',
   ]);
   const [showTrades, setShowTrades] = useState(false);
   const [layout, setLayout] = useState('grid-4');
@@ -63,14 +75,12 @@ export default function RealtimeDashboard() {
   const [newSymbol, setNewSymbol] = useState('');
 
   // Get available symbols that aren't already selected
-  const availableToAdd = AVAILABLE_SYMBOLS.filter(
-    symbol => !selectedSymbols.includes(symbol)
-  );
+  const availableToAdd = AVAILABLE_SYMBOLS.filter((symbol) => !selectedSymbols.includes(symbol));
 
   // Handle symbol addition
   const handleAddSymbol = () => {
     if (newSymbol && !selectedSymbols.includes(newSymbol)) {
-      setSelectedSymbols(prev => [...prev, newSymbol]);
+      setSelectedSymbols((prev) => [...prev, newSymbol]);
       setNewSymbol('');
       setAddSymbolOpen(false);
     }
@@ -78,29 +88,24 @@ export default function RealtimeDashboard() {
 
   // Handle symbol removal
   const handleRemoveSymbol = (symbolToRemove: string) => {
-    setSelectedSymbols(prev => prev.filter(symbol => symbol !== symbolToRemove));
+    setSelectedSymbols((prev) => prev.filter((symbol) => symbol !== symbolToRemove));
   };
 
   // Get grid columns based on layout
   const getGridColumns = () => {
-    const layoutOption = LAYOUT_OPTIONS.find(option => option.value === layout);
+    const layoutOption = LAYOUT_OPTIONS.find((option) => option.value === layout);
     return 12 / (layoutOption?.columns || 4);
   };
 
   // Settings dialog
   const SettingsDialog = () => (
-    <Dialog
-      open={settingsOpen}
-      onClose={() => setSettingsOpen(false)}
-      maxWidth="sm"
-      fullWidth
-    >
+    <Dialog open={settingsOpen} onClose={() => setSettingsOpen(false)} maxWidth="sm" fullWidth>
       <DialogTitle>リアルタイム表示設定</DialogTitle>
       <DialogContent>
         <Box sx={{ pt: 2 }}>
           <Grid container spacing={3}>
             {/* Layout Selection */}
-            <Grid item xs={12}>
+            <Grid size={12}>
               <FormControl fullWidth>
                 <InputLabel>レイアウト</InputLabel>
                 <Select
@@ -108,7 +113,7 @@ export default function RealtimeDashboard() {
                   label="レイアウト"
                   onChange={(e) => setLayout(e.target.value)}
                 >
-                  {LAYOUT_OPTIONS.map(option => (
+                  {LAYOUT_OPTIONS.map((option) => (
                     <MenuItem key={option.value} value={option.value}>
                       {option.label}
                     </MenuItem>
@@ -118,7 +123,7 @@ export default function RealtimeDashboard() {
             </Grid>
 
             {/* Display Options */}
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Typography variant="subtitle2" gutterBottom>
                 表示オプション
               </Typography>
@@ -145,12 +150,12 @@ export default function RealtimeDashboard() {
             </Grid>
 
             {/* Selected Symbols */}
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Typography variant="subtitle2" gutterBottom>
                 表示中のシンボル ({selectedSymbols.length})
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {selectedSymbols.map(symbol => (
+                {selectedSymbols.map((symbol) => (
                   <Chip
                     key={symbol}
                     label={symbol.replace('USDT', '/USDT')}
@@ -173,31 +178,20 @@ export default function RealtimeDashboard() {
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => setSettingsOpen(false)}>
-          閉じる
-        </Button>
+        <Button onClick={() => setSettingsOpen(false)}>閉じる</Button>
       </DialogActions>
     </Dialog>
   );
 
   // Add symbol dialog
   const AddSymbolDialog = () => (
-    <Dialog
-      open={addSymbolOpen}
-      onClose={() => setAddSymbolOpen(false)}
-      maxWidth="xs"
-      fullWidth
-    >
+    <Dialog open={addSymbolOpen} onClose={() => setAddSymbolOpen(false)} maxWidth="xs" fullWidth>
       <DialogTitle>シンボルを追加</DialogTitle>
       <DialogContent>
         <FormControl fullWidth sx={{ mt: 2 }}>
           <InputLabel>シンボル</InputLabel>
-          <Select
-            value={newSymbol}
-            label="シンボル"
-            onChange={(e) => setNewSymbol(e.target.value)}
-          >
-            {availableToAdd.map(symbol => (
+          <Select value={newSymbol} label="シンボル" onChange={(e) => setNewSymbol(e.target.value)}>
+            {availableToAdd.map((symbol) => (
               <MenuItem key={symbol} value={symbol}>
                 {symbol.replace('USDT', '/USDT')}
               </MenuItem>
@@ -206,14 +200,8 @@ export default function RealtimeDashboard() {
         </FormControl>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => setAddSymbolOpen(false)}>
-          キャンセル
-        </Button>
-        <Button
-          onClick={handleAddSymbol}
-          variant="contained"
-          disabled={!newSymbol}
-        >
+        <Button onClick={() => setAddSymbolOpen(false)}>キャンセル</Button>
+        <Button onClick={handleAddSymbol} variant="contained" disabled={!newSymbol}>
           追加
         </Button>
       </DialogActions>
@@ -224,7 +212,7 @@ export default function RealtimeDashboard() {
   const QuickActions = () => (
     <Box sx={{ mb: 3 }}>
       <Grid container spacing={2}>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" color="primary">
@@ -236,7 +224,7 @@ export default function RealtimeDashboard() {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" color="success.main">
@@ -248,7 +236,7 @@ export default function RealtimeDashboard() {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" color="info.main">
@@ -260,7 +248,7 @@ export default function RealtimeDashboard() {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" color="warning.main">
@@ -278,7 +266,7 @@ export default function RealtimeDashboard() {
 
   return (
     <Container
-      maxWidth={fullscreen ? false : "xl"}
+      maxWidth={fullscreen ? false : 'xl'}
       sx={{
         py: 4,
         ...(fullscreen && {
@@ -290,16 +278,18 @@ export default function RealtimeDashboard() {
           zIndex: 9999,
           backgroundColor: 'background.default',
           overflow: 'auto',
-        })
+        }),
       }}
     >
       {/* Header */}
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        mb: 3
-      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 3,
+        }}
+      >
         <Typography variant="h4" component="h1">
           リアルタイム価格ダッシュボード
         </Typography>
@@ -308,7 +298,7 @@ export default function RealtimeDashboard() {
           <Tooltip title="フルスクリーン表示">
             <IconButton
               onClick={() => setFullscreen(!fullscreen)}
-              color={fullscreen ? "primary" : "default"}
+              color={fullscreen ? 'primary' : 'default'}
             >
               <FullscreenIcon />
             </IconButton>
@@ -348,7 +338,7 @@ export default function RealtimeDashboard() {
             ご利用について
           </Typography>
           <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Typography variant="body2" paragraph>
                 <strong>データソース:</strong> Binance公式WebSocket API
               </Typography>
@@ -359,7 +349,7 @@ export default function RealtimeDashboard() {
                 <strong>自動再接続:</strong> 接続が切れた場合は自動的に再接続します
               </Typography>
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Typography variant="body2" paragraph>
                 <strong>表示データ:</strong>
                 <br />• 現在価格

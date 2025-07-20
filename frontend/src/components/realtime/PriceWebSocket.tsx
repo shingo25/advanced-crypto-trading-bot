@@ -16,14 +16,7 @@ import {
   IconButton,
   Tooltip,
 } from '@mui/material';
-import {
-  TrendingUp,
-  TrendingDown,
-  Wifi,
-  WifiOff,
-  Refresh,
-  Settings,
-} from '@mui/icons-material';
+import { TrendingUp, TrendingDown, Wifi, WifiOff, Refresh, Settings } from '@mui/icons-material';
 import { useAuthStore } from '@/store/auth';
 
 interface PriceData {
@@ -82,7 +75,7 @@ export default function PriceWebSocket({
   const reconnectAttempts = useRef(0);
 
   // Auth
-  const { user, token } = useAuthStore();
+  const { user } = useAuthStore();
 
   // WebSocket URL
   const getWebSocketUrl = () => {
@@ -109,14 +102,7 @@ export default function PriceWebSocket({
         setConnectionStatus('connected');
         reconnectAttempts.current = 0;
 
-        // 認証（トークンがある場合）
-        if (token) {
-          const authMessage = {
-            type: 'auth',
-            token: token,
-          };
-          ws.current?.send(JSON.stringify(authMessage));
-        }
+        // 認証は現在無効化（必要に応じて実装）
 
         // 価格チャンネルを購読
         const subscribeMessage = {
@@ -140,18 +126,18 @@ export default function PriceWebSocket({
       ws.current.onmessage = (event) => {
         try {
           const message: WebSocketMessage = JSON.parse(event.data);
-          setMessagesReceived(prev => prev + 1);
+          setMessagesReceived((prev) => prev + 1);
           setLastUpdateTime(new Date());
 
           if (message.type === 'price_update' && message.channel === 'prices') {
             const priceData = message.data as PriceData;
-            setPrices(prev => ({
+            setPrices((prev) => ({
               ...prev,
               [priceData.symbol]: priceData,
             }));
           } else if (message.type === 'trade_execution' && message.channel === 'trades') {
             const tradeData = message.data as TradeData;
-            setTrades(prev => [tradeData, ...prev.slice(0, 49)]); // 最新50件を保持
+            setTrades((prev) => [tradeData, ...prev.slice(0, 49)]); // 最新50件を保持
           } else if (message.type === 'error') {
             console.error('WebSocket error message:', message.data);
             setError(String(message.data));
@@ -188,7 +174,7 @@ export default function PriceWebSocket({
       setConnectionStatus('error');
       setError('WebSocket接続の作成に失敗しました');
     }
-  }, [token, showTrades, autoReconnect]);
+  }, [showTrades, autoReconnect]);
 
   // Disconnect WebSocket
   const disconnect = useCallback(() => {
@@ -260,29 +246,36 @@ export default function PriceWebSocket({
   const ConnectionIndicator = () => {
     const getStatusColor = () => {
       switch (connectionStatus) {
-        case 'connected': return '#4caf50';
-        case 'connecting': return '#ff9800';
-        case 'disconnected': return '#757575';
-        case 'error': return '#f44336';
-        default: return '#757575';
+        case 'connected':
+          return '#4caf50';
+        case 'connecting':
+          return '#ff9800';
+        case 'disconnected':
+          return '#757575';
+        case 'error':
+          return '#f44336';
+        default:
+          return '#757575';
       }
     };
 
     const getStatusIcon = () => {
       switch (connectionStatus) {
-        case 'connected': return <Wifi />;
-        case 'connecting': return <CircularProgress size={20} />;
+        case 'connected':
+          return <Wifi />;
+        case 'connecting':
+          return <CircularProgress size={20} />;
         case 'disconnected':
-        case 'error': return <WifiOff />;
-        default: return <WifiOff />;
+        case 'error':
+          return <WifiOff />;
+        default:
+          return <WifiOff />;
       }
     };
 
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <Box sx={{ color: getStatusColor() }}>
-          {getStatusIcon()}
-        </Box>
+        <Box sx={{ color: getStatusColor() }}>{getStatusIcon()}</Box>
         <Typography variant="caption" sx={{ color: getStatusColor() }}>
           {connectionStatus.toUpperCase()}
         </Typography>
@@ -303,7 +296,9 @@ export default function PriceWebSocket({
     return (
       <Card sx={{ height: '100%' }}>
         <CardContent>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Box
+            sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}
+          >
             <Typography variant="h6" component="div">
               {priceData.symbol.replace('USDT', '/USDT')}
             </Typography>
@@ -323,29 +318,23 @@ export default function PriceWebSocket({
           </Typography>
 
           <Grid container spacing={1}>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <Typography variant="caption" color="text.secondary">
                 24H 高値
               </Typography>
-              <Typography variant="body2">
-                {formatCurrency(priceData.high_24h)}
-              </Typography>
+              <Typography variant="body2">{formatCurrency(priceData.high_24h)}</Typography>
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <Typography variant="caption" color="text.secondary">
                 24H 安値
               </Typography>
-              <Typography variant="body2">
-                {formatCurrency(priceData.low_24h)}
-              </Typography>
+              <Typography variant="body2">{formatCurrency(priceData.low_24h)}</Typography>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Typography variant="caption" color="text.secondary">
                 24H 出来高
               </Typography>
-              <Typography variant="body2">
-                {formatVolume(priceData.volume_24h)}
-              </Typography>
+              <Typography variant="body2">{formatVolume(priceData.volume_24h)}</Typography>
             </Grid>
           </Grid>
 
@@ -395,9 +384,7 @@ export default function PriceWebSocket({
                 />
               </Box>
               <Box sx={{ textAlign: 'right' }}>
-                <Typography variant="body2">
-                  {formatCurrency(trade.price)}
-                </Typography>
+                <Typography variant="body2">{formatCurrency(trade.price)}</Typography>
                 <Typography variant="caption" color="text.secondary">
                   {trade.quantity.toFixed(4)}
                 </Typography>
@@ -419,17 +406,18 @@ export default function PriceWebSocket({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <ConnectionIndicator />
           <Tooltip title="再接続">
-            <IconButton onClick={() => { disconnect(); connect(); }} size="small">
+            <IconButton
+              onClick={() => {
+                disconnect();
+                connect();
+              }}
+              size="small"
+            >
               <Refresh />
             </IconButton>
           </Tooltip>
           <FormControlLabel
-            control={
-              <Switch
-                checked={showTrades}
-                size="small"
-              />
-            }
+            control={<Switch checked={showTrades} size="small" />}
             label="取引表示"
           />
         </Box>
@@ -445,28 +433,29 @@ export default function PriceWebSocket({
       {/* Stats */}
       <Box sx={{ mb: 2 }}>
         <Typography variant="caption" color="text.secondary">
-          接続状態: {connectionStatus} |
-          受信メッセージ数: {messagesReceived} |
-          価格データ: {Object.keys(prices).length}件
+          接続状態: {connectionStatus} | 受信メッセージ数: {messagesReceived} | 価格データ:{' '}
+          {Object.keys(prices).length}件
         </Typography>
       </Box>
 
       {/* Price Cards */}
       <Grid container spacing={2}>
-        {symbols.map(symbol => {
+        {symbols.map((symbol) => {
           const priceData = prices[symbol];
           if (!priceData) {
             return (
-              <Grid item xs={12} sm={6} md={3} key={symbol}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }} key={symbol}>
                 <Card sx={{ height: '100%' }}>
                   <CardContent>
-                    <Typography variant="h6">
-                      {symbol.replace('USDT', '/USDT')}
-                    </Typography>
+                    <Typography variant="h6">{symbol.replace('USDT', '/USDT')}</Typography>
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                       <CircularProgress size={40} />
                     </Box>
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ mt: 1, textAlign: 'center' }}
+                    >
                       データを読み込み中...
                     </Typography>
                   </CardContent>
@@ -476,7 +465,7 @@ export default function PriceWebSocket({
           }
 
           return (
-            <Grid item xs={12} sm={6} md={3} key={symbol}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }} key={symbol}>
               <PriceCard priceData={priceData} />
             </Grid>
           );

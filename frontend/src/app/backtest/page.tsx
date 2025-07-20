@@ -75,7 +75,7 @@ export default function BacktestPage() {
       symbol: string;
       progress: number;
       status: string;
-    }
+    };
   }>({});
 
   // バックテスト統計
@@ -175,8 +175,8 @@ export default function BacktestPage() {
 
   // ダッシュボード統計カード
   const StatsCards = () => (
-    <Grid container spacing={3} sx={{ mb: 3 }}>
-      <Grid item xs={12} sm={6} md={3}>
+    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
+      <Box sx={{ flex: '1 1 300px', minWidth: '250px' }}>
         <Card>
           <CardContent>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -192,9 +192,9 @@ export default function BacktestPage() {
             </Box>
           </CardContent>
         </Card>
-      </Grid>
+      </Box>
 
-      <Grid item xs={12} sm={6} md={3}>
+      <Box sx={{ flex: '1 1 300px', minWidth: '250px' }}>
         <Card>
           <CardContent>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -210,9 +210,9 @@ export default function BacktestPage() {
             </Box>
           </CardContent>
         </Card>
-      </Grid>
+      </Box>
 
-      <Grid item xs={12} sm={6} md={3}>
+      <Box sx={{ flex: '1 1 300px', minWidth: '250px' }}>
         <Card>
           <CardContent>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -224,15 +224,16 @@ export default function BacktestPage() {
                 <Typography variant="h5" component="div">
                   {backtestStats.totalTests > 0
                     ? Math.round((backtestStats.successfulTests / backtestStats.totalTests) * 100)
-                    : 0}%
+                    : 0}
+                  %
                 </Typography>
               </Box>
             </Box>
           </CardContent>
         </Card>
-      </Grid>
+      </Box>
 
-      <Grid item xs={12} sm={6} md={3}>
+      <Box sx={{ flex: '1 1 300px', minWidth: '250px' }}>
         <Card>
           <CardContent>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -245,7 +246,7 @@ export default function BacktestPage() {
                   variant="h5"
                   component="div"
                   sx={{
-                    color: backtestStats.averageReturn >= 0 ? '#4caf50' : '#f44336'
+                    color: backtestStats.averageReturn >= 0 ? '#4caf50' : '#f44336',
                   }}
                 >
                   {formatPercent(backtestStats.averageReturn)}
@@ -254,8 +255,8 @@ export default function BacktestPage() {
             </Box>
           </CardContent>
         </Card>
-      </Grid>
-    </Grid>
+      </Box>
+    </Box>
   );
 
   // 実行中バックテスト表示
@@ -273,7 +274,7 @@ export default function BacktestPage() {
         </Typography>
         <Grid container spacing={2}>
           {runningList.map(([id, backtest]) => (
-            <Grid item xs={12} sm={6} md={4} key={id}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={id}>
               <Card variant="outlined">
                 <CardContent>
                   <Typography variant="subtitle2" gutterBottom>
@@ -282,13 +283,15 @@ export default function BacktestPage() {
                   <Typography variant="body2" color="text.secondary" gutterBottom>
                     {backtest.symbol}
                   </Typography>
-                  <Box sx={{
-                    width: '100%',
-                    height: 6,
-                    bgcolor: 'grey.300',
-                    borderRadius: 1,
-                    mb: 1
-                  }}>
+                  <Box
+                    sx={{
+                      width: '100%',
+                      height: 6,
+                      bgcolor: 'grey.300',
+                      borderRadius: 1,
+                      mb: 1,
+                    }}
+                  >
                     <Box
                       sx={{
                         width: `${backtest.progress}%`,
@@ -408,9 +411,7 @@ export default function BacktestPage() {
           <BacktestForm />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setNewBacktestDialog(false)}>
-            キャンセル
-          </Button>
+          <Button onClick={() => setNewBacktestDialog(false)}>キャンセル</Button>
           <Button variant="contained" disabled>
             実行 (未実装)
           </Button>
@@ -418,20 +419,13 @@ export default function BacktestPage() {
       </Dialog>
 
       {/* 結果比較ダイアログ */}
-      <Dialog
-        open={compareDialog}
-        onClose={() => setCompareDialog(false)}
-        maxWidth="xl"
-        fullWidth
-      >
+      <Dialog open={compareDialog} onClose={() => setCompareDialog(false)} maxWidth="xl" fullWidth>
         <DialogTitle>バックテスト結果比較</DialogTitle>
         <DialogContent>
           <CompareResults />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setCompareDialog(false)}>
-            閉じる
-          </Button>
+          <Button onClick={() => setCompareDialog(false)}>閉じる</Button>
         </DialogActions>
       </Dialog>
 

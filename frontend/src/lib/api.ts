@@ -255,7 +255,10 @@ export const marketDataApi = {
     return response.data;
   },
 
-  async getTimeframes(exchange: string = 'binance', symbol?: string): Promise<{ timeframes: string[] }> {
+  async getTimeframes(
+    exchange: string = 'binance',
+    symbol?: string
+  ): Promise<{ timeframes: string[] }> {
     const queryParams = new URLSearchParams();
     queryParams.append('exchange', exchange);
     if (symbol) queryParams.append('symbol', symbol);
@@ -264,7 +267,11 @@ export const marketDataApi = {
     return response.data;
   },
 
-  async getLatestPrices(exchange: string = 'binance', symbols?: string, timeframe: string = '1h'): Promise<{ latest_prices: LatestPrice[] }> {
+  async getLatestPrices(
+    exchange: string = 'binance',
+    symbols?: string,
+    timeframe: string = '1h'
+  ): Promise<{ latest_prices: LatestPrice[] }> {
     const queryParams = new URLSearchParams();
     queryParams.append('exchange', exchange);
     queryParams.append('timeframe', timeframe);

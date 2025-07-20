@@ -155,10 +155,10 @@ export default function BacktestResultsList({
           initial_capital: 10000,
           final_capital: 12500,
           total_return: 0.25,
-          annualized_return: 0.50,
+          annualized_return: 0.5,
           max_drawdown: -0.15,
           sharpe_ratio: 1.85,
-          sortino_ratio: 2.10,
+          sortino_ratio: 2.1,
           win_rate: 0.68,
           total_trades: 45,
           created_at: '2024-07-01T10:30:00Z',
@@ -174,10 +174,10 @@ export default function BacktestResultsList({
           initial_capital: 10000,
           final_capital: 9500,
           total_return: -0.05,
-          annualized_return: -0.10,
+          annualized_return: -0.1,
           max_drawdown: -0.25,
           sharpe_ratio: -0.35,
-          sortino_ratio: -0.20,
+          sortino_ratio: -0.2,
           win_rate: 0.42,
           total_trades: 32,
           created_at: '2024-07-01T09:15:00Z',
@@ -205,18 +205,20 @@ export default function BacktestResultsList({
     let filtered = [...results];
 
     if (strategyFilter !== 'all') {
-      filtered = filtered.filter(r => r.strategy_name === strategyFilter);
+      filtered = filtered.filter((r) => r.strategy_name === strategyFilter);
     }
     if (symbolFilter !== 'all') {
-      filtered = filtered.filter(r => r.symbol === symbolFilter);
+      filtered = filtered.filter((r) => r.symbol === symbolFilter);
     }
     if (timeframeFilter !== 'all') {
-      filtered = filtered.filter(r => r.timeframe === timeframeFilter);
+      filtered = filtered.filter((r) => r.timeframe === timeframeFilter);
     }
     if (performanceFilter !== 'all') {
       const threshold = performanceFilter === 'profitable' ? 0 : -0.05;
-      filtered = filtered.filter(r =>
-        performanceFilter === 'profitable' ? r.total_return > threshold : r.total_return <= threshold
+      filtered = filtered.filter((r) =>
+        performanceFilter === 'profitable'
+          ? r.total_return > threshold
+          : r.total_return <= threshold
       );
     }
 
@@ -238,10 +240,8 @@ export default function BacktestResultsList({
 
   // 選択処理
   const handleSelectResult = (id: string) => {
-    setSelectedResults(prev =>
-      prev.includes(id)
-        ? prev.filter(r => r !== id)
-        : [...prev, id]
+    setSelectedResults((prev) =>
+      prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]
     );
   };
 
@@ -262,14 +262,14 @@ export default function BacktestResultsList({
   const SummaryStats = () => {
     const stats = {
       total: results.length,
-      profitable: results.filter(r => r.total_return > 0).length,
+      profitable: results.filter((r) => r.total_return > 0).length,
       avgReturn: results.reduce((sum, r) => sum + r.total_return, 0) / results.length || 0,
       avgSharpe: results.reduce((sum, r) => sum + r.sharpe_ratio, 0) / results.length || 0,
     };
 
     return (
       <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid item xs={3}>
+        <Grid size={3}>
           <Card>
             <CardContent>
               <Typography variant="body2" color="text.secondary">
@@ -279,7 +279,7 @@ export default function BacktestResultsList({
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={3}>
+        <Grid size={3}>
           <Card>
             <CardContent>
               <Typography variant="body2" color="text.secondary">
@@ -291,31 +291,25 @@ export default function BacktestResultsList({
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={3}>
+        <Grid size={3}>
           <Card>
             <CardContent>
               <Typography variant="body2" color="text.secondary">
                 平均リターン
               </Typography>
-              <Typography
-                variant="h6"
-                sx={{ color: stats.avgReturn >= 0 ? '#4caf50' : '#f44336' }}
-              >
+              <Typography variant="h6" sx={{ color: stats.avgReturn >= 0 ? '#4caf50' : '#f44336' }}>
                 {formatPercent(stats.avgReturn)}
               </Typography>
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={3}>
+        <Grid size={3}>
           <Card>
             <CardContent>
               <Typography variant="body2" color="text.secondary">
                 平均シャープ
               </Typography>
-              <Typography
-                variant="h6"
-                sx={{ color: stats.avgSharpe >= 1 ? '#4caf50' : '#f44336' }}
-              >
+              <Typography variant="h6" sx={{ color: stats.avgSharpe >= 1 ? '#4caf50' : '#f44336' }}>
                 {stats.avgSharpe.toFixed(2)}
               </Typography>
             </CardContent>
@@ -356,10 +350,7 @@ export default function BacktestResultsList({
             >
               比較 ({selectedResults.length})
             </Button>
-            <Button
-              startIcon={<DownloadIcon />}
-              variant="outlined"
-            >
+            <Button startIcon={<DownloadIcon />} variant="outlined">
               エクスポート
             </Button>
           </Box>
@@ -438,11 +429,7 @@ export default function BacktestResultsList({
                 result.total_return
               );
               return (
-                <TableRow
-                  key={result.id}
-                  selected={selectedResults.includes(result.id)}
-                  hover
-                >
+                <TableRow key={result.id} selected={selectedResults.includes(result.id)} hover>
                   <TableCell padding="checkbox">
                     <input
                       type="checkbox"
@@ -476,7 +463,7 @@ export default function BacktestResultsList({
                         variant="body2"
                         sx={{
                           color: result.total_return >= 0 ? '#4caf50' : '#f44336',
-                          fontWeight: 'medium'
+                          fontWeight: 'medium',
                         }}
                       >
                         {formatPercent(result.total_return)}
@@ -488,24 +475,19 @@ export default function BacktestResultsList({
                       variant="body2"
                       sx={{
                         color: result.sharpe_ratio >= 1 ? '#4caf50' : '#f44336',
-                        fontWeight: 'medium'
+                        fontWeight: 'medium',
                       }}
                     >
                       {result.sharpe_ratio.toFixed(2)}
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <Typography
-                      variant="body2"
-                      sx={{ color: '#f44336', fontWeight: 'medium' }}
-                    >
+                    <Typography variant="body2" sx={{ color: '#f44336', fontWeight: 'medium' }}>
                       {formatPercent(result.max_drawdown)}
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2">
-                      {formatPercent(result.win_rate)}
-                    </Typography>
+                    <Typography variant="body2">{formatPercent(result.win_rate)}</Typography>
                   </TableCell>
                   <TableCell>
                     <Chip
@@ -525,10 +507,7 @@ export default function BacktestResultsList({
                   <TableCell>
                     <Box sx={{ display: 'flex' }}>
                       <Tooltip title="詳細表示">
-                        <IconButton
-                          size="small"
-                          onClick={() => handleViewDetail(result.id)}
-                        >
+                        <IconButton size="small" onClick={() => handleViewDetail(result.id)}>
                           <VisibilityIcon />
                         </IconButton>
                       </Tooltip>
@@ -572,9 +551,7 @@ export default function BacktestResultsList({
       >
         <DialogTitle>バックテスト詳細結果</DialogTitle>
         <DialogContent>
-          {selectedResult && (
-            <BacktestVisualization result={selectedResult} />
-          )}
+          {selectedResult && <BacktestVisualization result={selectedResult} />}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDetailDialogOpen(false)}>閉じる</Button>

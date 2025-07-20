@@ -157,16 +157,8 @@ export default function BacktestVisualization({
       <ResponsiveContainer width="100%" height={400}>
         <ComposedChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="date"
-            tick={{ fontSize: 12 }}
-            interval="preserveStartEnd"
-          />
-          <YAxis
-            yAxisId="equity"
-            tick={{ fontSize: 12 }}
-            tickFormatter={formatCurrency}
-          />
+          <XAxis dataKey="date" tick={{ fontSize: 12 }} interval="preserveStartEnd" />
+          <YAxis yAxisId="equity" tick={{ fontSize: 12 }} tickFormatter={formatCurrency} />
           <YAxis
             yAxisId="drawdown"
             orientation="right"
@@ -241,21 +233,17 @@ export default function BacktestVisualization({
     }));
 
     const getColorIntensity = (value: number) => {
-      const absMax = Math.max(...heatmapData.map(d => Math.abs(d.return)));
+      const absMax = Math.max(...heatmapData.map((d) => Math.abs(d.return)));
       const intensity = Math.abs(value) / absMax;
-      return value >= 0
-        ? `rgba(76, 175, 80, ${intensity})`
-        : `rgba(244, 67, 54, ${intensity})`;
+      return value >= 0 ? `rgba(76, 175, 80, ${intensity})` : `rgba(244, 67, 54, ${intensity})`;
     };
 
     return (
       <Box sx={{ height: 300, overflowX: 'auto' }}>
         <Grid container spacing={0.5}>
           {heatmapData.map((item, index) => (
-            <Grid item key={index}>
-              <MuiTooltip
-                title={`${item.year}年${item.monthName}: ${item.return.toFixed(2)}%`}
-              >
+            <Grid size="auto" key={index}>
+              <MuiTooltip title={`${item.year}年${item.monthName}: ${item.return.toFixed(2)}%`}>
                 <Card
                   sx={{
                     width: 60,
@@ -297,11 +285,7 @@ export default function BacktestVisualization({
             tick={{ fontSize: 12 }}
             label={{ value: 'トレード番号', position: 'insideBottom', offset: -5 }}
           />
-          <YAxis
-            yAxisId="pnl"
-            tick={{ fontSize: 12 }}
-            tickFormatter={formatCurrency}
-          />
+          <YAxis yAxisId="pnl" tick={{ fontSize: 12 }} tickFormatter={formatCurrency} />
           <YAxis
             yAxisId="cumulative"
             orientation="right"
@@ -315,10 +299,7 @@ export default function BacktestVisualization({
                 return (
                   <Card sx={{ p: 1 }}>
                     <Typography variant="body2">トレード #{label}</Typography>
-                    <Typography
-                      variant="body2"
-                      color={data?.isWin ? colors.success : colors.error}
-                    >
+                    <Typography variant="body2" color={data?.isWin ? colors.success : colors.error}>
                       PnL: {formatCurrency(data?.pnl || 0)}
                     </Typography>
                     <Typography variant="body2" color={colors.primary}>
@@ -330,16 +311,9 @@ export default function BacktestVisualization({
               return null;
             }}
           />
-          <Bar
-            yAxisId="pnl"
-            dataKey="pnl"
-            name="個別PnL"
-          >
+          <Bar yAxisId="pnl" dataKey="pnl" name="個別PnL">
             {tradeData.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={entry.isWin ? colors.success : colors.error}
-              />
+              <Cell key={`cell-${index}`} fill={entry.isWin ? colors.success : colors.error} />
             ))}
           </Bar>
           <Line
@@ -395,7 +369,10 @@ export default function BacktestVisualization({
       },
       {
         metric: 'ベータ',
-        value: Math.min(Math.max(Math.abs(result.performance_metrics.beta || 0), 0), maxValues.beta),
+        value: Math.min(
+          Math.max(Math.abs(result.performance_metrics.beta || 0), 0),
+          maxValues.beta
+        ),
         fullValue: result.performance_metrics.beta || 0,
       },
     ];
@@ -404,15 +381,8 @@ export default function BacktestVisualization({
       <ResponsiveContainer width="100%" height={300}>
         <RadarChart data={radarData}>
           <PolarGrid />
-          <PolarAngleAxis
-            dataKey="metric"
-            tick={{ fontSize: 12 }}
-          />
-          <PolarRadiusAxis
-            angle={90}
-            domain={[0, 'dataMax']}
-            tick={{ fontSize: 10 }}
-          />
+          <PolarAngleAxis dataKey="metric" tick={{ fontSize: 12 }} />
+          <PolarRadiusAxis angle={90} domain={[0, 'dataMax']} tick={{ fontSize: 10 }} />
           <Radar
             name="指標値"
             dataKey="value"
@@ -445,11 +415,19 @@ export default function BacktestVisualization({
   const PerformanceStats = () => {
     const stats = [
       { label: '総リターン', value: formatPercent(result.total_return), color: colors.primary },
-      { label: '年率リターン', value: formatPercent(result.annualized_return), color: colors.success },
+      {
+        label: '年率リターン',
+        value: formatPercent(result.annualized_return),
+        color: colors.success,
+      },
       { label: '最大ドローダウン', value: formatPercent(result.max_drawdown), color: colors.error },
       { label: 'ボラティリティ', value: formatPercent(result.volatility), color: colors.warning },
       { label: 'シャープレシオ', value: result.sharpe_ratio.toFixed(3), color: colors.info },
-      { label: 'プロフィットファクター', value: result.profit_factor.toFixed(2), color: colors.secondary },
+      {
+        label: 'プロフィットファクター',
+        value: result.profit_factor.toFixed(2),
+        color: colors.secondary,
+      },
       { label: '勝率', value: formatPercent(result.win_rate), color: colors.success },
       { label: '総トレード数', value: result.total_trades.toString(), color: colors.primary },
     ];
@@ -457,16 +435,13 @@ export default function BacktestVisualization({
     return (
       <Grid container spacing={2}>
         {stats.map((stat, index) => (
-          <Grid item xs={6} sm={3} key={index}>
+          <Grid size={{ xs: 6, sm: 3 }} key={index}>
             <Card>
               <CardContent>
                 <Typography variant="body2" color="text.secondary">
                   {stat.label}
                 </Typography>
-                <Typography
-                  variant="h6"
-                  sx={{ color: stat.color, fontWeight: 'bold' }}
-                >
+                <Typography variant="h6" sx={{ color: stat.color, fontWeight: 'bold' }}>
                   {stat.value}
                 </Typography>
               </CardContent>
