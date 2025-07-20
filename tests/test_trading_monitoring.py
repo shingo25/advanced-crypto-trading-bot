@@ -75,7 +75,7 @@ def test_position_management():
         engine.update_price("BTCUSDT", 50000.0)
 
         # 買い注文を作成
-        buy_order = engine.create_order(
+        engine.create_order(
             symbol="BTCUSDT",
             side=OrderSide.BUY,
             order_type=OrderType.MARKET,

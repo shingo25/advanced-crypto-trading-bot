@@ -282,6 +282,231 @@ export const marketDataApi = {
   },
 };
 
+// Phase3 新機能: 戦略API拡張
+export const strategyApiExtended = {
+  // 戦略の有効/無効切り替え
+  async toggleStrategy(id: string): Promise<Strategy> {
+    const response = await apiClient.patch(`/strategies/${id}/toggle`);
+    return response.data;
+  },
+
+  // パラメータ更新
+  async updateStrategyParameters(id: string, parameters: Record<string, any>): Promise<Strategy> {
+    const response = await apiClient.patch(`/strategies/${id}/parameters`, parameters);
+    return response.data;
+  },
+
+  // ステータス詳細取得
+  async getStrategyStatusDetails(id: string): Promise<any> {
+    const response = await apiClient.get(`/strategies/${id}/status`);
+    return response.data;
+  },
+
+  // アクティブな戦略のみ取得
+  async getActiveStrategies(): Promise<Strategy[]> {
+    const response = await apiClient.get('/strategies/active');
+    return response.data;
+  },
+};
+
+// Phase3 新機能: ポートフォリオAPI拡張
+export const portfolioApiExtended = {
+  // ポートフォリオサマリー取得
+  async getPortfolioSummary(): Promise<any> {
+    const response = await apiClient.get('/api/portfolio/');
+    return response.data;
+  },
+
+  // 戦略配分管理
+  async addStrategyToPortfolio(strategyData: any): Promise<any> {
+    const response = await apiClient.post('/api/portfolio/strategies', strategyData);
+    return response.data;
+  },
+
+  async removeStrategyFromPortfolio(strategyName: string): Promise<any> {
+    const response = await apiClient.delete(`/api/portfolio/strategies/${strategyName}`);
+    return response.data;
+  },
+
+  async updateStrategyStatus(strategyName: string, status: string): Promise<any> {
+    const response = await apiClient.patch(`/api/portfolio/strategies/${strategyName}/status`, { status });
+    return response.data;
+  },
+
+  // パフォーマンス追跡
+  async getStrategyPerformance(strategyName: string): Promise<any> {
+    const response = await apiClient.get(`/api/portfolio/strategies/${strategyName}/performance`);
+    return response.data;
+  },
+
+  // 相関行列取得
+  async getCorrelationMatrix(): Promise<any> {
+    const response = await apiClient.get('/api/portfolio/correlation');
+    return response.data;
+  },
+
+  // リバランシング提案
+  async getRebalanceRecommendations(): Promise<any> {
+    const response = await apiClient.post('/api/portfolio/rebalance');
+    return response.data;
+  },
+
+  // リスクレポート
+  async getRiskReport(): Promise<any> {
+    const response = await apiClient.get('/api/portfolio/risk-report');
+    return response.data;
+  },
+
+  // ポートフォリオ最適化
+  async getPortfolioOptimization(): Promise<any> {
+    const response = await apiClient.post('/api/portfolio/optimize');
+    return response.data;
+  },
+
+  // ヘルスチェック
+  async getPortfolioHealth(): Promise<any> {
+    const response = await apiClient.get('/api/portfolio/health');
+    return response.data;
+  },
+};
+
+// Phase3 新機能: リスク管理API
+export const riskApi = {
+  // リスクサマリー取得
+  async getRiskSummary(): Promise<any> {
+    const response = await apiClient.get('/api/risk/summary');
+    return response.data;
+  },
+
+  // VaR計算
+  async calculateVaR(params: {
+    portfolio_id?: string;
+    confidence_level?: number;
+    time_horizon?: string;
+    method?: 'historical' | 'parametric' | 'monte_carlo';
+  }): Promise<any> {
+    const response = await apiClient.post('/api/risk/var', params);
+    return response.data;
+  },
+
+  // ストレステスト実行
+  async runStressTest(params: {
+    scenario: string;
+    parameters?: Record<string, any>;
+  }): Promise<any> {
+    const response = await apiClient.post('/api/risk/stress-test', params);
+    return response.data;
+  },
+
+  // ポジションサイジング取得
+  async getPositionSizing(params: {
+    strategy_name: string;
+    symbol: string;
+    entry_price: number;
+    direction?: 'long' | 'short';
+  }): Promise<any> {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) queryParams.append(key, value.toString());
+    });
+
+    const response = await apiClient.get(`/api/risk/position-sizing?${queryParams}`);
+    return response.data;
+  },
+
+  // 利用可能なシナリオ取得
+  async getAvailableScenarios(): Promise<any> {
+    const response = await apiClient.get('/api/risk/scenarios');
+    return response.data;
+  },
+
+  // ヘルスチェック
+  async getRiskHealth(): Promise<any> {
+    const response = await apiClient.get('/api/risk/health');
+    return response.data;
+  },
+};
+
+// Phase3 新機能: アラートAPI拡張
+export const alertApiExtended = {
+  // アラート作成
+  async createAlert(alertData: {
+    name: string;
+    target: string;
+    symbol?: string;
+    condition: 'GREATER_THAN' | 'LESS_THAN' | 'EQUALS' | 'NOT_EQUALS';
+    value: number;
+    notification_channels?: string[];
+    level?: 'info' | 'warning' | 'critical';
+    enabled?: boolean;
+  }): Promise<any> {
+    const response = await apiClient.post('/api/alerts/', alertData);
+    return response.data;
+  },
+
+  // アラート一覧取得
+  async getAlerts(enabledOnly?: boolean): Promise<any[]> {
+    const params = enabledOnly ? '?enabled_only=true' : '';
+    const response = await apiClient.get(`/api/alerts/${params}`);
+    return response.data;
+  },
+
+  // アラート詳細取得
+  async getAlert(alertId: string): Promise<any> {
+    const response = await apiClient.get(`/api/alerts/${alertId}`);
+    return response.data;
+  },
+
+  // アラート更新
+  async updateAlert(alertId: string, alertData: Partial<any>): Promise<any> {
+    const response = await apiClient.put(`/api/alerts/${alertId}`, alertData);
+    return response.data;
+  },
+
+  // アラート削除
+  async deleteAlert(alertId: string): Promise<any> {
+    const response = await apiClient.delete(`/api/alerts/${alertId}`);
+    return response.data;
+  },
+
+  // アラート有効/無効切り替え
+  async toggleAlert(alertId: string): Promise<any> {
+    const response = await apiClient.patch(`/api/alerts/${alertId}/toggle`);
+    return response.data;
+  },
+
+  // アラートテスト配信
+  async testAlert(alertId: string): Promise<any> {
+    const response = await apiClient.post(`/api/alerts/${alertId}/test`);
+    return response.data;
+  },
+
+  // アラート履歴取得
+  async getAlertHistory(params?: { limit?: number; alert_id?: string }): Promise<any[]> {
+    const queryParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) queryParams.append(key, value.toString());
+      });
+    }
+
+    const response = await apiClient.get(`/api/alerts/history?${queryParams}`);
+    return response.data;
+  },
+
+  // アラート統計取得
+  async getAlertStatistics(): Promise<any> {
+    const response = await apiClient.get('/api/alerts/stats');
+    return response.data;
+  },
+
+  // ヘルスチェック
+  async getAlertHealth(): Promise<any> {
+    const response = await apiClient.get('/api/alerts/health');
+    return response.data;
+  },
+};
+
 // WebSocket管理
 export class WebSocketManager {
   private ws: WebSocket | null = null;

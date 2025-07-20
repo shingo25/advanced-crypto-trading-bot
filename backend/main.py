@@ -3,7 +3,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import logging
 from backend.core.config import settings
-from backend.api import auth, strategies, market_data, performance
+from backend.api import (
+    auth,
+    strategies,
+    market_data,
+    performance,
+    portfolio,
+    risk,
+    alerts,
+)
 
 # TODO: Update these modules to use Supabase SDK
 from backend.api import backtest  # ✓ Supabase SDK implemented
@@ -58,6 +66,9 @@ app.add_middleware(
 # Include routers
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(strategies.router, prefix="/strategies", tags=["strategies"])
+app.include_router(portfolio.router, prefix="/api/portfolio", tags=["portfolio"])
+app.include_router(risk.router, prefix="/api/risk", tags=["risk"])
+app.include_router(alerts.router, prefix="/api/alerts", tags=["alerts"])
 app.include_router(market_data.router, prefix="/api/market-data", tags=["market-data"])
 app.include_router(performance.router, prefix="/api/performance", tags=["performance"])
 # TODO: Update these modules to use Supabase SDK

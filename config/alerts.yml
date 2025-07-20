@@ -1,0 +1,304 @@
+# アラート・通知システム設定
+#
+# このファイルでアラートシステムの動作をカスタマイズできます
+
+# Redis設定
+redis:
+  enabled: true
+  host: ${REDIS_HOST:localhost}
+  port: ${REDIS_PORT:6379}
+  db: ${REDIS_DB:0}
+  password: ${REDIS_PASSWORD:}
+  username: ${REDIS_USERNAME:}
+  ssl: ${REDIS_SSL:false}
+  max_connections: 10
+  pubsub_timeout: 1.0
+  max_retries: 3
+  retry_delay: 1.0
+
+# アラート全般設定
+alert_system:
+  enabled: true
+  max_alerts_in_memory: 1000
+  alert_retention_days: 30
+  duplicate_detection_window_minutes: 5
+  batch_processing_interval_seconds: 30
+  max_batch_size: 50
+
+# 通知チャネル設定
+notification_channels:
+  email:
+    enabled: false
+    smtp_server: "smtp.gmail.com"
+    smtp_port: 587
+    username: ${EMAIL_USERNAME:}
+    password: ${EMAIL_PASSWORD:}
+    from_email: ${EMAIL_FROM:}
+    to_emails: []
+    use_tls: true
+    timeout_seconds: 30
+
+  slack:
+    enabled: false
+    webhook_url: ${SLACK_WEBHOOK_URL:}
+    channel: "#alerts"
+    username: "CryptoBot"
+    icon_emoji: ":warning:"
+    timeout_seconds: 30
+
+  webhook:
+    enabled: false
+    url: ${WEBHOOK_URL:}
+    method: "POST"
+    headers:
+      Content-Type: "application/json"
+      Authorization: "Bearer ${WEBHOOK_TOKEN:}"
+    timeout_seconds: 30
+    retry_attempts: 3
+
+  telegram:
+    enabled: false
+    bot_token: ${TELEGRAM_BOT_TOKEN:}
+    chat_id: ${TELEGRAM_CHAT_ID:}
+    timeout_seconds: 30
+
+# 通知ルール（優先度順）
+notification_rules:
+  # クリティカルなリスクアラート
+  - name: "critical_risk_alerts"
+    priority: 1
+    enabled: true
+    conditions:
+      category: "risk"
+      level: ["critical"]
+    channels: ["email", "slack", "webhook"]
+    throttle:
+      enabled: false
+    batch:
+      enabled: false
+
+  # 高リスクアラート
+  - name: "high_risk_alerts"
+    priority: 2
+    enabled: true
+    conditions:
+      category: "risk"
+      level: ["error", "critical"]
+    channels: ["slack", "webhook"]
+    throttle:
+      enabled: true
+      window_minutes: 5
+      max_alerts: 3
+    batch:
+      enabled: false
+
+  # システムエラー
+  - name: "system_errors"
+    priority: 3
+    enabled: true
+    conditions:
+      category: "system"
+      level: ["error", "critical"]
+    channels: ["email", "slack"]
+    throttle:
+      enabled: true
+      window_minutes: 10
+      max_alerts: 5
+    batch:
+      enabled: false
+
+  # 実行エラー
+  - name: "execution_errors"
+    priority: 4
+    enabled: true
+    conditions:
+      category: "execution"
+      level: ["error", "critical"]
+    channels: ["slack"]
+    throttle:
+      enabled: true
+      window_minutes: 5
+      max_alerts: 10
+    batch:
+      enabled: false
+
+  # パフォーマンス警告
+  - name: "performance_warnings"
+    priority: 5
+    enabled: true
+    conditions:
+      category: "performance"
+      level: ["warning", "error"]
+    channels: ["webhook"]
+    throttle:
+      enabled: true
+      window_minutes: 15
+      max_alerts: 5
+    batch:
+      enabled: true
+      batch_window_minutes: 15
+
+  # 市場アラート
+  - name: "market_alerts"
+    priority: 6
+    enabled: true
+    conditions:
+      category: "market"
+      level: ["warning", "error", "critical"]
+    channels: ["webhook"]
+    throttle:
+      enabled: true
+      window_minutes: 10
+      max_alerts: 20
+    batch:
+      enabled: true
+      batch_window_minutes: 10
+
+  # 一般的な警告
+  - name: "general_warnings"
+    priority: 7
+    enabled: true
+    conditions:
+      level: ["warning"]
+    channels: ["webhook"]
+    throttle:
+      enabled: true
+      window_minutes: 30
+      max_alerts: 10
+    batch:
+      enabled: true
+      batch_window_minutes: 30
+
+  # 情報レベル（バッチのみ）
+  - name: "info_alerts"
+    priority: 8
+    enabled: true
+    conditions:
+      level: ["info"]
+    channels: ["webhook"]
+    throttle:
+      enabled: true
+      window_minutes: 60
+      max_alerts: 50
+    batch:
+      enabled: true
+      batch_window_minutes: 60
+
+# フィルター設定
+filters:
+  # 除外するアラートタイプ
+  excluded_alert_types: []
+
+  # 除外するソースコンポーネント
+  excluded_sources: []
+
+  # 特定の戦略のアラートを制限
+  strategy_filters: {}
+
+  # 特定のシンボルのアラートを制限
+  symbol_filters: {}
+
+  # 営業時間外のフィルター
+  business_hours:
+    enabled: false
+    timezone: "UTC"
+    start_hour: 9
+    end_hour: 17
+    weekdays_only: true
+
+# アラート重複検知
+duplicate_detection:
+  enabled: true
+  window_minutes: 5
+  hash_fields: ["category", "alert_type", "title", "symbol", "strategy_name"]
+  merge_similar: true
+  merge_threshold: 0.8
+
+# エスカレーション設定
+escalation:
+  enabled: true
+  rules:
+    - name: "unacknowledged_critical"
+      trigger:
+        level: "critical"
+        unacknowledged_minutes: 10
+      action:
+        channels: ["email"]
+        message_prefix: "[ESCALATED] "
+
+    - name: "unresolved_high_risk"
+      trigger:
+        category: "risk"
+        level: ["error", "critical"]
+        unresolved_minutes: 30
+      action:
+        channels: ["email", "slack"]
+        message_prefix: "[UNRESOLVED] "
+
+# 統計・監視設定
+monitoring:
+  enabled: true
+  metrics:
+    alert_rate_per_minute: true
+    alert_distribution_by_level: true
+    alert_distribution_by_category: true
+    notification_success_rate: true
+    average_response_time: true
+
+  # 統計データの保持期間
+  retention:
+    hourly_stats_days: 7
+    daily_stats_days: 30
+    monthly_stats_days: 365
+
+# 開発・デバッグ設定
+development:
+  enabled: false
+  log_all_alerts: true
+  mock_notifications: false
+  dry_run_mode: false
+  test_channel_prefix: "test_"
+
+# パフォーマンス設定
+performance:
+  async_notification: true
+  notification_pool_size: 5
+  max_concurrent_notifications: 10
+  notification_timeout_seconds: 30
+
+  # Redis接続プール
+  redis_connection_pool_size: 10
+
+  # バックグラウンド処理
+  background_processor_interval_seconds: 5
+  cleanup_interval_minutes: 60
+
+# セキュリティ設定
+security:
+  # 機密情報のマスキング
+  mask_sensitive_data: true
+  sensitive_fields: ["password", "token", "key", "secret"]
+
+  # 通知内容の暗号化（将来の拡張用）
+  encrypt_notifications: false
+
+  # レート制限
+  rate_limiting:
+    enabled: true
+    max_alerts_per_minute: 100
+    max_notifications_per_minute: 50
+
+# ヘルスチェック設定
+health_check:
+  enabled: true
+  interval_seconds: 60
+  checks:
+    redis_connection: true
+    notification_channels: true
+    alert_processing: true
+
+  # ヘルスチェック失敗時のアラート
+  alert_on_failure:
+    enabled: true
+    level: "error"
+    channels: ["email"]

@@ -376,7 +376,7 @@ def run_e2e_test():
         print()
 
         # 3. 指標計算をテスト
-        data_with_indicators = test_indicator_calculation(strategy, sample_data)
+        test_indicator_calculation(strategy, sample_data)
         print()
 
         # 4. シグナル生成をテスト

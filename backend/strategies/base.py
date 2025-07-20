@@ -279,46 +279,7 @@ class TechnicalIndicators:
     @staticmethod
     def rsi(data: List[float], period: int = 14) -> List[float]:
         """RSI"""
-        if not HAS_PANDAS:
-            if len(data) < period + 1:
-                return [0.0] * len(data)
-
-            result = [0.0] * period
-            gains = []
-            losses = []
-
-            # 価格変動を計算
-            for i in range(1, len(data)):
-                change = data[i] - data[i - 1]
-                if change > 0:
-                    gains.append(change)
-                    losses.append(0.0)
-                else:
-                    gains.append(0.0)
-                    losses.append(abs(change))
-
-            # RSIを計算
-            avg_gain = 0.0
-            avg_loss = 0.0
-            for i in range(period - 1, len(gains)):
-                if i == period - 1:
-                    avg_gain = sum(gains[:period]) / period
-                    avg_loss = sum(losses[:period]) / period
-                else:
-                    avg_gain = (avg_gain * (period - 1) + gains[i]) / period
-                    avg_loss = (avg_loss * (period - 1) + losses[i]) / period
-
-                if avg_loss == 0:
-                    rsi_val = 100.0
-                else:
-                    rs = avg_gain / avg_loss
-                    rsi_val = 100.0 - (100.0 / (1 + rs))
-
-                result.append(rsi_val)
-
-            return result
-
-        # pandas版は元のまま
+        # pandas版（dataがpandas Seriesの場合）
         if HAS_PANDAS and hasattr(data, "diff"):
             delta = data.diff()
             gain = delta.where(delta > 0, 0)
@@ -331,8 +292,48 @@ class TechnicalIndicators:
             rsi = 100 - (100 / (1 + rs))
 
             return rsi
-        else:
+
+        # 非pandas版（dataがlistの場合、またはpandasが利用できない場合）
+        if len(data) < period + 1:
             return [0.0] * len(data)
+
+        result = [0.0] * len(data)
+        gains = []
+        losses = []
+
+        # 価格変動を計算
+        for i in range(1, len(data)):
+            change = data[i] - data[i - 1]
+            if change > 0:
+                gains.append(change)
+                losses.append(0.0)
+            else:
+                gains.append(0.0)
+                losses.append(abs(change))
+
+        # RSIを計算
+        avg_gain = 0.0
+        avg_loss = 0.0
+
+        for i in range(period - 1, len(gains)):
+            if i == period - 1:
+                # 初回は単純平均
+                avg_gain = sum(gains[i - period + 1 : i + 1]) / period
+                avg_loss = sum(losses[i - period + 1 : i + 1]) / period
+            else:
+                # Wilder's smoothing method
+                avg_gain = (avg_gain * (period - 1) + gains[i]) / period
+                avg_loss = (avg_loss * (period - 1) + losses[i]) / period
+
+            if avg_loss == 0:
+                rsi_val = 100.0
+            else:
+                rs = avg_gain / avg_loss
+                rsi_val = 100.0 - (100.0 / (1 + rs))
+
+            result[i + 1] = rsi_val  # data indexに合わせる
+
+        return result
 
     @staticmethod
     def macd(

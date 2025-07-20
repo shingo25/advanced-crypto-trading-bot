@@ -172,7 +172,6 @@ def test_imports():
 
     # バックテスト基盤の依存関係を確認
     engine_content = Path("backend/backtesting/engine.py").read_text()
-    walkforward_content = Path("backend/backtesting/walkforward.py").read_text()
 
     # 必要なインポート
     required_imports = [
