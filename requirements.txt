@@ -34,9 +34,8 @@ polars==0.20.2
 # Trading & Market Data
 ccxt==4.2.25
 
-# Technical Analysis (Phase 3)
+# Technical Analysis (Phase 3) - Vercel対応版
 pandas-ta==0.3.14b
-talib-binary==0.4.19
 
 # Async & Networking
 httpx==0.26.0
@@ -51,9 +50,8 @@ loguru==0.7.2
 
 # Background Jobs & Messaging
 rq==1.15.1
-redis==5.0.1
+redis[hiredis]==5.0.1  # Enhanced Redis with C parser
 schedule==1.2.0
 
 # Alert & Notification System (Phase 3)
-redis[hiredis]==5.0.1  # Enhanced Redis with C parser
 aiosmtplib==3.0.1      # Async SMTP client

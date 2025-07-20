@@ -12,8 +12,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Python依存関係をコピーしてインストール
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements-full.txt .
+COPY requirements-backend.txt .
+RUN pip install --no-cache-dir -r requirements-full.txt && \
+    pip install --no-cache-dir -r requirements-backend.txt
 
 # アプリケーションコードをコピー
 COPY backend/ ./backend/
