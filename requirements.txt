@@ -36,6 +36,7 @@ ccxt==4.2.25
 
 # Async & Networking
 httpx==0.26.0
+aiohttp==3.9.1
 websockets==12.0
 tenacity==8.2.3
 
