@@ -9,6 +9,7 @@ from pathlib import Path
 from backend.exchanges.factory import ExchangeFactory
 from backend.exchanges.base import AbstractExchangeAdapter, TimeFrame, OHLCV
 from backend.core.database import get_db
+from backend.core.supabase_db import get_supabase_client
 
 logger = logging.getLogger(__name__)
 
@@ -148,6 +149,9 @@ class DataCollector:
                 # Parquet ファイルに保存
                 await self._save_ohlcv_to_parquet(symbol, timeframe, ohlcv_data)
 
+                # Supabaseに保存
+                await self._save_ohlcv_to_supabase(symbol, timeframe, ohlcv_data)
+
             except Exception as e:
                 logger.error(
                     f"Error in batch collection for {symbol} {timeframe.value}: {e}"
@@ -181,6 +185,51 @@ class DataCollector:
         # Parquet ファイルに保存
         df.to_parquet(filepath, index=False)
         logger.info(f"Saved {len(df)} records to {filepath}")
+
+    async def _save_ohlcv_to_supabase(
+        self, symbol: str, timeframe: TimeFrame, ohlcv_data: List[OHLCV]
+    ):
+        """OHLCV データを Supabase に保存"""
+        if not ohlcv_data:
+            return
+
+        try:
+            supabase = get_supabase_client()
+
+            # データを変換
+            records = []
+            for ohlcv in ohlcv_data:
+                record = {
+                    "exchange": self.exchange_name,
+                    "symbol": symbol.replace("/", ""),  # BTC/USDT -> BTCUSDT
+                    "timeframe": timeframe.value,
+                    "timestamp": ohlcv.timestamp.isoformat(),
+                    "open_price": float(ohlcv.open),
+                    "high_price": float(ohlcv.high),
+                    "low_price": float(ohlcv.low),
+                    "close_price": float(ohlcv.close),
+                    "volume": float(ohlcv.volume),
+                }
+                records.append(record)
+
+            # バッチサイズを制限してバッチ挿入（upsert使用で重複回避）
+            batch_size = 1000  # Supabaseの推奨バッチサイズ
+            for i in range(0, len(records), batch_size):
+                batch = records[i : i + batch_size]
+                (
+                    supabase.table("price_data")
+                    .upsert(batch, on_conflict="exchange,symbol,timeframe,timestamp")
+                    .execute()
+                )
+
+                logger.info(
+                    f"Saved batch {i//batch_size + 1}/{(len(records)-1)//batch_size + 1} "
+                    f"({len(batch)} records) to Supabase for {symbol} {timeframe.value}"
+                )
+
+        except Exception as e:
+            logger.error(f"Error saving OHLCV data to Supabase: {e}")
+            # Supabaseエラーでもメイン処理は継続
 
     async def _save_funding_rate_to_db(self, funding_rate):
         """資金調達率をデータベースに保存"""

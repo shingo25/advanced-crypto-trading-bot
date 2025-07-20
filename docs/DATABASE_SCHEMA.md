@@ -2,8 +2,8 @@
 
 本ドキュメントでは、Supabase PostgreSQL データベースのスキーマ設計、テーブル構造、リレーション、制約について詳細に説明します。
 
-**データベース**: Supabase PostgreSQL 15.x  
-**文字セット**: UTF-8  
+**データベース**: Supabase PostgreSQL 15.x
+**文字セット**: UTF-8
 **最終更新**: 2025-07-15
 
 ---
@@ -29,7 +29,7 @@ erDiagram
         timestamp created_at
         jsonb user_metadata
     }
-    
+
     %% User Management
     profiles {
         uuid id PK,FK
@@ -39,7 +39,7 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
+
     exchanges {
         uuid id PK
         uuid user_id FK
@@ -50,7 +50,7 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
+
     %% Trading System
     strategies {
         uuid id PK
@@ -62,7 +62,7 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
+
     trades {
         uuid id PK
         uuid user_id FK
@@ -78,7 +78,7 @@ erDiagram
         timestamp timestamp
         timestamp created_at
     }
-    
+
     positions {
         uuid id PK
         uuid user_id FK
@@ -89,7 +89,7 @@ erDiagram
         timestamp last_updated
         timestamp created_at
     }
-    
+
     %% Analytics & Testing
     backtest_results {
         uuid id PK
@@ -100,7 +100,7 @@ erDiagram
         jsonb results_data
         timestamp created_at
     }
-    
+
     %% Market Data
     market_data {
         uuid id PK
@@ -114,7 +114,7 @@ erDiagram
         timestamp timestamp
         timestamp created_at
     }
-    
+
     %% Relationships
     auth_users ||--|| profiles : "1:1"
     profiles ||--o{ exchanges : "1:many"
@@ -164,7 +164,7 @@ CREATE TABLE profiles (
 CREATE POLICY "Users can view own profile" ON profiles
 FOR SELECT USING (auth.uid() = id);
 
-CREATE POLICY "Users can update own profile" ON profiles  
+CREATE POLICY "Users can update own profile" ON profiles
 FOR UPDATE USING (auth.uid() = id);
 ```
 
@@ -184,7 +184,7 @@ CREATE TABLE exchanges (
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    
+
     UNIQUE(user_id, name)
 );
 ```
@@ -222,7 +222,7 @@ CREATE TABLE strategies (
     is_active BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    
+
     UNIQUE(user_id, name)
 );
 ```
@@ -329,7 +329,7 @@ CREATE TABLE positions (
     unrealized_pnl DECIMAL(20, 8) DEFAULT 0,
     last_updated TIMESTAMPTZ DEFAULT NOW(),
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    
+
     UNIQUE(user_id, symbol)
 );
 ```
@@ -337,7 +337,7 @@ CREATE TABLE positions (
 #### ビジネスロジック
 
 - `amount > 0`: ロングポジション
-- `amount < 0`: ショートポジション  
+- `amount < 0`: ショートポジション
 - `amount = 0`: ポジションクローズ（レコード削除）
 
 #### 自動更新トリガー
@@ -349,22 +349,22 @@ RETURNS TRIGGER AS $$
 BEGIN
     -- 取引に基づいてポジションを更新
     INSERT INTO positions (user_id, symbol, amount, average_entry_price)
-    VALUES (NEW.user_id, NEW.symbol, 
+    VALUES (NEW.user_id, NEW.symbol,
             CASE WHEN NEW.side = 'buy' THEN NEW.amount ELSE -NEW.amount END,
             NEW.price)
-    ON CONFLICT (user_id, symbol) 
+    ON CONFLICT (user_id, symbol)
     DO UPDATE SET
-        amount = positions.amount + 
+        amount = positions.amount +
                 CASE WHEN NEW.side = 'buy' THEN NEW.amount ELSE -NEW.amount END,
-        average_entry_price = 
-            CASE 
-                WHEN positions.amount + CASE WHEN NEW.side = 'buy' THEN NEW.amount ELSE -NEW.amount END = 0 
+        average_entry_price =
+            CASE
+                WHEN positions.amount + CASE WHEN NEW.side = 'buy' THEN NEW.amount ELSE -NEW.amount END = 0
                 THEN 0
-                ELSE (positions.average_entry_price * ABS(positions.amount) + NEW.price * NEW.amount) / 
+                ELSE (positions.average_entry_price * ABS(positions.amount) + NEW.price * NEW.amount) /
                      ABS(positions.amount + CASE WHEN NEW.side = 'buy' THEN NEW.amount ELSE -NEW.amount END)
             END,
         last_updated = NOW();
-    
+
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -445,7 +445,7 @@ CREATE TABLE market_data (
     volume DECIMAL(20, 8) NOT NULL CHECK (volume >= 0),
     timestamp TIMESTAMPTZ NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    
+
     UNIQUE(symbol, timeframe, timestamp)
 );
 ```
@@ -454,11 +454,11 @@ CREATE TABLE market_data (
 
 ```sql
 -- 価格の整合性チェック
-ALTER TABLE market_data ADD CONSTRAINT check_price_consistency 
+ALTER TABLE market_data ADD CONSTRAINT check_price_consistency
 CHECK (
-    low_price <= open_price AND 
-    low_price <= close_price AND 
-    high_price >= open_price AND 
+    low_price <= open_price AND
+    low_price <= close_price AND
+    high_price >= open_price AND
     high_price >= close_price
 );
 ```
@@ -470,7 +470,7 @@ CHECK (
 CREATE TABLE market_data_2024 PARTITION OF market_data
 FOR VALUES FROM ('2024-01-01') TO ('2025-01-01');
 
-CREATE TABLE market_data_2025 PARTITION OF market_data  
+CREATE TABLE market_data_2025 PARTITION OF market_data
 FOR VALUES FROM ('2025-01-01') TO ('2026-01-01');
 ```
 
@@ -478,12 +478,12 @@ FOR VALUES FROM ('2025-01-01') TO ('2026-01-01');
 
 ```sql
 -- 時系列クエリ最適化
-CREATE INDEX idx_market_data_symbol_timeframe_timestamp 
+CREATE INDEX idx_market_data_symbol_timeframe_timestamp
 ON market_data (symbol, timeframe, timestamp DESC);
 
 -- 価格範囲検索最適化
-CREATE INDEX idx_market_data_price_range 
-ON market_data (symbol, timestamp) 
+CREATE INDEX idx_market_data_price_range
+ON market_data (symbol, timestamp)
 INCLUDE (open_price, high_price, low_price, close_price);
 ```
 
@@ -508,7 +508,7 @@ ALTER TABLE backtest_results ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users access own data" ON exchanges
 FOR ALL USING (user_id = auth.uid());
 
-CREATE POLICY "Users access own data" ON strategies  
+CREATE POLICY "Users access own data" ON strategies
 FOR ALL USING (user_id = auth.uid());
 
 CREATE POLICY "Users access own data" ON trades
@@ -536,7 +536,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- API キー復号化
-CREATE OR REPLACE FUNCTION decrypt_api_key(encrypted_key TEXT, user_id UUID)  
+CREATE OR REPLACE FUNCTION decrypt_api_key(encrypted_key TEXT, user_id UUID)
 RETURNS TEXT AS $$
 BEGIN
     RETURN decrypt(decode(encrypted_key, 'base64'), (user_id::text || current_setting('app.encryption_key'))::bytea, 'aes')::text;
@@ -557,22 +557,22 @@ $$ LANGUAGE plpgsql;
 CREATE INDEX CONCURRENTLY idx_trades_user_id ON trades (user_id);
 CREATE INDEX CONCURRENTLY idx_strategies_user_id ON strategies (user_id);
 
--- 2. 時系列検索  
+-- 2. 時系列検索
 CREATE INDEX CONCURRENTLY idx_trades_timestamp ON trades (timestamp DESC);
 CREATE INDEX CONCURRENTLY idx_market_data_timestamp ON market_data (timestamp DESC);
 
 -- 3. 複合インデックス（カバリングインデックス）
-CREATE INDEX CONCURRENTLY idx_trades_user_symbol_timestamp 
-ON trades (user_id, symbol, timestamp DESC) 
+CREATE INDEX CONCURRENTLY idx_trades_user_symbol_timestamp
+ON trades (user_id, symbol, timestamp DESC)
 INCLUDE (amount, price, side);
 
 -- 4. JSONB検索最適化
-CREATE INDEX CONCURRENTLY idx_strategies_parameters_gin 
+CREATE INDEX CONCURRENTLY idx_strategies_parameters_gin
 ON strategies USING GIN (parameters);
 
 -- 5. 部分インデックス（アクティブデータのみ）
-CREATE INDEX CONCURRENTLY idx_strategies_active 
-ON strategies (user_id, name) 
+CREATE INDEX CONCURRENTLY idx_strategies_active
+ON strategies (user_id, name)
 WHERE is_active = true;
 ```
 
@@ -580,18 +580,18 @@ WHERE is_active = true;
 
 ```sql
 -- 効率的な取引履歴取得
-EXPLAIN (ANALYZE, BUFFERS) 
+EXPLAIN (ANALYZE, BUFFERS)
 SELECT t.*, s.name as strategy_name
 FROM trades t
 LEFT JOIN strategies s ON t.strategy_id = s.id
-WHERE t.user_id = $1 
+WHERE t.user_id = $1
 AND t.timestamp >= $2
 ORDER BY t.timestamp DESC
 LIMIT 50;
 
 -- マテリアライズドビュー（集計データ）
 CREATE MATERIALIZED VIEW daily_portfolio_summary AS
-SELECT 
+SELECT
     user_id,
     DATE(timestamp) as trade_date,
     SUM(CASE WHEN side = 'buy' THEN amount * price ELSE -amount * price END) as net_flow,
@@ -615,9 +615,9 @@ CREATE UNIQUE INDEX ON daily_portfolio_summary (user_id, trade_date);
 CREATE OR REPLACE FUNCTION cleanup_old_market_data()
 RETURNS void AS $$
 BEGIN
-    DELETE FROM market_data 
+    DELETE FROM market_data
     WHERE created_at < NOW() - INTERVAL '1 year';
-    
+
     RAISE NOTICE 'Cleaned up old market data';
 END;
 $$ LANGUAGE plpgsql;
@@ -648,17 +648,17 @@ SELECT pg_stop_backup();
 
 ```sql
 -- テーブルサイズ監視
-SELECT 
+SELECT
     schemaname,
     tablename,
     pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) as size,
     pg_total_relation_size(schemaname||'.'||tablename) as bytes
-FROM pg_tables 
+FROM pg_tables
 WHERE schemaname = 'public'
 ORDER BY bytes DESC;
 
 -- インデックス使用状況
-SELECT 
+SELECT
     schemaname,
     tablename,
     indexname,
@@ -669,7 +669,7 @@ FROM pg_stat_user_indexes
 ORDER BY idx_scan DESC;
 
 -- スロークエリ監視
-SELECT 
+SELECT
     query,
     calls,
     total_time,
@@ -679,6 +679,61 @@ FROM pg_stat_statements
 ORDER BY mean_time DESC
 LIMIT 10;
 ```
+
+---
+
+## 🕒 Phase2で追加されたテーブル
+
+### 8. price_data (価格データ)
+
+取引所から収集したOHLCV価格データを保存します。Phase2データパイプラインで追加。
+
+```sql
+CREATE TABLE price_data (
+    id BIGSERIAL PRIMARY KEY,
+    exchange VARCHAR(20) NOT NULL,
+    symbol VARCHAR(20) NOT NULL,
+    timeframe VARCHAR(10) NOT NULL,
+    timestamp TIMESTAMPTZ NOT NULL,
+    open_price NUMERIC(20,8) NOT NULL,
+    high_price NUMERIC(20,8) NOT NULL,
+    low_price NUMERIC(20,8) NOT NULL,
+    close_price NUMERIC(20,8) NOT NULL,
+    volume NUMERIC(20,8) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+
+    UNIQUE(exchange, symbol, timeframe, timestamp)
+);
+
+-- パフォーマンス最適化インデックス
+CREATE INDEX idx_price_data_exchange_symbol ON price_data(exchange, symbol);
+CREATE INDEX idx_price_data_timeframe ON price_data(timeframe);
+CREATE INDEX idx_price_data_timestamp ON price_data(timestamp DESC);
+CREATE INDEX idx_price_data_composite ON price_data(exchange, symbol, timeframe, timestamp DESC);
+```
+
+#### カラム詳細
+
+| カラム | 型 | 制約 | 説明 |
+|--------|----|----- |------|
+| `id` | BIGSERIAL | PK | 自動増分ID |
+| `exchange` | VARCHAR(20) | NOT NULL | 取引所名 (binance, bybit) |
+| `symbol` | VARCHAR(20) | NOT NULL | 取引ペア (BTCUSDT, ETHUSDT) |
+| `timeframe` | VARCHAR(10) | NOT NULL | 時間足 (1m, 5m, 1h, 1d) |
+| `timestamp` | TIMESTAMPTZ | NOT NULL | データ時刻 |
+| `open_price` | NUMERIC(20,8) | NOT NULL | 開始価格 |
+| `high_price` | NUMERIC(20,8) | NOT NULL | 最高価格 |
+| `low_price` | NUMERIC(20,8) | NOT NULL | 最低価格 |
+| `close_price` | NUMERIC(20,8) | NOT NULL | 終了価格 |
+| `volume` | NUMERIC(20,8) | NOT NULL | 出来高 |
+| `created_at` | TIMESTAMPTZ | DEFAULT NOW() | 作成日時 |
+
+#### 特徴
+
+- **高精度価格**: NUMERIC(20,8)で暗号通貨の小数点を正確に保存
+- **重複防止**: 取引所・シンボル・時間足・タイムスタンプでユニーク制約
+- **パブリックデータ**: RLSでreadアクセス許可、管理はサービスレベル
+- **インデックス最適化**: 検索パターンに基づいた複合インデックス
 
 ---
 
