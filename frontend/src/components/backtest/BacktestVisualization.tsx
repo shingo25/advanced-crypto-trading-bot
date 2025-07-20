@@ -154,22 +154,22 @@ export default function BacktestVisualization({
     });
 
     return (
-      <ResponsiveContainer width=\"100%\" height={400}>
+      <ResponsiveContainer width="100%" height={400}>
         <ComposedChart data={chartData}>
-          <CartesianGrid strokeDasharray=\"3 3\" />
+          <CartesianGrid strokeDasharray="3 3" />
           <XAxis
-            dataKey=\"date\"
+            dataKey="date"
             tick={{ fontSize: 12 }}
-            interval=\"preserveStartEnd\"
+            interval="preserveStartEnd"
           />
           <YAxis
-            yAxisId=\"equity\"
+            yAxisId="equity"
             tick={{ fontSize: 12 }}
             tickFormatter={formatCurrency}
           />
           <YAxis
-            yAxisId=\"drawdown\"
-            orientation=\"right\"
+            yAxisId="drawdown"
+            orientation="right"
             tick={{ fontSize: 12 }}
             tickFormatter={(value) => `${value.toFixed(1)}%`}
           />
@@ -179,16 +179,16 @@ export default function BacktestVisualization({
                 const data = payload[0]?.payload;
                 return (
                   <Card sx={{ p: 1 }}>
-                    <Typography variant=\"body2\">{label}</Typography>
-                    <Typography variant=\"body2\" color={colors.primary}>
+                    <Typography variant="body2">{label}</Typography>
+                    <Typography variant="body2" color={colors.primary}>
                       資産: {formatCurrency(data?.equity || 0)}
                     </Typography>
                     {benchmarkData.length > 0 && (
-                      <Typography variant=\"body2\" color={colors.secondary}>
+                      <Typography variant="body2" color={colors.secondary}>
                         ベンチマーク: {formatCurrency(data?.benchmark || 0)}
                       </Typography>
                     )}
-                    <Typography variant=\"body2\" color={colors.error}>
+                    <Typography variant="body2" color={colors.error}>
                       ドローダウン: {data?.drawdownPercent?.toFixed(2)}%
                     </Typography>
                   </Card>
@@ -198,31 +198,31 @@ export default function BacktestVisualization({
             }}
           />
           <Area
-            yAxisId=\"equity\"
-            type=\"monotone\"
-            dataKey=\"equity\"
+            yAxisId="equity"
+            type="monotone"
+            dataKey="equity"
             stroke={colors.primary}
             fill={colors.primary}
             fillOpacity={0.1}
-            name=\"資産\"
+            name="資産"
           />
           {benchmarkData.length > 0 && (
             <Line
-              yAxisId=\"equity\"
-              type=\"monotone\"
-              dataKey=\"benchmark\"
+              yAxisId="equity"
+              type="monotone"
+              dataKey="benchmark"
               stroke={colors.secondary}
-              strokeDasharray=\"5 5\"
+              strokeDasharray="5 5"
               dot={false}
-              name=\"ベンチマーク\"
+              name="ベンチマーク"
             />
           )}
           <Bar
-            yAxisId=\"drawdown\"
-            dataKey=\"drawdownPercent\"
+            yAxisId="drawdown"
+            dataKey="drawdownPercent"
             fill={colors.error}
             fillOpacity={0.3}
-            name=\"ドローダウン\"
+            name="ドローダウン"
           />
         </ComposedChart>
       </ResponsiveContainer>
@@ -267,7 +267,7 @@ export default function BacktestVisualization({
                     cursor: 'pointer',
                   }}
                 >
-                  <Typography variant=\"caption\" color=\"white\">
+                  <Typography variant="caption" color="white">
                     {item.return.toFixed(1)}%
                   </Typography>
                 </Card>
@@ -289,22 +289,22 @@ export default function BacktestVisualization({
     }));
 
     return (
-      <ResponsiveContainer width=\"100%\" height={300}>
+      <ResponsiveContainer width="100%" height={300}>
         <ComposedChart data={tradeData}>
-          <CartesianGrid strokeDasharray=\"3 3\" />
+          <CartesianGrid strokeDasharray="3 3" />
           <XAxis
-            dataKey=\"index\"
+            dataKey="index"
             tick={{ fontSize: 12 }}
             label={{ value: 'トレード番号', position: 'insideBottom', offset: -5 }}
           />
           <YAxis
-            yAxisId=\"pnl\"
+            yAxisId="pnl"
             tick={{ fontSize: 12 }}
             tickFormatter={formatCurrency}
           />
           <YAxis
-            yAxisId=\"cumulative\"
-            orientation=\"right\"
+            yAxisId="cumulative"
+            orientation="right"
             tick={{ fontSize: 12 }}
             tickFormatter={formatCurrency}
           />
@@ -314,14 +314,14 @@ export default function BacktestVisualization({
                 const data = payload[0]?.payload;
                 return (
                   <Card sx={{ p: 1 }}>
-                    <Typography variant=\"body2\">トレード #{label}</Typography>
+                    <Typography variant="body2">トレード #{label}</Typography>
                     <Typography
-                      variant=\"body2\"
+                      variant="body2"
                       color={data?.isWin ? colors.success : colors.error}
                     >
                       PnL: {formatCurrency(data?.pnl || 0)}
                     </Typography>
-                    <Typography variant=\"body2\" color={colors.primary}>
+                    <Typography variant="body2" color={colors.primary}>
                       累計PnL: {formatCurrency(data?.cumulativePnl || 0)}
                     </Typography>
                   </Card>
@@ -331,9 +331,9 @@ export default function BacktestVisualization({
             }}
           />
           <Bar
-            yAxisId=\"pnl\"
-            dataKey=\"pnl\"
-            name=\"個別PnL\"
+            yAxisId="pnl"
+            dataKey="pnl"
+            name="個別PnL"
           >
             {tradeData.map((entry, index) => (
               <Cell
@@ -343,13 +343,13 @@ export default function BacktestVisualization({
             ))}
           </Bar>
           <Line
-            yAxisId=\"cumulative\"
-            type=\"monotone\"
-            dataKey=\"cumulativePnl\"
+            yAxisId="cumulative"
+            type="monotone"
+            dataKey="cumulativePnl"
             stroke={colors.primary}
             strokeWidth={2}
             dot={false}
-            name=\"累計PnL\"
+            name="累計PnL"
           />
         </ComposedChart>
       </ResponsiveContainer>
@@ -401,11 +401,11 @@ export default function BacktestVisualization({
     ];
 
     return (
-      <ResponsiveContainer width=\"100%\" height={300}>
+      <ResponsiveContainer width="100%" height={300}>
         <RadarChart data={radarData}>
           <PolarGrid />
           <PolarAngleAxis
-            dataKey=\"metric\"
+            dataKey="metric"
             tick={{ fontSize: 12 }}
           />
           <PolarRadiusAxis
@@ -414,8 +414,8 @@ export default function BacktestVisualization({
             tick={{ fontSize: 10 }}
           />
           <Radar
-            name=\"指標値\"
-            dataKey=\"value\"
+            name="指標値"
+            dataKey="value"
             stroke={colors.primary}
             fill={colors.primary}
             fillOpacity={0.3}
@@ -427,7 +427,7 @@ export default function BacktestVisualization({
                 const data = payload[0]?.payload;
                 return (
                   <Card sx={{ p: 1 }}>
-                    <Typography variant=\"body2\">
+                    <Typography variant="body2">
                       {data?.metric}: {data?.fullValue?.toFixed(3)}
                     </Typography>
                   </Card>
@@ -460,11 +460,11 @@ export default function BacktestVisualization({
           <Grid item xs={6} sm={3} key={index}>
             <Card>
               <CardContent>
-                <Typography variant=\"body2\" color=\"text.secondary\">
+                <Typography variant="body2" color="text.secondary">
                   {stat.label}
                 </Typography>
                 <Typography
-                  variant=\"h6\"
+                  variant="h6"
                   sx={{ color: stat.color, fontWeight: 'bold' }}
                 >
                   {stat.value}
@@ -484,33 +484,33 @@ export default function BacktestVisualization({
       {/* ヘッダー情報 */}
       <Paper sx={{ p: 2, mb: 2 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant=\"h5\" component=\"h2\">
+          <Typography variant="h5" component="h2">
             バックテスト結果: {result.strategy_name}
           </Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <Chip label={result.symbol} variant=\"outlined\" />
-            <Chip label={result.timeframe} variant=\"outlined\" />
+            <Chip label={result.symbol} variant="outlined" />
+            <Chip label={result.timeframe} variant="outlined" />
             <Chip
               label={`${formatDate(result.start_date)} - ${formatDate(result.end_date)}`}
-              variant=\"outlined\"
+              variant="outlined"
             />
           </Box>
         </Box>
 
         {/* 期間選択 */}
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-          <FormControl size=\"small\" sx={{ minWidth: 120 }}>
+          <FormControl size="small" sx={{ minWidth: 120 }}>
             <InputLabel>表示期間</InputLabel>
             <Select
               value={timeframe}
-              label=\"表示期間\"
+              label="表示期間"
               onChange={(e) => setTimeframe(e.target.value)}
             >
-              <MenuItem value=\"all\">全期間</MenuItem>
-              <MenuItem value=\"1y\">1年</MenuItem>
-              <MenuItem value=\"6m\">6ヶ月</MenuItem>
-              <MenuItem value=\"3m\">3ヶ月</MenuItem>
-              <MenuItem value=\"1m\">1ヶ月</MenuItem>
+              <MenuItem value="all">全期間</MenuItem>
+              <MenuItem value="1y">1年</MenuItem>
+              <MenuItem value="6m">6ヶ月</MenuItem>
+              <MenuItem value="3m">3ヶ月</MenuItem>
+              <MenuItem value="1m">1ヶ月</MenuItem>
             </Select>
           </FormControl>
         </Box>
@@ -521,8 +521,8 @@ export default function BacktestVisualization({
         <Tabs
           value={activeTab}
           onChange={(e, newValue) => setActiveTab(newValue)}
-          variant=\"scrollable\"
-          scrollButtons=\"auto\"
+          variant="scrollable"
+          scrollButtons="auto"
         >
           {tabLabels.map((label, index) => (
             <Tab key={index} label={label} />
@@ -535,7 +535,7 @@ export default function BacktestVisualization({
         {activeTab === 0 && <PerformanceStats />}
         {activeTab === 1 && (
           <Box>
-            <Typography variant=\"h6\" gutterBottom>
+            <Typography variant="h6" gutterBottom>
               エクイティカーブ & ドローダウン
             </Typography>
             <EquityCurveChart />
@@ -543,7 +543,7 @@ export default function BacktestVisualization({
         )}
         {activeTab === 2 && (
           <Box>
-            <Typography variant=\"h6\" gutterBottom>
+            <Typography variant="h6" gutterBottom>
               月次リターンヒートマップ
             </Typography>
             <MonthlyReturnsHeatmap />
@@ -551,7 +551,7 @@ export default function BacktestVisualization({
         )}
         {activeTab === 3 && (
           <Box>
-            <Typography variant=\"h6\" gutterBottom>
+            <Typography variant="h6" gutterBottom>
               トレード分析
             </Typography>
             <TradeAnalysisChart />
@@ -559,7 +559,7 @@ export default function BacktestVisualization({
         )}
         {activeTab === 4 && (
           <Box>
-            <Typography variant=\"h6\" gutterBottom>
+            <Typography variant="h6" gutterBottom>
               リスク指標レーダーチャート
             </Typography>
             <RiskRadarChart />

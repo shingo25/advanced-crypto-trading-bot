@@ -272,20 +272,20 @@ export default function BacktestResultsList({
         <Grid item xs={3}>
           <Card>
             <CardContent>
-              <Typography variant=\"body2\" color=\"text.secondary\">
+              <Typography variant="body2" color="text.secondary">
                 総テスト数
               </Typography>
-              <Typography variant=\"h6\">{stats.total}</Typography>
+              <Typography variant="h6">{stats.total}</Typography>
             </CardContent>
           </Card>
         </Grid>
         <Grid item xs={3}>
           <Card>
             <CardContent>
-              <Typography variant=\"body2\" color=\"text.secondary\">
+              <Typography variant="body2" color="text.secondary">
                 利益率
               </Typography>
-              <Typography variant=\"h6\" sx={{ color: '#4caf50' }}>
+              <Typography variant="h6" sx={{ color: '#4caf50' }}>
                 {((stats.profitable / stats.total) * 100).toFixed(1)}%
               </Typography>
             </CardContent>
@@ -294,11 +294,11 @@ export default function BacktestResultsList({
         <Grid item xs={3}>
           <Card>
             <CardContent>
-              <Typography variant=\"body2\" color=\"text.secondary\">
+              <Typography variant="body2" color="text.secondary">
                 平均リターン
               </Typography>
               <Typography
-                variant=\"h6\"
+                variant="h6"
                 sx={{ color: stats.avgReturn >= 0 ? '#4caf50' : '#f44336' }}
               >
                 {formatPercent(stats.avgReturn)}
@@ -309,11 +309,11 @@ export default function BacktestResultsList({
         <Grid item xs={3}>
           <Card>
             <CardContent>
-              <Typography variant=\"body2\" color=\"text.secondary\">
+              <Typography variant="body2" color="text.secondary">
                 平均シャープ
               </Typography>
               <Typography
-                variant=\"h6\"
+                variant="h6"
                 sx={{ color: stats.avgSharpe >= 1 ? '#4caf50' : '#f44336' }}
               >
                 {stats.avgSharpe.toFixed(2)}
@@ -337,14 +337,14 @@ export default function BacktestResultsList({
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ p: 2, mb: 2 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant=\"h5\" component=\"h2\">
+          <Typography variant="h5" component="h2">
             バックテスト結果一覧
           </Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Button
               startIcon={<FilterIcon />}
               onClick={() => setFilterOpen(true)}
-              variant=\"outlined\"
+              variant="outlined"
             >
               フィルター
             </Button>
@@ -352,13 +352,13 @@ export default function BacktestResultsList({
               startIcon={<CompareIcon />}
               onClick={() => onCompareResults?.(selectedResults)}
               disabled={selectedResults.length < 2}
-              variant=\"outlined\"
+              variant="outlined"
             >
               比較 ({selectedResults.length})
             </Button>
             <Button
               startIcon={<DownloadIcon />}
-              variant=\"outlined\"
+              variant="outlined"
             >
               エクスポート
             </Button>
@@ -368,7 +368,7 @@ export default function BacktestResultsList({
         <SummaryStats />
 
         {error && (
-          <Alert severity=\"error\" sx={{ mb: 2 }}>
+          <Alert severity="error" sx={{ mb: 2 }}>
             {error}
           </Alert>
         )}
@@ -378,7 +378,7 @@ export default function BacktestResultsList({
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell padding=\"checkbox\">選択</TableCell>
+              <TableCell padding="checkbox">選択</TableCell>
               <TableCell>
                 <TableSortLabel
                   active={sortKey === 'strategy_name'}
@@ -443,26 +443,26 @@ export default function BacktestResultsList({
                   selected={selectedResults.includes(result.id)}
                   hover
                 >
-                  <TableCell padding=\"checkbox\">
+                  <TableCell padding="checkbox">
                     <input
-                      type=\"checkbox\"
+                      type="checkbox"
                       checked={selectedResults.includes(result.id)}
                       onChange={() => handleSelectResult(result.id)}
                     />
                   </TableCell>
                   <TableCell>
-                    <Typography variant=\"body2\" fontWeight=\"medium\">
+                    <Typography variant="body2" fontWeight="medium">
                       {result.strategy_name}
                     </Typography>
-                    <Typography variant=\"caption\" color=\"text.secondary\">
+                    <Typography variant="caption" color="text.secondary">
                       {result.total_trades} トレード
                     </Typography>
                   </TableCell>
                   <TableCell>
                     <Box>
-                      <Chip label={result.symbol} size=\"small\" sx={{ mb: 0.5 }} />
+                      <Chip label={result.symbol} size="small" sx={{ mb: 0.5 }} />
                       <br />
-                      <Chip label={result.timeframe} size=\"small\" variant=\"outlined\" />
+                      <Chip label={result.timeframe} size="small" variant="outlined" />
                     </Box>
                   </TableCell>
                   <TableCell>
@@ -473,7 +473,7 @@ export default function BacktestResultsList({
                         <TrendingDownIcon sx={{ color: '#f44336', mr: 0.5 }} />
                       )}
                       <Typography
-                        variant=\"body2\"
+                        variant="body2"
                         sx={{
                           color: result.total_return >= 0 ? '#4caf50' : '#f44336',
                           fontWeight: 'medium'
@@ -485,7 +485,7 @@ export default function BacktestResultsList({
                   </TableCell>
                   <TableCell>
                     <Typography
-                      variant=\"body2\"
+                      variant="body2"
                       sx={{
                         color: result.sharpe_ratio >= 1 ? '#4caf50' : '#f44336',
                         fontWeight: 'medium'
@@ -496,21 +496,21 @@ export default function BacktestResultsList({
                   </TableCell>
                   <TableCell>
                     <Typography
-                      variant=\"body2\"
+                      variant="body2"
                       sx={{ color: '#f44336', fontWeight: 'medium' }}
                     >
                       {formatPercent(result.max_drawdown)}
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <Typography variant=\"body2\">
+                    <Typography variant="body2">
                       {formatPercent(result.win_rate)}
                     </Typography>
                   </TableCell>
                   <TableCell>
                     <Chip
                       label={rating.label}
-                      size=\"small\"
+                      size="small"
                       sx={{
                         backgroundColor: rating.color,
                         color: 'white',
@@ -518,23 +518,23 @@ export default function BacktestResultsList({
                     />
                   </TableCell>
                   <TableCell>
-                    <Typography variant=\"caption\" color=\"text.secondary\">
+                    <Typography variant="caption" color="text.secondary">
                       {formatDate(result.created_at)}
                     </Typography>
                   </TableCell>
                   <TableCell>
                     <Box sx={{ display: 'flex' }}>
-                      <Tooltip title=\"詳細表示\">
+                      <Tooltip title="詳細表示">
                         <IconButton
-                          size=\"small\"
+                          size="small"
                           onClick={() => handleViewDetail(result.id)}
                         >
                           <VisibilityIcon />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title=\"削除\">
+                      <Tooltip title="削除">
                         <IconButton
-                          size=\"small\"
+                          size="small"
                           onClick={() => onDeleteResult?.(result.id)}
                           sx={{ color: '#f44336' }}
                         >
@@ -551,7 +551,7 @@ export default function BacktestResultsList({
 
         <TablePagination
           rowsPerPageOptions={[10, 25, 50]}
-          component=\"div\"
+          component="div"
           count={filteredResults.length}
           rowsPerPage={rowsPerPage}
           page={page}
@@ -567,7 +567,7 @@ export default function BacktestResultsList({
       <Dialog
         open={detailDialogOpen}
         onClose={() => setDetailDialogOpen(false)}
-        maxWidth=\"xl\"
+        maxWidth="xl"
         fullWidth
       >
         <DialogTitle>バックテスト詳細結果</DialogTitle>

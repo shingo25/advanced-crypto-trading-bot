@@ -41,7 +41,7 @@ function TabPanel(props: TabPanelProps) {
 
   return (
     <div
-      role=\"tabpanel\"
+      role="tabpanel"
       hidden={value !== index}
       id={`backtest-tabpanel-${index}`}
       aria-labelledby={`backtest-tab-${index}`}
@@ -182,10 +182,10 @@ export default function BacktestPage() {
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <AssessmentIcon sx={{ mr: 2, color: '#1976d2' }} />
               <Box>
-                <Typography variant=\"body2\" color=\"text.secondary\">
+                <Typography variant="body2" color="text.secondary">
                   総テスト数
                 </Typography>
-                <Typography variant=\"h5\" component=\"div\">
+                <Typography variant="h5" component="div">
                   {backtestStats.totalTests}
                 </Typography>
               </Box>
@@ -200,10 +200,10 @@ export default function BacktestPage() {
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <PlayIcon sx={{ mr: 2, color: '#4caf50' }} />
               <Box>
-                <Typography variant=\"body2\" color=\"text.secondary\">
+                <Typography variant="body2" color="text.secondary">
                   実行中
                 </Typography>
-                <Typography variant=\"h5\" component=\"div\">
+                <Typography variant="h5" component="div">
                   {backtestStats.runningTests}
                 </Typography>
               </Box>
@@ -218,10 +218,10 @@ export default function BacktestPage() {
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <HistoryIcon sx={{ mr: 2, color: '#ff9800' }} />
               <Box>
-                <Typography variant=\"body2\" color=\"text.secondary\">
+                <Typography variant="body2" color="text.secondary">
                   成功率
                 </Typography>
-                <Typography variant=\"h5\" component=\"div\">
+                <Typography variant="h5" component="div">
                   {backtestStats.totalTests > 0
                     ? Math.round((backtestStats.successfulTests / backtestStats.totalTests) * 100)
                     : 0}%
@@ -238,12 +238,12 @@ export default function BacktestPage() {
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <AssessmentIcon sx={{ mr: 2, color: '#9c27b0' }} />
               <Box>
-                <Typography variant=\"body2\" color=\"text.secondary\">
+                <Typography variant="body2" color="text.secondary">
                   平均リターン
                 </Typography>
                 <Typography
-                  variant=\"h5\"
-                  component=\"div\"
+                  variant="h5"
+                  component="div"
                   sx={{
                     color: backtestStats.averageReturn >= 0 ? '#4caf50' : '#f44336'
                   }}
@@ -268,18 +268,18 @@ export default function BacktestPage() {
 
     return (
       <Paper sx={{ p: 2, mb: 3 }}>
-        <Typography variant=\"h6\" gutterBottom>
+        <Typography variant="h6" gutterBottom>
           実行中のバックテスト
         </Typography>
         <Grid container spacing={2}>
           {runningList.map(([id, backtest]) => (
             <Grid item xs={12} sm={6} md={4} key={id}>
-              <Card variant=\"outlined\">
+              <Card variant="outlined">
                 <CardContent>
-                  <Typography variant=\"subtitle2\" gutterBottom>
+                  <Typography variant="subtitle2" gutterBottom>
                     {backtest.strategy}
                   </Typography>
-                  <Typography variant=\"body2\" color=\"text.secondary\" gutterBottom>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
                     {backtest.symbol}
                   </Typography>
                   <Box sx={{
@@ -299,7 +299,7 @@ export default function BacktestPage() {
                       }}
                     />
                   </Box>
-                  <Typography variant=\"caption\" color=\"text.secondary\">
+                  <Typography variant="caption" color="text.secondary">
                     {backtest.status} ({backtest.progress}%)
                   </Typography>
                 </CardContent>
@@ -314,10 +314,10 @@ export default function BacktestPage() {
   // バックテスト設定フォーム（簡易版）
   const BacktestForm = () => (
     <Box sx={{ p: 2 }}>
-      <Typography variant=\"h6\" gutterBottom>
+      <Typography variant="h6" gutterBottom>
         新しいバックテストを開始
       </Typography>
-      <Alert severity=\"info\" sx={{ mb: 2 }}>
+      <Alert severity="info" sx={{ mb: 2 }}>
         詳細なバックテスト設定は別途実装予定です。
         現在は結果表示機能のデモンストレーションが利用可能です。
       </Alert>
@@ -328,29 +328,29 @@ export default function BacktestPage() {
   // 結果比較ビュー（簡易版）
   const CompareResults = () => (
     <Box sx={{ p: 2 }}>
-      <Typography variant=\"h6\" gutterBottom>
+      <Typography variant="h6" gutterBottom>
         バックテスト結果比較
       </Typography>
-      <Alert severity=\"info\" sx={{ mb: 2 }}>
+      <Alert severity="info" sx={{ mb: 2 }}>
         選択された結果: {selectedResults.length}件
       </Alert>
-      <Typography variant=\"body2\" color=\"text.secondary\">
+      <Typography variant="body2" color="text.secondary">
         複数のバックテスト結果を比較する機能は今後実装予定です。
       </Typography>
     </Box>
   );
 
   return (
-    <Container maxWidth=\"xl\" sx={{ py: 4 }}>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant=\"h4\" component=\"h1\">
+        <Typography variant="h4" component="h1">
           バックテスト
         </Typography>
         <Button
-          variant=\"contained\"
+          variant="contained"
           startIcon={<AddIcon />}
           onClick={handleStartBacktest}
-          size=\"large\"
+          size="large"
         >
           新規バックテスト
         </Button>
@@ -364,11 +364,11 @@ export default function BacktestPage() {
           <Tabs
             value={activeTab}
             onChange={(e, newValue) => setActiveTab(newValue)}
-            aria-label=\"バックテストタブ\"
+            aria-label="バックテストタブ"
           >
-            <Tab label=\"結果一覧\" />
-            <Tab label=\"パフォーマンス分析\" />
-            <Tab label=\"戦略比較\" />
+            <Tab label="結果一覧" />
+            <Tab label="パフォーマンス分析" />
+            <Tab label="戦略比較" />
           </Tabs>
         </Box>
 
@@ -382,10 +382,10 @@ export default function BacktestPage() {
 
         <TabPanel value={activeTab} index={1}>
           <Box sx={{ p: 2 }}>
-            <Typography variant=\"h6\" gutterBottom>
+            <Typography variant="h6" gutterBottom>
               パフォーマンス分析
             </Typography>
-            <Alert severity=\"info\">
+            <Alert severity="info">
               特定のバックテスト結果を選択すると、詳細な分析が表示されます。
             </Alert>
           </Box>
@@ -400,7 +400,7 @@ export default function BacktestPage() {
       <Dialog
         open={newBacktestDialog}
         onClose={() => setNewBacktestDialog(false)}
-        maxWidth=\"md\"
+        maxWidth="md"
         fullWidth
       >
         <DialogTitle>新規バックテスト設定</DialogTitle>
@@ -411,7 +411,7 @@ export default function BacktestPage() {
           <Button onClick={() => setNewBacktestDialog(false)}>
             キャンセル
           </Button>
-          <Button variant=\"contained\" disabled>
+          <Button variant="contained" disabled>
             実行 (未実装)
           </Button>
         </DialogActions>
@@ -421,7 +421,7 @@ export default function BacktestPage() {
       <Dialog
         open={compareDialog}
         onClose={() => setCompareDialog(false)}
-        maxWidth=\"xl\"
+        maxWidth="xl"
         fullWidth
       >
         <DialogTitle>バックテスト結果比較</DialogTitle>
@@ -452,8 +452,8 @@ export default function BacktestPage() {
 
       {/* フローティングアクションボタン */}
       <Fab
-        color=\"primary\"
-        aria-label=\"新規バックテスト\"
+        color="primary"
+        aria-label="新規バックテスト"
         sx={{ position: 'fixed', bottom: 16, right: 16 }}
         onClick={handleStartBacktest}
       >

@@ -283,11 +283,11 @@ export default function PriceWebSocket({
         <Box sx={{ color: getStatusColor() }}>
           {getStatusIcon()}
         </Box>
-        <Typography variant=\"caption\" sx={{ color: getStatusColor() }}>
+        <Typography variant="caption" sx={{ color: getStatusColor() }}>
           {connectionStatus.toUpperCase()}
         </Typography>
         {lastUpdateTime && (
-          <Typography variant=\"caption\" color=\"text.secondary\">
+          <Typography variant="caption" color="text.secondary">
             最終更新: {formatTime(lastUpdateTime.toISOString())}
           </Typography>
         )}
@@ -304,7 +304,7 @@ export default function PriceWebSocket({
       <Card sx={{ height: '100%' }}>
         <CardContent>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant=\"h6\" component=\"div\">
+            <Typography variant="h6" component="div">
               {priceData.symbol.replace('USDT', '/USDT')}
             </Typography>
             <Chip
@@ -314,42 +314,42 @@ export default function PriceWebSocket({
                 backgroundColor: changeColor,
                 color: 'white',
               }}
-              size=\"small\"
+              size="small"
             />
           </Box>
 
-          <Typography variant=\"h4\" sx={{ mb: 1, fontWeight: 'bold' }}>
+          <Typography variant="h4" sx={{ mb: 1, fontWeight: 'bold' }}>
             {formatCurrency(priceData.price)}
           </Typography>
 
           <Grid container spacing={1}>
             <Grid item xs={6}>
-              <Typography variant=\"caption\" color=\"text.secondary\">
+              <Typography variant="caption" color="text.secondary">
                 24H 高値
               </Typography>
-              <Typography variant=\"body2\">
+              <Typography variant="body2">
                 {formatCurrency(priceData.high_24h)}
               </Typography>
             </Grid>
             <Grid item xs={6}>
-              <Typography variant=\"caption\" color=\"text.secondary\">
+              <Typography variant="caption" color="text.secondary">
                 24H 安値
               </Typography>
-              <Typography variant=\"body2\">
+              <Typography variant="body2">
                 {formatCurrency(priceData.low_24h)}
               </Typography>
             </Grid>
             <Grid item xs={12}>
-              <Typography variant=\"caption\" color=\"text.secondary\">
+              <Typography variant="caption" color="text.secondary">
                 24H 出来高
               </Typography>
-              <Typography variant=\"body2\">
+              <Typography variant="body2">
                 {formatVolume(priceData.volume_24h)}
               </Typography>
             </Grid>
           </Grid>
 
-          <Typography variant=\"caption\" color=\"text.secondary\" sx={{ mt: 1, display: 'block' }}>
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
             更新時刻: {formatTime(priceData.timestamp)}
           </Typography>
         </CardContent>
@@ -366,7 +366,7 @@ export default function PriceWebSocket({
     return (
       <Card sx={{ mt: 2 }}>
         <CardContent>
-          <Typography variant=\"h6\" gutterBottom>
+          <Typography variant="h6" gutterBottom>
             最新取引 (最新10件)
           </Typography>
           {trades.slice(0, 10).map((trade, index) => (
@@ -381,12 +381,12 @@ export default function PriceWebSocket({
               }}
             >
               <Box>
-                <Typography variant=\"body2\" component=\"span\">
+                <Typography variant="body2" component="span">
                   {trade.symbol.replace('USDT', '/USDT')}
                 </Typography>
                 <Chip
                   label={trade.side.toUpperCase()}
-                  size=\"small\"
+                  size="small"
                   sx={{
                     ml: 1,
                     backgroundColor: trade.side === 'buy' ? '#4caf50' : '#f44336',
@@ -395,10 +395,10 @@ export default function PriceWebSocket({
                 />
               </Box>
               <Box sx={{ textAlign: 'right' }}>
-                <Typography variant=\"body2\">
+                <Typography variant="body2">
                   {formatCurrency(trade.price)}
                 </Typography>
-                <Typography variant=\"caption\" color=\"text.secondary\">
+                <Typography variant="caption" color="text.secondary">
                   {trade.quantity.toFixed(4)}
                 </Typography>
               </Box>
@@ -413,13 +413,13 @@ export default function PriceWebSocket({
     <Box>
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant=\"h5\" component=\"h2\">
+        <Typography variant="h5" component="h2">
           リアルタイム価格
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <ConnectionIndicator />
-          <Tooltip title=\"再接続\">
-            <IconButton onClick={() => { disconnect(); connect(); }} size=\"small\">
+          <Tooltip title="再接続">
+            <IconButton onClick={() => { disconnect(); connect(); }} size="small">
               <Refresh />
             </IconButton>
           </Tooltip>
@@ -427,24 +427,24 @@ export default function PriceWebSocket({
             control={
               <Switch
                 checked={showTrades}
-                size=\"small\"
+                size="small"
               />
             }
-            label=\"取引表示\"
+            label="取引表示"
           />
         </Box>
       </Box>
 
       {/* Error Alert */}
       {error && (
-        <Alert severity=\"error\" sx={{ mb: 2 }} onClose={() => setError(null)}>
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
           {error}
         </Alert>
       )}
 
       {/* Stats */}
       <Box sx={{ mb: 2 }}>
-        <Typography variant=\"caption\" color=\"text.secondary\">
+        <Typography variant="caption" color="text.secondary">
           接続状態: {connectionStatus} |
           受信メッセージ数: {messagesReceived} |
           価格データ: {Object.keys(prices).length}件
@@ -460,13 +460,13 @@ export default function PriceWebSocket({
               <Grid item xs={12} sm={6} md={3} key={symbol}>
                 <Card sx={{ height: '100%' }}>
                   <CardContent>
-                    <Typography variant=\"h6\">
+                    <Typography variant="h6">
                       {symbol.replace('USDT', '/USDT')}
                     </Typography>
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                       <CircularProgress size={40} />
                     </Box>
-                    <Typography variant=\"body2\" color=\"text.secondary\" sx={{ mt: 1, textAlign: 'center' }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
                       データを読み込み中...
                     </Typography>
                   </CardContent>

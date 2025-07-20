@@ -92,7 +92,7 @@ export default function RealtimeDashboard() {
     <Dialog
       open={settingsOpen}
       onClose={() => setSettingsOpen(false)}
-      maxWidth=\"sm\"
+      maxWidth="sm"
       fullWidth
     >
       <DialogTitle>リアルタイム表示設定</DialogTitle>
@@ -105,7 +105,7 @@ export default function RealtimeDashboard() {
                 <InputLabel>レイアウト</InputLabel>
                 <Select
                   value={layout}
-                  label=\"レイアウト\"
+                  label="レイアウト"
                   onChange={(e) => setLayout(e.target.value)}
                 >
                   {LAYOUT_OPTIONS.map(option => (
@@ -119,7 +119,7 @@ export default function RealtimeDashboard() {
 
             {/* Display Options */}
             <Grid item xs={12}>
-              <Typography variant=\"subtitle2\" gutterBottom>
+              <Typography variant="subtitle2" gutterBottom>
                 表示オプション
               </Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -130,7 +130,7 @@ export default function RealtimeDashboard() {
                       onChange={(e) => setShowTrades(e.target.checked)}
                     />
                   }
-                  label=\"取引データを表示\"
+                  label="取引データを表示"
                 />
                 <FormControlLabel
                   control={
@@ -139,14 +139,14 @@ export default function RealtimeDashboard() {
                       onChange={(e) => setAutoRefresh(e.target.checked)}
                     />
                   }
-                  label=\"自動更新\"
+                  label="自動更新"
                 />
               </Box>
             </Grid>
 
             {/* Selected Symbols */}
             <Grid item xs={12}>
-              <Typography variant=\"subtitle2\" gutterBottom>
+              <Typography variant="subtitle2" gutterBottom>
                 表示中のシンボル ({selectedSymbols.length})
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
@@ -156,7 +156,7 @@ export default function RealtimeDashboard() {
                     label={symbol.replace('USDT', '/USDT')}
                     onDelete={() => handleRemoveSymbol(symbol)}
                     deleteIcon={<RemoveIcon />}
-                    variant=\"outlined\"
+                    variant="outlined"
                   />
                 ))}
               </Box>
@@ -185,7 +185,7 @@ export default function RealtimeDashboard() {
     <Dialog
       open={addSymbolOpen}
       onClose={() => setAddSymbolOpen(false)}
-      maxWidth=\"xs\"
+      maxWidth="xs"
       fullWidth
     >
       <DialogTitle>シンボルを追加</DialogTitle>
@@ -194,7 +194,7 @@ export default function RealtimeDashboard() {
           <InputLabel>シンボル</InputLabel>
           <Select
             value={newSymbol}
-            label=\"シンボル\"
+            label="シンボル"
             onChange={(e) => setNewSymbol(e.target.value)}
           >
             {availableToAdd.map(symbol => (
@@ -211,7 +211,7 @@ export default function RealtimeDashboard() {
         </Button>
         <Button
           onClick={handleAddSymbol}
-          variant=\"contained\"
+          variant="contained"
           disabled={!newSymbol}
         >
           追加
@@ -227,10 +227,10 @@ export default function RealtimeDashboard() {
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
-              <Typography variant=\"h6\" color=\"primary\">
+              <Typography variant="h6" color="primary">
                 {selectedSymbols.length}
               </Typography>
-              <Typography variant=\"body2\" color=\"text.secondary\">
+              <Typography variant="body2" color="text.secondary">
                 監視中のシンボル
               </Typography>
             </CardContent>
@@ -239,10 +239,10 @@ export default function RealtimeDashboard() {
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
-              <Typography variant=\"h6\" color=\"success.main\">
+              <Typography variant="h6" color="success.main">
                 ライブ
               </Typography>
-              <Typography variant=\"body2\" color=\"text.secondary\">
+              <Typography variant="body2" color="text.secondary">
                 接続状況
               </Typography>
             </CardContent>
@@ -251,10 +251,10 @@ export default function RealtimeDashboard() {
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
-              <Typography variant=\"h6\" color=\"info.main\">
+              <Typography variant="h6" color="info.main">
                 Binance
               </Typography>
-              <Typography variant=\"body2\" color=\"text.secondary\">
+              <Typography variant="body2" color="text.secondary">
                 データソース
               </Typography>
             </CardContent>
@@ -263,10 +263,10 @@ export default function RealtimeDashboard() {
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
-              <Typography variant=\"h6\" color=\"warning.main\">
+              <Typography variant="h6" color="warning.main">
                 WebSocket
               </Typography>
-              <Typography variant=\"body2\" color=\"text.secondary\">
+              <Typography variant="body2" color="text.secondary">
                 接続タイプ
               </Typography>
             </CardContent>
@@ -278,7 +278,7 @@ export default function RealtimeDashboard() {
 
   return (
     <Container
-      maxWidth={fullscreen ? false : \"xl\"}
+      maxWidth={fullscreen ? false : "xl"}
       sx={{
         py: 4,
         ...(fullscreen && {
@@ -300,21 +300,21 @@ export default function RealtimeDashboard() {
         alignItems: 'center',
         mb: 3
       }}>
-        <Typography variant=\"h4\" component=\"h1\">
+        <Typography variant="h4" component="h1">
           リアルタイム価格ダッシュボード
         </Typography>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Tooltip title=\"フルスクリーン表示\">
+          <Tooltip title="フルスクリーン表示">
             <IconButton
               onClick={() => setFullscreen(!fullscreen)}
-              color={fullscreen ? \"primary\" : \"default\"}
+              color={fullscreen ? "primary" : "default"}
             >
               <FullscreenIcon />
             </IconButton>
           </Tooltip>
 
-          <Tooltip title=\"設定\">
+          <Tooltip title="設定">
             <IconButton onClick={() => setSettingsOpen(true)}>
               <SettingsIcon />
             </IconButton>
@@ -324,7 +324,7 @@ export default function RealtimeDashboard() {
 
       {/* User info */}
       {user && (
-        <Alert severity=\"info\" sx={{ mb: 3 }}>
+        <Alert severity="info" sx={{ mb: 3 }}>
           ようこそ、{user.username}さん！リアルタイム価格データをお楽しみください。
         </Alert>
       )}
@@ -344,23 +344,23 @@ export default function RealtimeDashboard() {
       {/* Information */}
       <Card>
         <CardContent>
-          <Typography variant=\"h6\" gutterBottom>
+          <Typography variant="h6" gutterBottom>
             ご利用について
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
-              <Typography variant=\"body2\" paragraph>
+              <Typography variant="body2" paragraph>
                 <strong>データソース:</strong> Binance公式WebSocket API
               </Typography>
-              <Typography variant=\"body2\" paragraph>
+              <Typography variant="body2" paragraph>
                 <strong>更新頻度:</strong> リアルタイム（約1秒間隔）
               </Typography>
-              <Typography variant=\"body2\" paragraph>
+              <Typography variant="body2" paragraph>
                 <strong>自動再接続:</strong> 接続が切れた場合は自動的に再接続します
               </Typography>
             </Grid>
             <Grid item xs={12} md={6}>
-              <Typography variant=\"body2\" paragraph>
+              <Typography variant="body2" paragraph>
                 <strong>表示データ:</strong>
                 <br />• 現在価格
                 <br />• 24時間変動率
@@ -368,7 +368,7 @@ export default function RealtimeDashboard() {
                 <br />• 24時間出来高
               </Typography>
               {showTrades && (
-                <Typography variant=\"body2\" paragraph>
+                <Typography variant="body2" paragraph>
                   <strong>取引データ:</strong> 最新の個別取引情報を表示
                 </Typography>
               )}
