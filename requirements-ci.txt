@@ -37,9 +37,8 @@ polars==0.20.2
 # Trading & Market Data (required for tests)
 ccxt==4.2.25
 
-# Technical Analysis (Phase 3)
+# Technical Analysis (Phase 3) - CI/CD用軽量版
 pandas-ta==0.3.14b
-talib-binary==0.4.19
 
 # Async & Networking
 httpx==0.26.0

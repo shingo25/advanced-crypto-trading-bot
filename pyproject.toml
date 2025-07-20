@@ -1,0 +1,32 @@
+[tool.ruff]
+# 除外するファイル・ディレクトリ
+extend-exclude = [
+    "tests/development/test_backend_deployment.py",
+    "test_backtest_functionality.py"
+]
+
+# ライン長制限
+line-length = 120
+
+# Python version
+target-version = "py39"
+
+[tool.ruff.lint]
+# 有効にするルール
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+]
+
+# 無視するルール
+ignore = [
+    "E501",  # line too long (handled by line-length)
+    "E402",  # module level import not at top of file (development files)
+]
+
+[tool.ruff.format]
+# フォーマッターの設定
+quote-style = "double"
+indent-style = "space"

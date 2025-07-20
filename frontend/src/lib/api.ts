@@ -329,7 +329,9 @@ export const portfolioApiExtended = {
   },
 
   async updateStrategyStatus(strategyName: string, status: string): Promise<any> {
-    const response = await apiClient.patch(`/api/portfolio/strategies/${strategyName}/status`, { status });
+    const response = await apiClient.patch(`/api/portfolio/strategies/${strategyName}/status`, {
+      status,
+    });
     return response.data;
   },
 

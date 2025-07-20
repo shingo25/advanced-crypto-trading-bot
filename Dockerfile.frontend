@@ -1,0 +1,27 @@
+# Phase3 対応フロントエンドDockerfile
+FROM node:20-alpine
+
+# 作業ディレクトリを設定
+WORKDIR /app
+
+# package.jsonとpackage-lock.jsonをコピー
+COPY frontend/package*.json ./
+
+# 依存関係をインストール
+RUN npm ci --only=production
+
+# アプリケーションコードをコピー
+COPY frontend/ ./
+
+# Next.jsアプリケーションをビルド
+RUN npm run build
+
+# ポート3000を公開
+EXPOSE 3000
+
+# ヘルスチェック
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3000 || exit 1
+
+# アプリケーションを起動
+CMD ["npm", "start"]

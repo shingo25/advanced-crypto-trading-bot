@@ -2,15 +2,19 @@
 """
 バックエンドAPIのデプロイ前テストスクリプト
 """
+
+# 標準ライブラリは最初にインポート
 import os
 import sys
 
-# Project root を path に追加
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# Project rootをpathに追加（インポートより前）
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# 外部ライブラリをインポート
 from dotenv import load_dotenv
 from fastapi.testclient import TestClient
 
+# プロジェクト内モジュールをインポート
 from backend.core.config import settings
 from backend.main import app
 

@@ -8,7 +8,7 @@ on:
 
 env:
   NODE_VERSION: '20'
-  PYTHON_VERSION: '3.12'
+  PYTHON_VERSION: '3.9'
 
 jobs:
   # 🔒 セキュリティスキャン (最優先)
