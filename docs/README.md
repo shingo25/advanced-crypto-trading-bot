@@ -22,10 +22,11 @@ Advanced Crypto Trading Botの包括的なドキュメント集です。
 
 | ドキュメント | 説明 |
 |-------------|------|
+| [Phase 2 Implementation](./PHASE2_IMPLEMENTATION.md) | Phase2実装詳細 🆕 |
 | [Phase 2 Roadmap](./PHASE2_ROADMAP.md) | Phase2-3実装計画 |
 | [Legacy Roadmap](./ROADMAP.md) | 全体開発計画 |
 | [Project Status](./PROJECT_STATUS.md) | 現在の実装状況 |
-| [Changelog](./CHANGELOG.md) | 変更履歴 |
+| [Changelog](../CHANGELOG.md) | 変更履歴 |
 
 ## 🤝 コントリビューション
 
@@ -38,7 +39,7 @@ Advanced Crypto Trading Botの包括的なドキュメント集です。
 ## 🎯 次のステップ
 
 1. **初めての方**: [Getting Started](./GETTING_STARTED.md)から始めてください
-2. **Phase2実装者**: [Phase 2 Roadmap](./PHASE2_ROADMAP.md)で詳細計画を確認
+2. **Phase2実装者**: [Phase 2 Implementation](./PHASE2_IMPLEMENTATION.md)で実装詳細を確認
 3. **API使用者**: [API Reference](./API_REFERENCE.md)で仕様を確認
 4. **コントリビューター**: [Contributing Guide](./CONTRIBUTING.md)をお読みください
 
