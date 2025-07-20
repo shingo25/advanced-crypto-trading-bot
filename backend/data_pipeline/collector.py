@@ -212,17 +212,19 @@ class DataCollector:
                 }
                 records.append(record)
 
-            # バッチで挿入（upsert使用で重複回避）
-            if records:
+            # バッチサイズを制限してバッチ挿入（upsert使用で重複回避）
+            batch_size = 1000  # Supabaseの推奨バッチサイズ
+            for i in range(0, len(records), batch_size):
+                batch = records[i : i + batch_size]
                 (
                     supabase.table("price_data")
-                    .upsert(records, on_conflict="exchange,symbol,timeframe,timestamp")
+                    .upsert(batch, on_conflict="exchange,symbol,timeframe,timestamp")
                     .execute()
                 )
 
                 logger.info(
-                    f"Saved {len(records)} OHLCV records to Supabase for "
-                    f"{symbol} {timeframe.value}"
+                    f"Saved batch {i//batch_size + 1}/{(len(records)-1)//batch_size + 1} "
+                    f"({len(batch)} records) to Supabase for {symbol} {timeframe.value}"
                 )
 
         except Exception as e:
