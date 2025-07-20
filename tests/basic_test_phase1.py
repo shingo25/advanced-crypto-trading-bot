@@ -7,13 +7,13 @@ import os
 from pathlib import Path
 
 # テスト用のパスを追加
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
 def test_project_structure():
     """プロジェクト構造のテスト"""
     print("Testing project structure...")
-    
+
     # 基本ディレクトリの確認
     required_dirs = [
         "backend",
@@ -27,9 +27,9 @@ def test_project_structure():
         "backend/exchanges",
         "backend/data_pipeline",
         "config",
-        "tests"
+        "tests",
     ]
-    
+
     for dir_path in required_dirs:
         path = Path(dir_path)
         if path.exists():
@@ -37,7 +37,7 @@ def test_project_structure():
         else:
             print(f"❌ {dir_path} missing")
             return False
-    
+
     # 基本ファイルの確認
     required_files = [
         "requirements.txt",
@@ -55,9 +55,9 @@ def test_project_structure():
         "backend/exchanges/factory.py",
         "backend/data_pipeline/collector.py",
         "backend/data_pipeline/onchain.py",
-        "config/risk_management.yml"
+        "config/risk_management.yml",
     ]
-    
+
     for file_path in required_files:
         path = Path(file_path)
         if path.exists():
@@ -65,7 +65,7 @@ def test_project_structure():
         else:
             print(f"❌ {file_path} missing")
             return False
-    
+
     print("✓ Project structure test passed")
     return True
 
@@ -73,7 +73,7 @@ def test_project_structure():
 def test_config_files():
     """設定ファイルのテスト"""
     print("Testing config files...")
-    
+
     # .env.example の確認
     env_example = Path(".env.example")
     if env_example.exists():
@@ -87,9 +87,9 @@ def test_config_files():
             "CRYPTOQUANT_KEY",
             "JWT_SECRET",
             "ADMIN_USERNAME",
-            "ADMIN_PASSWORD"
+            "ADMIN_PASSWORD",
         ]
-        
+
         for var in required_vars:
             if var in content:
                 print(f"✓ {var} found in .env.example")
@@ -99,7 +99,7 @@ def test_config_files():
     else:
         print("❌ .env.example missing")
         return False
-    
+
     # risk_management.yml の確認
     risk_config = Path("config/risk_management.yml")
     if risk_config.exists():
@@ -108,9 +108,9 @@ def test_config_files():
             "risk_management",
             "strategies",
             "emergency_stop",
-            "trading_costs"
+            "trading_costs",
         ]
-        
+
         for section in required_sections:
             if section in content:
                 print(f"✓ {section} section found in risk_management.yml")
@@ -120,7 +120,7 @@ def test_config_files():
     else:
         print("❌ risk_management.yml missing")
         return False
-    
+
     print("✓ Config files test passed")
     return True
 
@@ -128,7 +128,7 @@ def test_config_files():
 def test_code_syntax():
     """コードの構文チェック"""
     print("Testing code syntax...")
-    
+
     python_files = [
         "backend/main.py",
         "backend/core/config.py",
@@ -142,17 +142,17 @@ def test_code_syntax():
         "backend/api/trades.py",
         "backend/risk/position_sizing.py",
         "backend/fee_models/base.py",
-        "backend/fee_models/exchanges.py"
+        "backend/fee_models/exchanges.py",
     ]
-    
+
     for file_path in python_files:
         path = Path(file_path)
         if path.exists():
             try:
                 # 構文チェック
-                with open(path, 'r') as f:
+                with open(path, "r") as f:
                     content = f.read()
-                    compile(content, file_path, 'exec')
+                    compile(content, file_path, "exec")
                 print(f"✓ {file_path} syntax OK")
             except SyntaxError as e:
                 print(f"❌ {file_path} syntax error: {e}")
@@ -162,7 +162,7 @@ def test_code_syntax():
         else:
             print(f"❌ {file_path} missing")
             return False
-    
+
     print("✓ Code syntax test passed")
     return True
 
@@ -170,7 +170,7 @@ def test_code_syntax():
 def test_requirements():
     """requirements.txtの確認"""
     print("Testing requirements.txt...")
-    
+
     req_file = Path("requirements.txt")
     if req_file.exists():
         content = req_file.read_text()
@@ -187,9 +187,9 @@ def test_requirements():
             "ccxt",
             "httpx",
             "tenacity",
-            "PyYAML"
+            "PyYAML",
         ]
-        
+
         for package in required_packages:
             if package in content:
                 print(f"✓ {package} found in requirements.txt")
@@ -199,7 +199,7 @@ def test_requirements():
     else:
         print("❌ requirements.txt missing")
         return False
-    
+
     print("✓ Requirements test passed")
     return True
 
@@ -207,17 +207,12 @@ def test_requirements():
 def test_docker_config():
     """Docker設定のテスト"""
     print("Testing Docker configuration...")
-    
+
     docker_compose = Path("docker-compose.yml")
     if docker_compose.exists():
         content = docker_compose.read_text()
-        required_services = [
-            "backend",
-            "redis",
-            "prometheus",
-            "grafana"
-        ]
-        
+        required_services = ["backend", "redis", "prometheus", "grafana"]
+
         for service in required_services:
             if service in content:
                 print(f"✓ {service} service found in docker-compose.yml")
@@ -227,7 +222,7 @@ def test_docker_config():
     else:
         print("❌ docker-compose.yml missing")
         return False
-    
+
     print("✓ Docker configuration test passed")
     return True
 
@@ -236,18 +231,18 @@ def run_all_tests():
     """全てのテストを実行"""
     print("=== Phase 1 Basic Tests ===")
     print()
-    
+
     tests = [
         test_project_structure,
         test_config_files,
         test_code_syntax,
         test_requirements,
-        test_docker_config
+        test_docker_config,
     ]
-    
+
     passed = 0
     failed = 0
-    
+
     for test in tests:
         try:
             if test():
@@ -258,12 +253,12 @@ def run_all_tests():
             print(f"❌ {test.__name__} failed with exception: {e}")
             failed += 1
         print()
-    
-    print(f"=== Test Results ===")
+
+    print("=== Test Results ===")
     print(f"Passed: {passed}")
     print(f"Failed: {failed}")
     print(f"Total: {passed + failed}")
-    
+
     if failed == 0:
         print("\n🎉 All Phase 1 basic tests passed!")
         return True

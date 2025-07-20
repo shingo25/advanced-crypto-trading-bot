@@ -126,3 +126,32 @@ export interface WebSocketMessage {
   data: any;
   timestamp: string;
 }
+
+// マーケットデータ関連の型定義
+export interface OHLCVData {
+  timestamp: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+}
+
+export interface MarketDataParams {
+  exchange?: string;
+  symbol: string;
+  timeframe?: string;
+  limit?: number;
+  start_time?: string;
+  end_time?: string;
+}
+
+export interface LatestPrice {
+  symbol: string;
+  timestamp: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+}

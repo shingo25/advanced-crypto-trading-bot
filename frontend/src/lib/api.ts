@@ -9,6 +9,9 @@ import type {
   PerformanceData,
   AuthResponse,
   ApiError,
+  OHLCVData,
+  MarketDataParams,
+  LatestPrice,
 } from '@/types/api';
 import {
   mockDashboardSummary,
@@ -228,6 +231,54 @@ export const alertApi = {
 
   async acknowledgeAllAlerts(): Promise<void> {
     await apiClient.post('/api/alerts/acknowledge-all');
+  },
+};
+
+// マーケットデータAPI
+export const marketDataApi = {
+  async getOHLCV(params: MarketDataParams): Promise<OHLCVData[]> {
+    const queryParams = new URLSearchParams();
+
+    if (params.exchange) queryParams.append('exchange', params.exchange);
+    queryParams.append('symbol', params.symbol);
+    if (params.timeframe) queryParams.append('timeframe', params.timeframe);
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    if (params.start_time) queryParams.append('start_time', params.start_time);
+    if (params.end_time) queryParams.append('end_time', params.end_time);
+
+    const response = await apiClient.get(`/api/market-data/ohlcv?${queryParams}`);
+    return response.data;
+  },
+
+  async getSymbols(exchange: string = 'binance'): Promise<{ symbols: string[] }> {
+    const response = await apiClient.get(`/api/market-data/symbols?exchange=${exchange}`);
+    return response.data;
+  },
+
+  async getTimeframes(
+    exchange: string = 'binance',
+    symbol?: string
+  ): Promise<{ timeframes: string[] }> {
+    const queryParams = new URLSearchParams();
+    queryParams.append('exchange', exchange);
+    if (symbol) queryParams.append('symbol', symbol);
+
+    const response = await apiClient.get(`/api/market-data/timeframes?${queryParams}`);
+    return response.data;
+  },
+
+  async getLatestPrices(
+    exchange: string = 'binance',
+    symbols?: string,
+    timeframe: string = '1h'
+  ): Promise<{ latest_prices: LatestPrice[] }> {
+    const queryParams = new URLSearchParams();
+    queryParams.append('exchange', exchange);
+    queryParams.append('timeframe', timeframe);
+    if (symbols) queryParams.append('symbols', symbols);
+
+    const response = await apiClient.get(`/api/market-data/latest?${queryParams}`);
+    return response.data;
   },
 };
 
