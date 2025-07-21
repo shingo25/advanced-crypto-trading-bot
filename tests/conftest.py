@@ -3,8 +3,23 @@ PyTest設定ファイル
 テスト実行時のSupabase接続モック化を実装
 """
 
+import os
+import sys
+from datetime import timedelta
+from typing import Any, Dict, List, Optional
+from unittest.mock import MagicMock
+
 import pytest
-from typing import Dict, Any, List, Optional
+
+# Add project root to Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+# Set test environment variables
+os.environ["ENVIRONMENT"] = "test"
+os.environ["SUPABASE_URL"] = "https://test.supabase.co"
+os.environ["SUPABASE_KEY"] = "test_key"
+os.environ["JWT_SECRET"] = "test_secret_key_for_jwt"
+os.environ["REDIS_URL"] = "redis://localhost:6379/0"
 
 
 class MockSupabaseClient:
@@ -121,17 +136,11 @@ def mock_supabase_connection(monkeypatch):
         return mock_connection.client
 
     # monkeypatchで関数を置き換え
-    monkeypatch.setattr(
-        "backend.core.supabase_db.get_supabase_connection", mock_get_supabase_connection
-    )
-    monkeypatch.setattr(
-        "backend.core.supabase_db.get_supabase_client", mock_get_supabase_client
-    )
+    monkeypatch.setattr("backend.core.supabase_db.get_supabase_connection", mock_get_supabase_connection)
+    monkeypatch.setattr("backend.core.supabase_db.get_supabase_client", mock_get_supabase_client)
 
     # SupabaseConnectionクラス自体もモック化
-    monkeypatch.setattr(
-        "backend.core.supabase_db.SupabaseConnection", MockSupabaseConnection
-    )
+    monkeypatch.setattr("backend.core.supabase_db.SupabaseConnection", MockSupabaseConnection)
 
     return mock_connection
 
@@ -180,3 +189,72 @@ def sample_strategy_data():
         "is_active": True,
         "created_at": "2024-01-01T00:00:00Z",
     }
+
+
+@pytest.fixture(autouse=True)
+def mock_redis(monkeypatch):
+    """Mock Redis for all tests"""
+    mock_redis_client = MagicMock()
+    mock_redis_client.ping.return_value = True
+    mock_redis_client.get.return_value = None
+    mock_redis_client.set.return_value = True
+    mock_redis_client.publish.return_value = 1
+    mock_redis_client.pubsub.return_value = MagicMock()
+    mock_redis_client.subscribe = MagicMock()
+    mock_redis_client.unsubscribe = MagicMock()
+
+    def mock_redis_constructor(*args, **kwargs):
+        return mock_redis_client
+
+    monkeypatch.setattr("redis.Redis", mock_redis_constructor)
+    monkeypatch.setattr("redis.from_url", lambda *args, **kwargs: mock_redis_client)
+
+    # Mock Redis in alert system
+    try:
+        import backend.notifications.alert_manager
+
+        monkeypatch.setattr(backend.notifications.alert_manager, "redis_client", mock_redis_client)
+    except ImportError:
+        pass
+
+    return mock_redis_client
+
+
+@pytest.fixture
+def test_user():
+    """Test user data for authentication"""
+    return {"id": "test-user-123", "email": "test@example.com", "username": "testuser"}
+
+
+@pytest.fixture
+def auth_headers(test_user):
+    """Authorization headers with valid JWT token"""
+    from backend.api.auth import create_access_token
+
+    token = create_access_token(data={"sub": test_user["id"]}, expires_delta=timedelta(minutes=30))
+    return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture(autouse=True)
+def mock_auth_dependency(monkeypatch, test_user):
+    """Mock authentication dependency for all tests"""
+
+    async def mock_get_current_user(*args, **kwargs):
+        return test_user
+
+    # Mock in multiple places to ensure coverage
+    try:
+        from backend.api import auth
+
+        monkeypatch.setattr(auth, "get_current_user", mock_get_current_user)
+    except ImportError:
+        pass
+
+    try:
+        from backend.core import security
+
+        monkeypatch.setattr(security, "get_current_user", mock_get_current_user)
+    except ImportError:
+        pass
+
+    return mock_get_current_user

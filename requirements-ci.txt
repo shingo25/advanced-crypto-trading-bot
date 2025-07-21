@@ -66,3 +66,8 @@ ruff==0.1.9
 mypy==1.8.0
 bandit==1.7.5
 # safety==3.0.1  # 一時的に無効化（Pydantic 2.x非互換）
+
+# Test Dependencies
+python-dateutil==2.8.2
+requests==2.31.0  # API tests need this
+aiosmtplib==3.0.1  # Alert notification tests
