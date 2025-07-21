@@ -55,3 +55,14 @@ loguru==0.7.2
 rq==1.15.1
 redis==5.0.1
 schedule==1.2.0
+
+# Development Tools (CI/CD用)
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+pytest-mock==3.12.0
+pytest-timeout==2.2.0
+ruff==0.1.9
+mypy==1.8.0
+bandit==1.7.5
+safety==3.0.1
