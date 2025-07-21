@@ -1,29 +1,31 @@
+import logging
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
-import logging
-from backend.core.config import settings
+
+# TODO: Update these modules to use Supabase SDK
 from backend.api import (
+    alerts,
     auth,
-    strategies,
+    backtest,  # ✓ Supabase SDK implemented
     market_data,
     performance,
     portfolio,
     risk,
-    alerts,
+    strategies,
 )
-
-# TODO: Update these modules to use Supabase SDK
-from backend.api import backtest  # ✓ Supabase SDK implemented
-# from backend.api import config, trades
-
-# WebSocket system
-from backend.websocket import router as websocket_router
-
-# Streaming system
-from backend.streaming import router as streaming_router, price_stream_manager
+from backend.core.config import settings
 from backend.core.database import init_db
 from backend.core.logging import setup_logging
+from backend.streaming import price_stream_manager
+
+# Streaming system
+from backend.streaming import router as streaming_router
+
+# from backend.api import config, trades
+# WebSocket system
+from backend.websocket import router as websocket_router
 
 setup_logging()
 logger = logging.getLogger(__name__)
