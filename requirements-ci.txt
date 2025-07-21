@@ -65,4 +65,4 @@ pytest-timeout==2.2.0
 ruff==0.1.9
 mypy==1.8.0
 bandit==1.7.5
-safety==3.0.1
+# safety==3.0.1  # 一時的に無効化（Pydantic 2.x非互換）

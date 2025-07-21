@@ -50,7 +50,7 @@ loguru==0.7.2
 
 # Background Jobs & Messaging
 rq==1.15.1
-redis[hiredis]==5.0.1  # Enhanced Redis with C parser
+redis==5.0.1  # Simplified Redis for Vercel compatibility
 schedule==1.2.0
 
 # Alert & Notification System (Phase 3)
