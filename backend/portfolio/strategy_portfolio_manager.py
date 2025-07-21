@@ -6,15 +6,16 @@
 """
 
 import logging
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, List, Optional
+
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Any
-from datetime import datetime
-from dataclasses import dataclass, field
-from enum import Enum
 
-from .manager import PortfolioManager
 from ..strategies.base import BaseStrategy, Signal
+from .manager import PortfolioManager
 
 logger = logging.getLogger(__name__)
 
@@ -93,9 +94,7 @@ class AdvancedPortfolioManager(PortfolioManager):
         self.daily_pnl: Dict[str, float] = {}  # 日次損益
         self.position_sizes: Dict[str, float] = {}  # ポジションサイズ
 
-        logger.info(
-            f"AdvancedPortfolioManager initialized with capital: {initial_capital}"
-        )
+        logger.info(f"AdvancedPortfolioManager initialized with capital: {initial_capital}")
 
     def add_strategy(
         self,
@@ -109,9 +108,7 @@ class AdvancedPortfolioManager(PortfolioManager):
                 raise ValueError("Allocation weight must be between 0 and 1")
 
             # 既存の配分重みとの合計をチェック
-            total_weight = sum(
-                alloc.target_weight for alloc in self.strategy_allocations.values()
-            )
+            total_weight = sum(alloc.target_weight for alloc in self.strategy_allocations.values())
             if total_weight + allocation_weight > 1.0:
                 raise ValueError("Total allocation weight exceeds 100%")
 
@@ -132,9 +129,7 @@ class AdvancedPortfolioManager(PortfolioManager):
             )
 
             self.strategy_allocations[strategy.name] = allocation
-            logger.info(
-                f"Added strategy {strategy.name} with {allocation_weight*100:.1f}% allocation"
-            )
+            logger.info(f"Added strategy {strategy.name} with {allocation_weight*100:.1f}% allocation")
             return True
 
         except Exception as e:
@@ -150,10 +145,7 @@ class AdvancedPortfolioManager(PortfolioManager):
 
             # ポジションがある場合は警告
             allocation = self.strategy_allocations[strategy_name]
-            if (
-                allocation.strategy_instance.state.is_long
-                or allocation.strategy_instance.state.is_short
-            ):
+            if allocation.strategy_instance.state.is_long or allocation.strategy_instance.state.is_short:
                 logger.warning(f"Strategy {strategy_name} has open positions")
 
             del self.strategy_allocations[strategy_name]
@@ -164,9 +156,7 @@ class AdvancedPortfolioManager(PortfolioManager):
             logger.error(f"Error removing strategy {strategy_name}: {e}")
             return False
 
-    def update_strategy_status(
-        self, strategy_name: str, status: StrategyStatus
-    ) -> bool:
+    def update_strategy_status(self, strategy_name: str, status: StrategyStatus) -> bool:
         """戦略の状態を更新"""
         try:
             if strategy_name not in self.strategy_allocations:
@@ -180,9 +170,7 @@ class AdvancedPortfolioManager(PortfolioManager):
             logger.error(f"Error updating strategy status: {e}")
             return False
 
-    def process_market_data(
-        self, symbol: str, ohlcv_data: Dict[str, Any]
-    ) -> List[Signal]:
+    def process_market_data(self, symbol: str, ohlcv_data: Dict[str, Any]) -> List[Signal]:
         """市場データを処理して全戦略のシグナルを生成"""
         all_signals = []
 
@@ -210,9 +198,7 @@ class AdvancedPortfolioManager(PortfolioManager):
                         allocation.last_updated = datetime.now()
                         all_signals.append(signal)
 
-                        logger.info(
-                            f"Signal from {strategy_name}: {signal.action} {signal.symbol} @ {signal.price}"
-                        )
+                        logger.info(f"Signal from {strategy_name}: {signal.action} {signal.symbol} @ {signal.price}")
 
             return all_signals
 
@@ -249,9 +235,7 @@ class AdvancedPortfolioManager(PortfolioManager):
         try:
             # リスク制限チェック
             if not self._check_risk_limits(signal, position_size):
-                logger.warning(
-                    f"Risk limits prevent execution of {signal.action} {signal.symbol}"
-                )
+                logger.warning(f"Risk limits prevent execution of {signal.action} {signal.symbol}")
                 return False
 
             # 取引記録を作成
@@ -376,9 +360,7 @@ class AdvancedPortfolioManager(PortfolioManager):
     def calculate_strategy_performance(self, strategy_name: str) -> PerformanceMetrics:
         """戦略別パフォーマンスを計算"""
         try:
-            strategy_trades = [
-                t for t in self.trade_history if t.strategy_name == strategy_name
-            ]
+            strategy_trades = [t for t in self.trade_history if t.strategy_name == strategy_name]
 
             if not strategy_trades:
                 return PerformanceMetrics()
@@ -419,9 +401,7 @@ class AdvancedPortfolioManager(PortfolioManager):
             # 各戦略のリターン系列を取得
             strategy_returns = {}
             for strategy_name in strategy_names:
-                strategy_trades = [
-                    t for t in self.trade_history if t.strategy_name == strategy_name
-                ]
+                strategy_trades = [t for t in self.trade_history if t.strategy_name == strategy_name]
                 returns = [t.pnl for t in strategy_trades if t.pnl is not None]
                 if returns:
                     strategy_returns[strategy_name] = returns
@@ -431,10 +411,7 @@ class AdvancedPortfolioManager(PortfolioManager):
 
             # データ長を揃える
             min_length = min(len(returns) for returns in strategy_returns.values())
-            aligned_returns = {
-                name: returns[-min_length:]
-                for name, returns in strategy_returns.items()
-            }
+            aligned_returns = {name: returns[-min_length:] for name, returns in strategy_returns.items()}
 
             # 相関行列を計算
             df = pd.DataFrame(aligned_returns)
@@ -463,9 +440,7 @@ class AdvancedPortfolioManager(PortfolioManager):
                 current_performance = strategy_performances[strategy_name]
 
                 # パフォーマンスが悪い戦略の配分を削減
-                if (
-                    current_performance < 0 and abs(current_performance) > 0.05
-                ):  # 5%以上の損失
+                if current_performance < 0 and abs(current_performance) > 0.05:  # 5%以上の損失
                     new_weight = allocation.target_weight * 0.8  # 20%削減
                     rebalance_actions.append(
                         {
@@ -478,9 +453,7 @@ class AdvancedPortfolioManager(PortfolioManager):
                     allocation.target_weight = new_weight
 
             # 配分の正規化
-            total_weight = sum(
-                alloc.target_weight for alloc in self.strategy_allocations.values()
-            )
+            total_weight = sum(alloc.target_weight for alloc in self.strategy_allocations.values())
             if total_weight > 0:
                 for allocation in self.strategy_allocations.values():
                     allocation.target_weight /= total_weight
@@ -510,12 +483,8 @@ class AdvancedPortfolioManager(PortfolioManager):
                         "trades_count": strategy_perf.trades_count,
                     },
                     "last_signal": {
-                        "action": allocation.last_signal.action
-                        if allocation.last_signal
-                        else None,
-                        "timestamp": allocation.last_signal.timestamp.isoformat()
-                        if allocation.last_signal
-                        else None,
+                        "action": allocation.last_signal.action if allocation.last_signal else None,
+                        "timestamp": allocation.last_signal.timestamp.isoformat() if allocation.last_signal else None,
                     },
                 }
 
@@ -525,11 +494,7 @@ class AdvancedPortfolioManager(PortfolioManager):
                     "current_capital": self.current_capital,
                     "total_strategies": len(self.strategy_allocations),
                     "active_strategies": len(
-                        [
-                            a
-                            for a in self.strategy_allocations.values()
-                            if a.status == StrategyStatus.ACTIVE
-                        ]
+                        [a for a in self.strategy_allocations.values() if a.status == StrategyStatus.ACTIVE]
                     ),
                 },
                 "performance_metrics": {
@@ -543,13 +508,10 @@ class AdvancedPortfolioManager(PortfolioManager):
                     "calmar_ratio": performance.calmar_ratio,
                 },
                 "strategy_allocations": strategy_summaries,
-                "correlation_matrix": correlation_matrix.to_dict()
-                if not correlation_matrix.empty
-                else {},
+                "correlation_matrix": correlation_matrix.to_dict() if not correlation_matrix.empty else {},
                 "risk_metrics": {
                     "current_exposure": sum(
-                        allocation.allocated_capital
-                        for allocation in self.strategy_allocations.values()
+                        allocation.allocated_capital for allocation in self.strategy_allocations.values()
                     ),
                     "max_position_size": self.risk_limits["max_position_size"],
                     "max_daily_loss": self.risk_limits["max_daily_loss"],
@@ -586,23 +548,12 @@ class AdvancedPortfolioManager(PortfolioManager):
             }
 
             # ポジション集中度分析
-            total_exposure = sum(
-                allocation.allocated_capital
-                for allocation in self.strategy_allocations.values()
-            )
+            total_exposure = sum(allocation.allocated_capital for allocation in self.strategy_allocations.values())
             for strategy_name, allocation in self.strategy_allocations.items():
-                concentration = (
-                    allocation.allocated_capital / total_exposure
-                    if total_exposure > 0
-                    else 0
-                )
+                concentration = allocation.allocated_capital / total_exposure if total_exposure > 0 else 0
                 risk_report["position_concentration"][strategy_name] = {
                     "concentration": concentration,
-                    "risk_level": "high"
-                    if concentration > 0.4
-                    else "medium"
-                    if concentration > 0.2
-                    else "low",
+                    "risk_level": "high" if concentration > 0.4 else "medium" if concentration > 0.2 else "low",
                 }
 
             # 戦略間相関分析
@@ -631,8 +582,7 @@ class AdvancedPortfolioManager(PortfolioManager):
             performance = self.calculate_portfolio_performance()
             risk_report["var_analysis"] = {
                 "var_95": performance.var_95,
-                "expected_shortfall": performance.var_95
-                * 1.3,  # 簡易的なExpected Shortfall
+                "expected_shortfall": performance.var_95 * 1.3,  # 簡易的なExpected Shortfall
                 "volatility": performance.volatility,
             }
 
@@ -667,9 +617,7 @@ class AdvancedPortfolioManager(PortfolioManager):
 
             # 高相関戦略の警告
             if "high_correlations" in risk_report.get("strategy_correlation", {}):
-                for corr_pair in risk_report["strategy_correlation"][
-                    "high_correlations"
-                ]:
+                for corr_pair in risk_report["strategy_correlation"]["high_correlations"]:
                     optimization_suggestions["risk_reduction"].append(
                         {
                             "type": "correlation_risk",
@@ -679,9 +627,7 @@ class AdvancedPortfolioManager(PortfolioManager):
                     )
 
             # 集中リスクの警告
-            for strategy_name, concentration_data in risk_report.get(
-                "position_concentration", {}
-            ).items():
+            for strategy_name, concentration_data in risk_report.get("position_concentration", {}).items():
                 if concentration_data["risk_level"] == "high":
                     optimization_suggestions["risk_reduction"].append(
                         {

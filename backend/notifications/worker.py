@@ -7,15 +7,16 @@ Redis Pub/Subからアラートを受信し、
 
 import asyncio
 import logging
-import yaml
-from typing import Dict, Any, Optional, List
-from datetime import datetime, timezone
-from dataclasses import dataclass, field
 import os
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional
 
-from ..models.alerts import UnifiedAlert
-from ..core.messaging import AlertSubscriber, AlertChannels
+import yaml
+
+from ..core.messaging import AlertChannels, AlertSubscriber
 from ..core.redis import get_redis_manager
+from ..models.alerts import UnifiedAlert
 from .channels.base import NotificationChannel, NotificationResult
 from .channels.email import EmailChannel, EmailConfig
 from .channels.slack import SlackChannel, SlackConfig
@@ -52,9 +53,7 @@ class NotificationChannelFactory:
     """通知チャネルファクトリー"""
 
     @staticmethod
-    def create_channel(
-        channel_type: str, config: Dict[str, Any]
-    ) -> Optional[NotificationChannel]:
+    def create_channel(channel_type: str, config: Dict[str, Any]) -> Optional[NotificationChannel]:
         """チャネルを作成"""
         try:
             if channel_type == "email":
@@ -226,9 +225,7 @@ class NotificationWorker:
             if os.path.exists(self.config_path):
                 with open(self.config_path, "r", encoding="utf-8") as f:
                     self.config = yaml.safe_load(f) or {}
-                logger.info(
-                    f"Notification worker config loaded from {self.config_path}"
-                )
+                logger.info(f"Notification worker config loaded from {self.config_path}")
             else:
                 logger.warning(f"Config file not found: {self.config_path}")
                 self.config = {}
@@ -266,9 +263,7 @@ class NotificationWorker:
 
         for channel_name, channel_config in channel_configs.items():
             if channel_config.get("enabled", False):
-                channel = NotificationChannelFactory.create_channel(
-                    channel_name, channel_config
-                )
+                channel = NotificationChannelFactory.create_channel(channel_name, channel_config)
                 if channel:
                     self.channels[channel_name] = channel
                     logger.info(f"Initialized {channel_name} channel")
@@ -306,9 +301,7 @@ class NotificationWorker:
 
             # アラート購読を開始
             if self.subscriber:
-                await self.subscriber.subscribe_to_alerts(
-                    self._handle_alert, channels=[AlertChannels.ALERTS]
-                )
+                await self.subscriber.subscribe_to_alerts(self._handle_alert, channels=[AlertChannels.ALERTS])
 
             # バッチ処理タスクを開始
             self.batch_task = asyncio.create_task(self._batch_processor())
@@ -399,9 +392,7 @@ class NotificationWorker:
         max_batch_size = rule.batch.get("max_batch_size", 50)
 
         if len(batch.alerts) >= max_batch_size or (
-            batch.first_alert_time
-            and (now - batch.first_alert_time).total_seconds()
-            >= batch_window_minutes * 60
+            batch.first_alert_time and (now - batch.first_alert_time).total_seconds() >= batch_window_minutes * 60
         ):
             await self._flush_batch(rule_name)
 
@@ -437,10 +428,7 @@ class NotificationWorker:
                 expired_batches = []
 
                 for rule_name, batch in self.batched_alerts.items():
-                    if (
-                        batch.first_alert_time
-                        and (now - batch.first_alert_time).total_seconds() >= 900
-                    ):  # 15分
+                    if batch.first_alert_time and (now - batch.first_alert_time).total_seconds() >= 900:  # 15分
                         expired_batches.append(rule_name)
 
                 for rule_name in expired_batches:
@@ -451,9 +439,7 @@ class NotificationWorker:
             except Exception as e:
                 logger.error(f"Error in batch processor: {e}")
 
-    async def _send_notifications(
-        self, channel_names: List[str], alerts: List[UnifiedAlert]
-    ):
+    async def _send_notifications(self, channel_names: List[str], alerts: List[UnifiedAlert]):
         """通知を送信"""
         for channel_name in channel_names:
             if channel_name in self.channels:
@@ -530,9 +516,7 @@ class NotificationWorker:
             # Subscriberチェック
             health["components"]["subscriber"] = {
                 "healthy": self.subscriber is not None,
-                "subscriptions": len(self.subscriber._subscriptions)
-                if self.subscriber
-                else 0,
+                "subscriptions": len(self.subscriber._subscriptions) if self.subscriber else 0,
             }
 
             return health
@@ -547,13 +531,9 @@ class NotificationWorker:
     def get_stats(self) -> Dict[str, Any]:
         """統計情報を取得"""
         stats = dict(self.stats)
-        stats["last_alert"] = (
-            self.stats["last_alert"].isoformat() if self.stats["last_alert"] else None
-        )
+        stats["last_alert"] = self.stats["last_alert"].isoformat() if self.stats["last_alert"] else None
         stats["last_notification"] = (
-            self.stats["last_notification"].isoformat()
-            if self.stats["last_notification"]
-            else None
+            self.stats["last_notification"].isoformat() if self.stats["last_notification"] else None
         )
         stats["running"] = self._running
         stats["active_batches"] = len(self.batched_alerts)

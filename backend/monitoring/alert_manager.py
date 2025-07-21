@@ -7,22 +7,23 @@
 
 import asyncio
 import logging
-import yaml
-from typing import Dict, Any, Optional, List
-from datetime import datetime, timezone, timedelta
 import os
+from datetime import datetime, timedelta, timezone
+from typing import Any, Dict, List, Optional
 
-from ..models.alerts import (
-    UnifiedAlert,
-    AlertLevel,
-    AlertCategory,
-    AlertType,
-    create_risk_alert,
-    create_system_alert,
-    create_performance_alert,
-)
+import yaml
+
 from ..core.messaging import AlertMessageBroker, MessagePriority
 from ..core.redis import get_redis_manager
+from ..models.alerts import (
+    AlertCategory,
+    AlertLevel,
+    AlertType,
+    UnifiedAlert,
+    create_performance_alert,
+    create_risk_alert,
+    create_system_alert,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -108,9 +109,7 @@ class AlertThrottleManager:
             alert.category.value,
             alert.alert_type.value,
             alert.metadata.symbol if alert.metadata and alert.metadata.symbol else "",
-            alert.metadata.strategy_name
-            if alert.metadata and alert.metadata.strategy_name
-            else "",
+            alert.metadata.strategy_name if alert.metadata and alert.metadata.strategy_name else "",
         ]
         return ":".join(filter(None, components))
 
@@ -128,9 +127,7 @@ class AlertThrottleManager:
 
         # 古いエントリを削除
         self._duplicate_cache[content_hash] = [
-            timestamp
-            for timestamp in self._duplicate_cache[content_hash]
-            if timestamp > cutoff_time
+            timestamp for timestamp in self._duplicate_cache[content_hash] if timestamp > cutoff_time
         ]
 
         # 重複チェック
@@ -147,20 +144,14 @@ class AlertThrottleManager:
         cutoff_time = now - timedelta(hours=1)
 
         # スロットルキャッシュのクリーンアップ
-        expired_keys = [
-            key
-            for key, timestamp in self._throttle_cache.items()
-            if timestamp < cutoff_time
-        ]
+        expired_keys = [key for key, timestamp in self._throttle_cache.items() if timestamp < cutoff_time]
         for key in expired_keys:
             del self._throttle_cache[key]
 
         # 重複キャッシュのクリーンアップ
         for content_hash in list(self._duplicate_cache.keys()):
             self._duplicate_cache[content_hash] = [
-                timestamp
-                for timestamp in self._duplicate_cache[content_hash]
-                if timestamp > cutoff_time
+                timestamp for timestamp in self._duplicate_cache[content_hash] if timestamp > cutoff_time
             ]
             if not self._duplicate_cache[content_hash]:
                 del self._duplicate_cache[content_hash]
@@ -453,13 +444,9 @@ class IntegratedAlertManager:
     def get_stats(self) -> Dict[str, Any]:
         """統計情報を取得"""
         stats = dict(self.stats)
-        stats["last_alert"] = (
-            self.stats["last_alert"].isoformat() if self.stats["last_alert"] else None
-        )
+        stats["last_alert"] = self.stats["last_alert"].isoformat() if self.stats["last_alert"] else None
         stats["config_last_loaded"] = (
-            self.config_manager.last_loaded.isoformat()
-            if self.config_manager.last_loaded
-            else None
+            self.config_manager.last_loaded.isoformat() if self.config_manager.last_loaded else None
         )
         stats["system_enabled"] = self.config_manager.is_enabled()
         return stats
@@ -490,9 +477,7 @@ class IntegratedAlertManager:
                 broker_stats = self.message_broker.get_stats()
                 health["components"]["message_broker"] = {
                     "healthy": broker_stats.get("started", False),
-                    "message": "OK"
-                    if broker_stats.get("started", False)
-                    else "Not started",
+                    "message": "OK" if broker_stats.get("started", False) else "Not started",
                 }
                 if not broker_stats.get("started", False):
                     health["healthy"] = False
@@ -546,6 +531,4 @@ async def create_alert(
 ) -> bool:
     """既存システム互換用のアラート作成関数"""
     manager = await get_alert_manager()
-    return await manager.create_alert(
-        alert_type, level, title, message, symbol, strategy_name, data
-    )
+    return await manager.create_alert(alert_type, level, title, message, symbol, strategy_name, data)

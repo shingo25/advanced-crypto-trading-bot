@@ -4,22 +4,22 @@
 SMTP経由でのメール通知機能
 """
 
-import smtplib
-import logging
-from dataclasses import dataclass, field
-from typing import Dict, Any, Optional, List
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 import asyncio
+import logging
+import smtplib
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass, field
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from typing import Any, Dict, List, Optional
 
+from ...models.alerts import AlertLevel, UnifiedAlert
 from .base import (
     NotificationChannel,
     NotificationConfig,
     NotificationResult,
     NotificationStatus,
 )
-from ...models.alerts import UnifiedAlert, AlertLevel
 
 logger = logging.getLogger(__name__)
 
@@ -93,11 +93,7 @@ class EmailChannel(NotificationChannel):
 
     def _get_plain_compact_template(self, alert: UnifiedAlert) -> str:
         """プレーンテキストコンパクトテンプレート"""
-        symbol_str = (
-            f" [{alert.metadata.symbol}]"
-            if alert.metadata and alert.metadata.symbol
-            else ""
-        )
+        symbol_str = f" [{alert.metadata.symbol}]" if alert.metadata and alert.metadata.symbol else ""
         return f"{alert.level.value.upper()}{symbol_str}: {alert.message}"
 
     def _get_plain_standard_template(self, alert: UnifiedAlert) -> str:
@@ -164,9 +160,7 @@ class EmailChannel(NotificationChannel):
             message += f"Acknowledged At: {alert.acknowledged_at.strftime('%Y-%m-%d %H:%M:%S UTC')}\n"
         message += f"Resolved: {'Yes' if alert.resolved else 'No'}\n"
         if alert.resolved_at:
-            message += (
-                f"Resolved At: {alert.resolved_at.strftime('%Y-%m-%d %H:%M:%S UTC')}\n"
-            )
+            message += f"Resolved At: {alert.resolved_at.strftime('%Y-%m-%d %H:%M:%S UTC')}\n"
 
         return message
 
@@ -282,11 +276,7 @@ class EmailChannel(NotificationChannel):
         """メール件名を生成"""
         prefix = self.email_config.subject_prefix
         level = alert.level.value.upper()
-        symbol_str = (
-            f" [{alert.metadata.symbol}]"
-            if alert.metadata and alert.metadata.symbol
-            else ""
-        )
+        symbol_str = f" [{alert.metadata.symbol}]" if alert.metadata and alert.metadata.symbol else ""
 
         return f"{prefix} {level}{symbol_str}: {alert.title}"
 
@@ -300,18 +290,13 @@ class EmailChannel(NotificationChannel):
         # レベル別の追加受信者
         if alert.level == AlertLevel.CRITICAL and config.critical_recipients:
             recipients.extend(config.critical_recipients)
-        elif (
-            alert.level in [AlertLevel.ERROR, AlertLevel.WARNING]
-            and config.high_priority_recipients
-        ):
+        elif alert.level in [AlertLevel.ERROR, AlertLevel.WARNING] and config.high_priority_recipients:
             recipients.extend(config.high_priority_recipients)
 
         # 重複除去
         return list(set(recipients))
 
-    def _create_email_message(
-        self, alert: UnifiedAlert, formatted_message: str
-    ) -> MIMEMultipart:
+    def _create_email_message(self, alert: UnifiedAlert, formatted_message: str) -> MIMEMultipart:
         """メールメッセージを作成"""
         config = self.email_config
 
@@ -445,9 +430,7 @@ class EmailChannel(NotificationChannel):
                 error_details=str(e),
             )
 
-    async def _send_notification(
-        self, alert: UnifiedAlert, formatted_message: str
-    ) -> NotificationResult:
+    async def _send_notification(self, alert: UnifiedAlert, formatted_message: str) -> NotificationResult:
         """メール通知を送信"""
         recipients = self._get_recipients(alert)
 
@@ -501,9 +484,7 @@ class EmailChannel(NotificationChannel):
                 except Exception as e:
                     return False, f"Error: {str(e)}"
 
-            success, message = await loop.run_in_executor(
-                self.thread_pool, test_smtp_connection
-            )
+            success, message = await loop.run_in_executor(self.thread_pool, test_smtp_connection)
 
             return {
                 "healthy": success,

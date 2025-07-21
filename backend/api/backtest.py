@@ -1,12 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
-from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
-from datetime import date, datetime
-from backend.core.security import get_current_user, require_admin
-from backend.backtesting.engine import BacktestEngine
-from backend.strategies.loader import StrategyLoader
-import logging
 import asyncio
+import logging
+from datetime import date, datetime
+from typing import Any, Dict, List, Optional
+
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from pydantic import BaseModel
+
+from backend.backtesting.engine import BacktestEngine
+from backend.core.security import get_current_user, require_admin
+from backend.strategies.loader import StrategyLoader
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -114,9 +116,7 @@ async def run_backtest(
             raise HTTPException(status_code=404, detail="Strategy not found")
 
         # バックテストをバックグラウンドで実行
-        background_tasks.add_task(
-            _run_enhanced_backtest_task, backtest_request, current_user["username"]
-        )
+        background_tasks.add_task(_run_enhanced_backtest_task, backtest_request, current_user["username"])
 
         logger.info(
             f"Enhanced backtest queued for strategy {backtest_request.strategy_name} by {current_user['username']}"
@@ -144,9 +144,7 @@ async def get_backtest_results(
     try:
         # バックテストエンジンを使用してSupabaseから結果を取得
         engine = BacktestEngine()
-        results = await engine.list_backtest_results(
-            strategy_name=strategy_name, limit=limit, offset=offset
-        )
+        results = await engine.list_backtest_results(strategy_name=strategy_name, limit=limit, offset=offset)
 
         return results
 
@@ -156,9 +154,7 @@ async def get_backtest_results(
 
 
 @router.get("/results/{backtest_id}", response_model=Dict[str, Any])
-async def get_backtest_result(
-    backtest_id: str, current_user: dict = Depends(get_current_user)
-):
+async def get_backtest_result(backtest_id: str, current_user: dict = Depends(get_current_user)):
     """特定のバックテスト結果をSupabaseから取得"""
     try:
         # バックテストエンジンを使用してSupabaseから結果を取得
@@ -179,9 +175,7 @@ async def get_backtest_result(
 async def _run_enhanced_backtest_task(backtest_request: BacktestRequest, username: str):
     """強化されたバックテストを実行するタスク（バックグラウンド処理）"""
     try:
-        logger.info(
-            f"Starting enhanced backtest for {backtest_request.strategy_name} by {username}"
-        )
+        logger.info(f"Starting enhanced backtest for {backtest_request.strategy_name} by {username}")
 
         # ストラテジーローダーで戦略を取得
         strategy_loader = StrategyLoader()
@@ -217,9 +211,7 @@ async def _run_enhanced_backtest_task(backtest_request: BacktestRequest, usernam
         # 結果をSupabaseに保存
         backtest_id = await engine.save_results_to_database(result)
 
-        logger.info(
-            f"Enhanced backtest completed for {backtest_request.strategy_name}, ID: {backtest_id}"
-        )
+        logger.info(f"Enhanced backtest completed for {backtest_request.strategy_name}, ID: {backtest_id}")
 
         return backtest_id
 
@@ -234,9 +226,7 @@ def _run_backtest_task(backtest_request: BacktestRequest, username: str):
     try:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        result = loop.run_until_complete(
-            _run_enhanced_backtest_task(backtest_request, username)
-        )
+        result = loop.run_until_complete(_run_enhanced_backtest_task(backtest_request, username))
         return result
     except Exception as e:
         logger.error(f"Backtest wrapper failed: {e}")

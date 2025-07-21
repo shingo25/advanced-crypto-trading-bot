@@ -6,16 +6,17 @@ Slack Webhook APIを使用したアラート通知
 
 import logging
 from dataclasses import dataclass
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
 import aiohttp
 
+from ...models.alerts import AlertLevel, UnifiedAlert
 from .base import (
     NotificationChannel,
     NotificationConfig,
     NotificationResult,
     NotificationStatus,
 )
-from ...models.alerts import UnifiedAlert, AlertLevel
 
 logger = logging.getLogger(__name__)
 
@@ -96,11 +97,7 @@ class SlackChannel(NotificationChannel):
     def _get_slack_compact_template(self, alert: UnifiedAlert) -> str:
         """Slackコンパクトテンプレート"""
         emoji = self.level_emojis.get(alert.level, ":warning:")
-        symbol_str = (
-            f" [{alert.metadata.symbol}]"
-            if alert.metadata and alert.metadata.symbol
-            else ""
-        )
+        symbol_str = f" [{alert.metadata.symbol}]" if alert.metadata and alert.metadata.symbol else ""
 
         message = f"{emoji} *{alert.level.value.upper()}*{symbol_str}: {alert.message}"
 
@@ -133,9 +130,7 @@ class SlackChannel(NotificationChannel):
             lines.append(f"*Strategy:* `{alert.metadata.strategy_name}`")
 
         if alert.recommended_actions:
-            actions = ", ".join(
-                [action.description for action in alert.recommended_actions]
-            )
+            actions = ", ".join([action.description for action in alert.recommended_actions])
             lines.append(f"*Actions:* {actions}")
 
         message = "\n".join(lines)
@@ -177,9 +172,7 @@ class SlackChannel(NotificationChannel):
 
         return message
 
-    def _create_slack_payload(
-        self, alert: UnifiedAlert, formatted_message: str
-    ) -> Dict[str, Any]:
+    def _create_slack_payload(self, alert: UnifiedAlert, formatted_message: str) -> Dict[str, Any]:
         """Slack送信用ペイロードを作成"""
         config = self.slack_config
 
@@ -201,10 +194,7 @@ class SlackChannel(NotificationChannel):
         # メッセージ長制限
         if len(formatted_message) > config.max_message_length:
             if config.truncate_long_messages:
-                formatted_message = (
-                    formatted_message[: config.max_message_length - 100]
-                    + "\n\n... (truncated)"
-                )
+                formatted_message = formatted_message[: config.max_message_length - 100] + "\n\n... (truncated)"
             else:
                 # 長すぎる場合は添付ファイルに移動
                 payload[
@@ -227,9 +217,7 @@ class SlackChannel(NotificationChannel):
         config = self.slack_config
 
         attachment = {
-            "color": self.level_colors.get(alert.level, "#cccccc")
-            if config.color_coding
-            else None,
+            "color": self.level_colors.get(alert.level, "#cccccc") if config.color_coding else None,
             "title": alert.title,
             "text": message,
             "ts": int(alert.timestamp.timestamp()),
@@ -241,18 +229,12 @@ class SlackChannel(NotificationChannel):
         if config.include_fields:
             fields = []
 
-            fields.append(
-                {"title": "Level", "value": alert.level.value.upper(), "short": True}
-            )
+            fields.append({"title": "Level", "value": alert.level.value.upper(), "short": True})
 
-            fields.append(
-                {"title": "Category", "value": alert.category.value, "short": True}
-            )
+            fields.append({"title": "Category", "value": alert.category.value, "short": True})
 
             if alert.metadata and alert.metadata.symbol:
-                fields.append(
-                    {"title": "Symbol", "value": alert.metadata.symbol, "short": True}
-                )
+                fields.append({"title": "Symbol", "value": alert.metadata.symbol, "short": True})
 
             if alert.metadata and alert.metadata.strategy_name:
                 fields.append(
@@ -302,9 +284,7 @@ class SlackChannel(NotificationChannel):
 
         return attachment
 
-    async def _send_notification(
-        self, alert: UnifiedAlert, formatted_message: str
-    ) -> NotificationResult:
+    async def _send_notification(self, alert: UnifiedAlert, formatted_message: str) -> NotificationResult:
         """Slack通知を送信"""
         try:
             payload = self._create_slack_payload(alert, formatted_message)

@@ -1,9 +1,11 @@
+import logging
 from typing import Dict, Type
+
 from backend.core.config import settings
+
 from .base import AbstractExchangeAdapter
 from .binance import BinanceAdapter
 from .bybit import BybitAdapter
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -17,9 +19,7 @@ class ExchangeFactory:
     }
 
     @classmethod
-    def create_adapter(
-        cls, exchange_name: str, sandbox: bool = False
-    ) -> AbstractExchangeAdapter:
+    def create_adapter(cls, exchange_name: str, sandbox: bool = False) -> AbstractExchangeAdapter:
         """指定された取引所のアダプタを作成"""
         exchange_name = exchange_name.lower()
 

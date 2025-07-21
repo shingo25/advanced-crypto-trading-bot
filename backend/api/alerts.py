@@ -5,18 +5,19 @@ Phase3で実装したAlert/Notification機能をAPI化
 アラート作成、管理、配信状況確認などの機能を提供
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any, Literal
-from datetime import datetime, timedelta
 import logging
 import uuid
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Literal, Optional
 
-from backend.core.security import get_current_user
-from backend.models.alerts import UnifiedAlert, AlertLevel, AlertCategory, AlertType
-from backend.monitoring.alert_manager import IntegratedAlertManager
+from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel, Field
+
 from backend.core.messaging import AlertPublisher
 from backend.core.redis import RedisManager
+from backend.core.security import get_current_user
+from backend.models.alerts import AlertCategory, AlertLevel, AlertType, UnifiedAlert
+from backend.monitoring.alert_manager import IntegratedAlertManager
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -50,35 +51,21 @@ class AlertCreateRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=100, description="アラート名")
     target: str = Field(..., description="監視対象 (price, volume, rsi, var など)")
     symbol: Optional[str] = Field(None, description="取引シンボル")
-    condition: Literal["GREATER_THAN", "LESS_THAN", "EQUALS", "NOT_EQUALS"] = Field(
-        ..., description="条件"
-    )
+    condition: Literal["GREATER_THAN", "LESS_THAN", "EQUALS", "NOT_EQUALS"] = Field(..., description="条件")
     value: float = Field(..., description="閾値")
-    notification_channels: List[str] = Field(
-        default=["websocket"], description="通知チャンネル"
-    )
-    level: Literal["info", "warning", "critical"] = Field(
-        default="info", description="アラートレベル"
-    )
+    notification_channels: List[str] = Field(default=["websocket"], description="通知チャンネル")
+    level: Literal["info", "warning", "critical"] = Field(default="info", description="アラートレベル")
     enabled: bool = Field(default=True, description="有効状態")
 
 
 class AlertUpdateRequest(BaseModel):
     """アラート更新リクエスト"""
 
-    name: Optional[str] = Field(
-        None, min_length=1, max_length=100, description="アラート名"
-    )
-    condition: Optional[
-        Literal["GREATER_THAN", "LESS_THAN", "EQUALS", "NOT_EQUALS"]
-    ] = Field(None, description="条件")
+    name: Optional[str] = Field(None, min_length=1, max_length=100, description="アラート名")
+    condition: Optional[Literal["GREATER_THAN", "LESS_THAN", "EQUALS", "NOT_EQUALS"]] = Field(None, description="条件")
     value: Optional[float] = Field(None, description="閾値")
-    notification_channels: Optional[List[str]] = Field(
-        None, description="通知チャンネル"
-    )
-    level: Optional[Literal["info", "warning", "critical"]] = Field(
-        None, description="アラートレベル"
-    )
+    notification_channels: Optional[List[str]] = Field(None, description="通知チャンネル")
+    level: Optional[Literal["info", "warning", "critical"]] = Field(None, description="アラートレベル")
     enabled: Optional[bool] = Field(None, description="有効状態")
 
 
@@ -132,9 +119,7 @@ _alert_history_storage: List[Dict[str, Any]] = []
 
 
 @router.post("/", response_model=AlertResponse)
-async def create_alert(
-    request: AlertCreateRequest, current_user: dict = Depends(get_current_user)
-):
+async def create_alert(request: AlertCreateRequest, current_user: dict = Depends(get_current_user)):
     """新しいアラートを作成"""
     try:
         alert_id = str(uuid.uuid4())
@@ -324,9 +309,7 @@ async def test_alert(alert_id: str, current_user: dict = Depends(get_current_use
 
         # アラートパブリッシャーで配信
         alert_publisher = get_alert_publisher()
-        await alert_publisher.publish_alert(
-            test_alert, channels=alert_data["notification_channels"]
-        )
+        await alert_publisher.publish_alert(test_alert, channels=alert_data["notification_channels"])
 
         logger.info(f"Test alert sent for {alert_id} by user {user_id}")
 
@@ -355,24 +338,14 @@ async def get_alert_history(
         user_id = current_user["id"]
 
         # ユーザーのアラート履歴をフィルタ
-        user_history = [
-            history
-            for history in _alert_history_storage
-            if history.get("user_id") == user_id
-        ]
+        user_history = [history for history in _alert_history_storage if history.get("user_id") == user_id]
 
         # 特定のアラートIDでフィルタ
         if alert_id:
-            user_history = [
-                history
-                for history in user_history
-                if history.get("alert_id") == alert_id
-            ]
+            user_history = [history for history in user_history if history.get("alert_id") == alert_id]
 
         # 最新順にソートして制限
-        user_history.sort(
-            key=lambda x: x.get("triggered_at", datetime.min), reverse=True
-        )
+        user_history.sort(key=lambda x: x.get("triggered_at", datetime.min), reverse=True)
         user_history = user_history[:limit]
 
         return [AlertHistoryResponse(**history) for history in user_history]
@@ -390,11 +363,7 @@ async def get_alert_statistics(current_user: dict = Depends(get_current_user)):
 
         # ユーザーのアラート情報を取得
         user_alerts = _alerts_storage.get(user_id, {})
-        user_history = [
-            history
-            for history in _alert_history_storage
-            if history.get("user_id") == user_id
-        ]
+        user_history = [history for history in _alert_history_storage if history.get("user_id") == user_id]
 
         # 統計を計算
         total_alerts = len(user_alerts)
@@ -405,16 +374,10 @@ async def get_alert_statistics(current_user: dict = Depends(get_current_user)):
         today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
         week_start = today_start - timedelta(days=7)
 
-        triggered_today = sum(
-            1
-            for history in user_history
-            if history.get("triggered_at", datetime.min) >= today_start
-        )
+        triggered_today = sum(1 for history in user_history if history.get("triggered_at", datetime.min) >= today_start)
 
         triggered_this_week = sum(
-            1
-            for history in user_history
-            if history.get("triggered_at", datetime.min) >= week_start
+            1 for history in user_history if history.get("triggered_at", datetime.min) >= week_start
         )
 
         # 最もトリガーされたアラートを計算
@@ -440,9 +403,7 @@ async def get_alert_statistics(current_user: dict = Depends(get_current_user)):
             triggered_today=triggered_today,
             triggered_this_week=triggered_this_week,
             most_triggered_alert=most_triggered_alert,
-            recent_triggers=[
-                AlertHistoryResponse(**trigger) for trigger in recent_triggers
-            ],
+            recent_triggers=[AlertHistoryResponse(**trigger) for trigger in recent_triggers],
         )
 
     except Exception as e:
@@ -468,9 +429,7 @@ async def alerts_health_check():
             "status": "healthy",
             "alert_manager_initialized": alert_manager is not None,
             "redis_status": redis_status,
-            "total_alerts_in_memory": sum(
-                len(alerts) for alerts in _alerts_storage.values()
-            ),
+            "total_alerts_in_memory": sum(len(alerts) for alerts in _alerts_storage.values()),
             "total_history_records": len(_alert_history_storage),
             "supported_channels": ["websocket", "email", "slack", "webhook"],
             "timestamp": datetime.now().isoformat(),

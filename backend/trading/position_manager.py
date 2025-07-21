@@ -3,9 +3,10 @@
 """
 
 import logging
-from typing import Dict, List, Optional, Callable, Any
 from datetime import datetime, timezone
-from .engine import Position, Order, OrderSide
+from typing import Any, Callable, Dict, List, Optional
+
+from .engine import Order, OrderSide, Position
 
 logger = logging.getLogger(__name__)
 
@@ -70,9 +71,7 @@ class PositionManager:
 
             if position.side == order.side:
                 # 同じ方向の注文：平均価格で統合
-                total_value = (position.amount * position.entry_price) + (
-                    order.amount * order.filled_price
-                )
+                total_value = (position.amount * position.entry_price) + (order.amount * order.filled_price)
                 total_amount = position.amount + order.amount
 
                 position.entry_price = total_value / total_amount
@@ -83,18 +82,14 @@ class PositionManager:
                 if self.on_position_updated:
                     self.on_position_updated(position)
 
-                logger.info(
-                    f"Position increased: {symbol}, new amount: {position.amount}"
-                )
+                logger.info(f"Position increased: {symbol}, new amount: {position.amount}")
                 return position
 
             else:
                 # 反対方向の注文：ポジションを削除または縮小
                 if order.amount >= position.amount:
                     # 完全に決済
-                    realized_pnl = self._calculate_realized_pnl(
-                        position, order.filled_price
-                    )
+                    realized_pnl = self._calculate_realized_pnl(position, order.filled_price)
                     self._update_pnl_stats(realized_pnl)
 
                     del self.positions[symbol]
@@ -113,9 +108,7 @@ class PositionManager:
 
                 else:
                     # 部分的に決済
-                    partial_pnl = self._calculate_partial_pnl(
-                        position, order.amount, order.filled_price
-                    )
+                    partial_pnl = self._calculate_partial_pnl(position, order.amount, order.filled_price)
                     self._update_pnl_stats(partial_pnl)
 
                     position.amount -= order.amount
@@ -138,9 +131,7 @@ class PositionManager:
         position = self.positions[symbol]
 
         # 現在価格で決済
-        current_price = self.price_data.get(symbol, {}).get(
-            "price", position.current_price
-        )
+        current_price = self.price_data.get(symbol, {}).get("price", position.current_price)
         realized_pnl = self._calculate_realized_pnl(position, current_price)
         self._update_pnl_stats(realized_pnl)
 
@@ -186,9 +177,7 @@ class PositionManager:
 
     def get_positions_by_strategy(self, strategy_name: str) -> List[Position]:
         """戦略別のポジションを取得"""
-        return [
-            pos for pos in self.positions.values() if pos.strategy_name == strategy_name
-        ]
+        return [pos for pos in self.positions.values() if pos.strategy_name == strategy_name]
 
     def get_total_exposure(self) -> float:
         """総エクスポージャーを取得"""
@@ -252,9 +241,7 @@ class PositionManager:
         else:
             return (position.entry_price - exit_price) * position.amount
 
-    def _calculate_partial_pnl(
-        self, position: Position, amount: float, exit_price: float
-    ) -> float:
+    def _calculate_partial_pnl(self, position: Position, amount: float, exit_price: float) -> float:
         """部分決済の実現損益を計算"""
         if position.side == OrderSide.BUY:
             return (exit_price - position.entry_price) * amount
@@ -270,9 +257,7 @@ class PositionManager:
         # 最大ドローダウンの更新
         if realized_pnl < 0:
             current_drawdown = abs(realized_pnl) / max(self.stats["total_pnl"], 1000.0)
-            self.stats["max_drawdown"] = max(
-                self.stats["max_drawdown"], current_drawdown
-            )
+            self.stats["max_drawdown"] = max(self.stats["max_drawdown"], current_drawdown)
 
     def _update_unrealized_pnl_stats(self):
         """未実現損益統計を更新"""
@@ -316,8 +301,7 @@ class PositionManager:
             "positions_closed": self.stats["positions_closed"],
             "winning_positions": self.stats["winning_positions"],
             "losing_positions": self.stats["losing_positions"],
-            "win_rate": self.stats["winning_positions"]
-            / max(self.stats["positions_closed"], 1),
+            "win_rate": self.stats["winning_positions"] / max(self.stats["positions_closed"], 1),
             "total_exposure": self.get_total_exposure(),
             "last_reset_time": self.stats["last_reset_time"].isoformat(),
         }

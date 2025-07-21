@@ -4,10 +4,10 @@
 
 import asyncio
 import logging
-from typing import Dict, List, Optional, Any, Callable
-from datetime import datetime, timezone
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from enum import Enum
+from typing import Any, Callable, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -314,9 +314,7 @@ class TradingEngine:
             return False
 
         # 価格チェック
-        if order.order_type == OrderType.LIMIT and (
-            order.price is None or order.price <= 0
-        ):
+        if order.order_type == OrderType.LIMIT and (order.price is None or order.price <= 0):
             logger.error(f"Invalid limit order price: {order.price}")
             return False
 
@@ -423,9 +421,7 @@ class TradingEngine:
 
             if position.side == order.side:
                 # 同じ方向の注文：平均価格で統合
-                total_value = (position.amount * position.entry_price) + (
-                    order.amount * order.filled_price
-                )
+                total_value = (position.amount * position.entry_price) + (order.amount * order.filled_price)
                 total_amount = position.amount + order.amount
 
                 position.entry_price = total_value / total_amount
@@ -454,9 +450,7 @@ class TradingEngine:
                     position.amount -= order.amount
                     position.updated_at = datetime.now(timezone.utc)
 
-                    logger.info(
-                        f"Position partially closed: {symbol}, remaining: {position.amount}"
-                    )
+                    logger.info(f"Position partially closed: {symbol}, remaining: {position.amount}")
 
     def _cancel_order_on_exchange(self, order: Order) -> bool:
         """取引所で注文をキャンセル"""
@@ -533,13 +527,8 @@ class TradingEngine:
                 # ポジションをチェック
                 for position in self.positions.values():
                     # リスク制限チェック
-                    if (
-                        position.unrealized_pnl
-                        < -self.config["risk_limits"]["max_daily_loss"]
-                    ):
-                        logger.warning(
-                            f"Position {position.symbol} exceeds daily loss limit"
-                        )
+                    if position.unrealized_pnl < -self.config["risk_limits"]["max_daily_loss"]:
+                        logger.warning(f"Position {position.symbol} exceeds daily loss limit")
                         self.close_position(position.symbol)
 
                 await asyncio.sleep(self.config["position_check_interval"])
@@ -572,9 +561,7 @@ class TradingEngine:
     def get_statistics(self) -> Dict[str, Any]:
         """統計情報を取得"""
         if self.stats["start_time"]:
-            self.stats["uptime"] = (
-                datetime.now(timezone.utc) - self.stats["start_time"]
-            ).total_seconds()
+            self.stats["uptime"] = (datetime.now(timezone.utc) - self.stats["start_time"]).total_seconds()
 
         # 各管理クラスの統計を統合
         order_stats = self.order_manager.get_statistics()
@@ -585,9 +572,7 @@ class TradingEngine:
             "engine": {
                 "is_running": self.is_running,
                 "uptime": self.stats["uptime"],
-                "start_time": self.stats["start_time"].isoformat()
-                if self.stats["start_time"]
-                else None,
+                "start_time": self.stats["start_time"].isoformat() if self.stats["start_time"] else None,
             },
             "orders": order_stats,
             "positions": position_stats,
@@ -622,9 +607,7 @@ class TradingEngine:
                     "filled_amount": order.filled_amount,
                     "filled_price": order.filled_price,
                     "created_at": order.created_at.isoformat(),
-                    "updated_at": order.updated_at.isoformat()
-                    if order.updated_at
-                    else None,
+                    "updated_at": order.updated_at.isoformat() if order.updated_at else None,
                     "strategy_name": order.strategy_name,
                 }
                 for order_id, order in self.orders.items()
@@ -639,9 +622,7 @@ class TradingEngine:
                     "unrealized_pnl": position.unrealized_pnl,
                     "realized_pnl": position.realized_pnl,
                     "created_at": position.created_at.isoformat(),
-                    "updated_at": position.updated_at.isoformat()
-                    if position.updated_at
-                    else None,
+                    "updated_at": position.updated_at.isoformat() if position.updated_at else None,
                     "strategy_name": position.strategy_name,
                 }
                 for symbol, position in self.positions.items()

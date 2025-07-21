@@ -6,16 +6,17 @@ Webhook通知チャネル
 
 import logging
 from dataclasses import dataclass, field
-from typing import Dict, Any, Optional, List
+from typing import Any, Dict, List, Optional
+
 import aiohttp
 
+from ...models.alerts import UnifiedAlert
 from .base import (
     NotificationChannel,
     NotificationConfig,
     NotificationResult,
     NotificationStatus,
 )
-from ...models.alerts import UnifiedAlert
 
 logger = logging.getLogger(__name__)
 
@@ -47,12 +48,8 @@ class WebhookConfig(NotificationConfig):
     ssl_key_path: Optional[str] = None
 
     # レスポンス設定
-    success_status_codes: List[int] = field(
-        default_factory=lambda: [200, 201, 202, 204]
-    )
-    retry_status_codes: List[int] = field(
-        default_factory=lambda: [429, 500, 502, 503, 504]
-    )
+    success_status_codes: List[int] = field(default_factory=lambda: [200, 201, 202, 204])
+    retry_status_codes: List[int] = field(default_factory=lambda: [429, 500, 502, 503, 504])
 
     # カスタムフィールド
     custom_fields: Dict[str, Any] = field(default_factory=dict)
@@ -85,17 +82,9 @@ class WebhookChannel(NotificationChannel):
         # 認証ヘッダーの設定
         if config.auth_type == "bearer" and config.auth_token:
             headers["Authorization"] = f"Bearer {config.auth_token}"
-        elif (
-            config.auth_type == "apikey"
-            and config.auth_token
-            and config.auth_header_name
-        ):
+        elif config.auth_type == "apikey" and config.auth_token and config.auth_header_name:
             headers[config.auth_header_name] = config.auth_token
-        elif (
-            config.auth_type == "custom"
-            and config.auth_header_name
-            and config.auth_token
-        ):
+        elif config.auth_type == "custom" and config.auth_header_name and config.auth_token:
             headers[config.auth_header_name] = config.auth_token
 
         config.headers = headers
@@ -120,12 +109,8 @@ class WebhookChannel(NotificationChannel):
             "{category}": alert.category.value,
             "{alert_type}": alert.alert_type.value,
             "{timestamp}": alert.timestamp.isoformat(),
-            "{symbol}": alert.metadata.symbol
-            if alert.metadata and alert.metadata.symbol
-            else "",
-            "{strategy}": alert.metadata.strategy_name
-            if alert.metadata and alert.metadata.strategy_name
-            else "",
+            "{symbol}": alert.metadata.symbol if alert.metadata and alert.metadata.symbol else "",
+            "{strategy}": alert.metadata.strategy_name if alert.metadata and alert.metadata.strategy_name else "",
             "{current_value}": str(alert.metadata.current_value)
             if alert.metadata and alert.metadata.current_value is not None
             else "",
@@ -139,9 +124,7 @@ class WebhookChannel(NotificationChannel):
 
         return template
 
-    def _create_webhook_payload(
-        self, alert: UnifiedAlert, formatted_message: str
-    ) -> Any:
+    def _create_webhook_payload(self, alert: UnifiedAlert, formatted_message: str) -> Any:
         """Webhook送信用ペイロードを作成"""
         config = self.webhook_config
 
@@ -211,9 +194,7 @@ class WebhookChannel(NotificationChannel):
         # 処理状況を含める
         payload["status"] = {
             "acknowledged": alert.acknowledged,
-            "acknowledged_at": alert.acknowledged_at.isoformat()
-            if alert.acknowledged_at
-            else None,
+            "acknowledged_at": alert.acknowledged_at.isoformat() if alert.acknowledged_at else None,
             "acknowledged_by": alert.acknowledged_by,
             "resolved": alert.resolved,
             "resolved_at": alert.resolved_at.isoformat() if alert.resolved_at else None,
@@ -225,9 +206,7 @@ class WebhookChannel(NotificationChannel):
 
         return payload
 
-    async def _send_notification(
-        self, alert: UnifiedAlert, formatted_message: str
-    ) -> NotificationResult:
+    async def _send_notification(self, alert: UnifiedAlert, formatted_message: str) -> NotificationResult:
         """Webhook通知を送信"""
         try:
             config = self.webhook_config
@@ -245,11 +224,7 @@ class WebhookChannel(NotificationChannel):
 
             # Basic認証設定
             auth = None
-            if (
-                config.auth_type == "basic"
-                and config.auth_username
-                and config.auth_password
-            ):
+            if config.auth_type == "basic" and config.auth_username and config.auth_password:
                 auth = aiohttp.BasicAuth(config.auth_username, config.auth_password)
 
             # リクエストデータの準備
@@ -257,11 +232,7 @@ class WebhookChannel(NotificationChannel):
                 request_data = {"json": payload}
             elif config.payload_format == "form":
                 # フォームデータに変換
-                form_data = (
-                    self._flatten_dict(payload)
-                    if isinstance(payload, dict)
-                    else {"data": str(payload)}
-                )
+                form_data = self._flatten_dict(payload) if isinstance(payload, dict) else {"data": str(payload)}
                 request_data = {"data": form_data}
             else:
                 # カスタム形式
@@ -326,9 +297,7 @@ class WebhookChannel(NotificationChannel):
                 error_details=str(e),
             )
 
-    def _flatten_dict(
-        self, d: Dict[str, Any], parent_key: str = "", sep: str = "_"
-    ) -> Dict[str, str]:
+    def _flatten_dict(self, d: Dict[str, Any], parent_key: str = "", sep: str = "_") -> Dict[str, str]:
         """辞書をフラット化（フォームデータ用）"""
         items = []
         for k, v in d.items():
@@ -338,11 +307,7 @@ class WebhookChannel(NotificationChannel):
             elif isinstance(v, list):
                 for i, item in enumerate(v):
                     if isinstance(item, dict):
-                        items.extend(
-                            self._flatten_dict(
-                                item, f"{new_key}{sep}{i}", sep=sep
-                            ).items()
-                        )
+                        items.extend(self._flatten_dict(item, f"{new_key}{sep}{i}", sep=sep).items())
                     else:
                         items.append((f"{new_key}{sep}{i}", str(item)))
             else:
@@ -369,11 +334,7 @@ class WebhookChannel(NotificationChannel):
 
             # Basic認証設定
             auth = None
-            if (
-                config.auth_type == "basic"
-                and config.auth_username
-                and config.auth_password
-            ):
+            if config.auth_type == "basic" and config.auth_username and config.auth_password:
                 auth = aiohttp.BasicAuth(config.auth_username, config.auth_password)
 
             # リクエストデータの準備
@@ -391,9 +352,7 @@ class WebhookChannel(NotificationChannel):
                     headers=config.headers,
                     auth=auth,
                     ssl=ssl_context,
-                    timeout=aiohttp.ClientTimeout(
-                        total=10
-                    ),  # ヘルスチェック用短いタイムアウト
+                    timeout=aiohttp.ClientTimeout(total=10),  # ヘルスチェック用短いタイムアウト
                     **request_data,
                 ) as response:
                     response_text = await response.text()
@@ -440,11 +399,9 @@ class WebhookChannel(NotificationChannel):
                 "details": {"error": str(e)},
             }
 
-    async def test_notification(
-        self, test_message: str = "Test notification"
-    ) -> NotificationResult:
+    async def test_notification(self, test_message: str = "Test notification") -> NotificationResult:
         """テスト通知を送信"""
-        from ...models.alerts import create_system_alert, AlertType, AlertLevel
+        from ...models.alerts import AlertLevel, AlertType, create_system_alert
 
         test_alert = create_system_alert(
             alert_type=AlertType.SYSTEM_ERROR,
@@ -463,10 +420,7 @@ class WebhookChannel(NotificationChannel):
         # 機密情報をマスク
         masked_headers = {}
         for key, value in config.headers.items():
-            if any(
-                sensitive in key.lower()
-                for sensitive in ["auth", "token", "key", "secret", "password"]
-            ):
+            if any(sensitive in key.lower() for sensitive in ["auth", "token", "key", "secret", "password"]):
                 masked_headers[key] = "***masked***"
             else:
                 masked_headers[key] = value

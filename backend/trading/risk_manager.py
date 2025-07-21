@@ -3,9 +3,10 @@
 """
 
 import logging
-from typing import Dict, List, Optional, Callable, Any
 from datetime import datetime, timezone
-from .engine import Position, Order
+from typing import Any, Callable, Dict, List, Optional
+
+from .engine import Order, Position
 
 logger = logging.getLogger(__name__)
 
@@ -47,9 +48,7 @@ class RiskManager:
 
         logger.info("RiskManager initialized")
 
-    def check_order_risk(
-        self, order: Order, current_positions: Dict[str, Position], current_pnl: float
-    ) -> bool:
+    def check_order_risk(self, order: Order, current_positions: Dict[str, Position], current_pnl: float) -> bool:
         """注文リスクをチェック"""
         if not self.is_enabled:
             return True
@@ -76,9 +75,7 @@ class RiskManager:
 
         return True
 
-    def check_position_risk(
-        self, positions: Dict[str, Position], current_pnl: float
-    ) -> List[str]:
+    def check_position_risk(self, positions: Dict[str, Position], current_pnl: float) -> List[str]:
         """ポジションリスクをチェック"""
         if not self.is_enabled:
             return []
@@ -96,13 +93,8 @@ class RiskManager:
             violations.append(f"Daily loss limit exceeded: {current_pnl}")
 
         # 最大ドローダウン
-        if (
-            self._calculate_current_drawdown(current_pnl)
-            > self.risk_limits["max_drawdown"]
-        ):
-            violations.append(
-                f"Max drawdown exceeded: {self._calculate_current_drawdown(current_pnl)}"
-            )
+        if self._calculate_current_drawdown(current_pnl) > self.risk_limits["max_drawdown"]:
+            violations.append(f"Max drawdown exceeded: {self._calculate_current_drawdown(current_pnl)}")
             self.stats["drawdown_violations"] += 1
 
         # ポートフォリオ集中度
@@ -119,9 +111,7 @@ class RiskManager:
 
         return violations
 
-    def should_emergency_stop(
-        self, positions: Dict[str, Position], current_pnl: float
-    ) -> bool:
+    def should_emergency_stop(self, positions: Dict[str, Position], current_pnl: float) -> bool:
         """緊急停止が必要かチェック"""
         if not self.is_enabled:
             return False
@@ -141,9 +131,7 @@ class RiskManager:
             logger.critical("Emergency stop triggered: extreme drawdown")
             self.stats["emergency_stops"] += 1
             if self.on_emergency_stop:
-                self.on_emergency_stop(
-                    "extreme_drawdown", self._calculate_current_drawdown(current_pnl)
-                )
+                self.on_emergency_stop("extreme_drawdown", self._calculate_current_drawdown(current_pnl))
             return True
 
         return False
@@ -169,9 +157,7 @@ class RiskManager:
         max_allowed = self.risk_limits["max_position_size"]
         return min(max_position_size, max_allowed)
 
-    def calculate_kelly_fraction(
-        self, win_rate: float, avg_win: float, avg_loss: float
-    ) -> float:
+    def calculate_kelly_fraction(self, win_rate: float, avg_win: float, avg_loss: float) -> float:
         """ケリー基準を計算"""
         if avg_loss == 0:
             return 0.0
@@ -183,9 +169,7 @@ class RiskManager:
         kelly_cap = self.config.get("kelly_fraction_cap", 0.25)
         return max(0, min(kelly_fraction, kelly_cap))
 
-    def _check_position_size_limit(
-        self, order: Order, current_positions: Dict[str, Position]
-    ) -> bool:
+    def _check_position_size_limit(self, order: Order, current_positions: Dict[str, Position]) -> bool:
         """ポジションサイズ制限をチェック"""
         # 新しいポジションサイズを計算
         estimated_value = order.amount * (order.price or 50000.0)
@@ -209,14 +193,10 @@ class RiskManager:
             return False
         return True
 
-    def _check_leverage_limit(
-        self, order: Order, current_positions: Dict[str, Position]
-    ) -> bool:
+    def _check_leverage_limit(self, order: Order, current_positions: Dict[str, Position]) -> bool:
         """レバレッジ制限をチェック"""
         # 簡単な実装（実際のレバレッジ計算は複雑）
-        total_exposure = sum(
-            pos.get_market_value() for pos in current_positions.values()
-        )
+        total_exposure = sum(pos.get_market_value() for pos in current_positions.values())
         order_value = order.amount * (order.price or 50000.0)
 
         # 仮の資本金（実際の実装では動的に計算）
@@ -229,18 +209,14 @@ class RiskManager:
 
         return True
 
-    def _check_correlation_limit(
-        self, order: Order, current_positions: Dict[str, Position]
-    ) -> bool:
+    def _check_correlation_limit(self, order: Order, current_positions: Dict[str, Position]) -> bool:
         """相関制限をチェック"""
         # 簡単な実装（実際の相関計算は複雑）
         # 同じ市場での過度の集中を防ぐ
 
         if order.symbol.endswith("USDT") or order.symbol.endswith("BTC"):
             similar_positions = [
-                pos
-                for pos in current_positions.values()
-                if pos.symbol.endswith("USDT") or pos.symbol.endswith("BTC")
+                pos for pos in current_positions.values() if pos.symbol.endswith("USDT") or pos.symbol.endswith("BTC")
             ]
 
             if len(similar_positions) > 3:  # 3つ以上の類似ポジション
@@ -250,9 +226,7 @@ class RiskManager:
 
         return True
 
-    def _check_portfolio_heat(
-        self, order: Order, current_positions: Dict[str, Position]
-    ) -> bool:
+    def _check_portfolio_heat(self, order: Order, current_positions: Dict[str, Position]) -> bool:
         """ポートフォリオヒートをチェック"""
         # 各ポジションのリスクを合計
         total_risk = 0.0
@@ -271,9 +245,7 @@ class RiskManager:
 
         return True
 
-    def _check_portfolio_concentration(
-        self, positions: Dict[str, Position]
-    ) -> Optional[str]:
+    def _check_portfolio_concentration(self, positions: Dict[str, Position]) -> Optional[str]:
         """ポートフォリオ集中度をチェック"""
         if not positions:
             return None
@@ -301,9 +273,7 @@ class RiskManager:
         self.is_enabled = self.config.get("enable_risk_management", True)
         logger.info("RiskManager configuration updated")
 
-    def get_risk_metrics(
-        self, positions: Dict[str, Position], current_pnl: float
-    ) -> Dict[str, Any]:
+    def get_risk_metrics(self, positions: Dict[str, Position], current_pnl: float) -> Dict[str, Any]:
         """リスクメトリクスを取得"""
         total_exposure = sum(pos.get_market_value() for pos in positions.values())
 
@@ -314,14 +284,12 @@ class RiskManager:
             "current_drawdown": self._calculate_current_drawdown(current_pnl),
             "risk_limit_usage": {
                 "max_position_size": max(
-                    pos.get_market_value() / self.risk_limits["max_position_size"]
-                    for pos in positions.values()
+                    pos.get_market_value() / self.risk_limits["max_position_size"] for pos in positions.values()
                 )
                 if positions
                 else 0.0,
                 "daily_loss": abs(current_pnl) / self.risk_limits["max_daily_loss"],
-                "drawdown": self._calculate_current_drawdown(current_pnl)
-                / self.risk_limits["max_drawdown"],
+                "drawdown": self._calculate_current_drawdown(current_pnl) / self.risk_limits["max_drawdown"],
             },
             "risk_violations": self.stats["risk_violations"],
             "emergency_stops": self.stats["emergency_stops"],

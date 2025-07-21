@@ -7,10 +7,11 @@ RSIを利用したオシレーター戦略
 ・ダイバージェンス検出による高精度エントリー
 """
 
-import pandas as pd
-from typing import Dict, Any, List, Optional
 import logging
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+import pandas as pd
 
 from ..base import BaseStrategy, Signal, TechnicalIndicators
 
@@ -69,9 +70,7 @@ class RSIStrategy(BaseStrategy):
         try:
             # RSIを計算
             close_prices = data["close"].tolist()
-            rsi_values = TechnicalIndicators.rsi(
-                close_prices, self.parameters["rsi_period"]
-            )
+            rsi_values = TechnicalIndicators.rsi(close_prices, self.parameters["rsi_period"])
             data["rsi"] = rsi_values
 
             # 移動平均出来高（ボリューム分析用）
@@ -121,9 +120,7 @@ class RSIStrategy(BaseStrategy):
             current_time = current_data.get("timestamp", datetime.now())
 
             # ボリューム確認
-            volume_ok = (
-                current_volume >= avg_volume * self.parameters["volume_threshold"]
-            )
+            volume_ok = current_volume >= avg_volume * self.parameters["volume_threshold"]
 
             # RSIベースのシグナル判定
             rsi_oversold = current_rsi <= self.parameters["oversold_threshold"]
@@ -144,13 +141,8 @@ class RSIStrategy(BaseStrategy):
                     self.last_rsi_signal = "buy"
 
                 # 確認期間を満たした場合にシグナル生成
-                if (
-                    self.signal_confirmation_count
-                    >= self.parameters["confirmation_bars"]
-                ):
-                    strength = self._calculate_signal_strength(
-                        current_rsi, "buy", divergence_signal
-                    )
+                if self.signal_confirmation_count >= self.parameters["confirmation_bars"]:
+                    strength = self._calculate_signal_strength(current_rsi, "buy", divergence_signal)
 
                     signal = Signal(
                         timestamp=current_time,
@@ -162,9 +154,7 @@ class RSIStrategy(BaseStrategy):
                     )
                     signals.append(signal)
 
-                    logger.info(
-                        f"RSI Buy signal generated: RSI={current_rsi:.2f}, price={current_price}"
-                    )
+                    logger.info(f"RSI Buy signal generated: RSI={current_rsi:.2f}, price={current_price}")
 
             # 売りシグナル判定
             elif rsi_overbought and volume_ok:
@@ -176,13 +166,8 @@ class RSIStrategy(BaseStrategy):
                     self.last_rsi_signal = "sell"
 
                 # 確認期間を満たした場合にシグナル生成
-                if (
-                    self.signal_confirmation_count
-                    >= self.parameters["confirmation_bars"]
-                ):
-                    strength = self._calculate_signal_strength(
-                        current_rsi, "sell", divergence_signal
-                    )
+                if self.signal_confirmation_count >= self.parameters["confirmation_bars"]:
+                    strength = self._calculate_signal_strength(current_rsi, "sell", divergence_signal)
 
                     signal = Signal(
                         timestamp=current_time,
@@ -194,9 +179,7 @@ class RSIStrategy(BaseStrategy):
                     )
                     signals.append(signal)
 
-                    logger.info(
-                        f"RSI Sell signal generated: RSI={current_rsi:.2f}, price={current_price}"
-                    )
+                    logger.info(f"RSI Sell signal generated: RSI={current_rsi:.2f}, price={current_price}")
 
             # エグジットシグナル（既存ポジション向け）
             exit_signals = self._generate_exit_signals(data, current_idx)
@@ -208,9 +191,7 @@ class RSIStrategy(BaseStrategy):
             logger.error(f"Error generating RSI signals: {e}")
             return signals
 
-    def _calculate_signal_strength(
-        self, rsi: float, signal_type: str, divergence_signal: Optional[str]
-    ) -> float:
+    def _calculate_signal_strength(self, rsi: float, signal_type: str, divergence_signal: Optional[str]) -> float:
         """シグナルの強度を計算"""
         base_strength = 1.0
 
@@ -218,18 +199,14 @@ class RSIStrategy(BaseStrategy):
             # RSIが低いほど強いシグナル（0～1の範囲で正規化）
             if rsi <= self.parameters["oversold_threshold"]:
                 # oversold_threshold以下の場合、より低い値ほど高い強度
-                rsi_strength = (
-                    0.5 + (self.parameters["oversold_threshold"] - rsi) / 60
-                )  # 0.5~1.0
+                rsi_strength = 0.5 + (self.parameters["oversold_threshold"] - rsi) / 60  # 0.5~1.0
             else:
                 rsi_strength = 0.3  # 閾値を超えている場合は低い強度
         else:
             # RSIが高いほど強いシグナル（0～1の範囲で正規化）
             if rsi >= self.parameters["overbought_threshold"]:
                 # overbought_threshold以上の場合、より高い値ほど高い強度
-                rsi_strength = (
-                    0.5 + (rsi - self.parameters["overbought_threshold"]) / 60
-                )  # 0.5~1.0
+                rsi_strength = 0.5 + (rsi - self.parameters["overbought_threshold"]) / 60  # 0.5~1.0
             else:
                 rsi_strength = 0.3  # 閾値を超えていない場合は低い強度
 
@@ -278,9 +255,7 @@ class RSIStrategy(BaseStrategy):
             logger.debug(f"Divergence detection error: {e}")
             return None
 
-    def _generate_exit_signals(
-        self, data: pd.DataFrame, current_idx: int
-    ) -> List[Signal]:
+    def _generate_exit_signals(self, data: pd.DataFrame, current_idx: int) -> List[Signal]:
         """エグジットシグナルを生成"""
         signals = []
 

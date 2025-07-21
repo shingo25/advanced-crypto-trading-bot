@@ -5,11 +5,12 @@ Phase3で実装したAdvancedRiskManagerの機能をAPI化
 VaR計算、ストレステスト、動的ポジションサイジングなどの機能を提供
 """
 
+import logging
+from datetime import datetime
+from typing import Any, Dict, Literal, Optional
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any, Literal
-from datetime import datetime
-import logging
 
 from backend.core.security import get_current_user
 from backend.risk.advanced_risk_manager import AdvancedRiskManager
@@ -34,13 +35,9 @@ class VaRRequest(BaseModel):
     """VaR計算リクエスト"""
 
     portfolio_id: str = Field(default="default", description="ポートフォリオID")
-    confidence_level: float = Field(
-        default=0.95, ge=0.5, le=0.99, description="信頼水準 (0.5-0.99)"
-    )
+    confidence_level: float = Field(default=0.95, ge=0.5, le=0.99, description="信頼水準 (0.5-0.99)")
     time_horizon: str = Field(default="1d", description="時間軸 (1d, 5d, 1w)")
-    method: Literal["historical", "parametric", "monte_carlo"] = Field(
-        default="historical", description="VaR計算手法"
-    )
+    method: Literal["historical", "parametric", "monte_carlo"] = Field(default="historical", description="VaR計算手法")
 
 
 class VaRResponse(BaseModel):
@@ -60,9 +57,7 @@ class StressTestRequest(BaseModel):
     """ストレステストリクエスト"""
 
     scenario: str = Field(..., description="シナリオ名")
-    parameters: Dict[str, Any] = Field(
-        default_factory=dict, description="シナリオパラメータ"
-    )
+    parameters: Dict[str, Any] = Field(default_factory=dict, description="シナリオパラメータ")
 
 
 class StressTestResponse(BaseModel):
@@ -144,15 +139,11 @@ async def get_risk_summary(current_user: dict = Depends(get_current_user)):
 
     except Exception as e:
         logger.error(f"Failed to get risk summary: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get risk summary: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get risk summary: {str(e)}")
 
 
 @router.post("/var", response_model=VaRResponse)
-async def calculate_var(
-    request: VaRRequest, current_user: dict = Depends(get_current_user)
-):
+async def calculate_var(request: VaRRequest, current_user: dict = Depends(get_current_user)):
     """指定パラメータでVaRを計算"""
     try:
         risk_manager = get_risk_manager()
@@ -173,17 +164,11 @@ async def calculate_var(
         portfolio_value = 100000.0
 
         if request.method == "historical":
-            var_result = risk_manager.calculate_var_historical(
-                returns, request.confidence_level
-            )
+            var_result = risk_manager.calculate_var_historical(returns, request.confidence_level)
         elif request.method == "parametric":
-            var_result = risk_manager.calculate_var_parametric(
-                returns, request.confidence_level
-            )
+            var_result = risk_manager.calculate_var_parametric(returns, request.confidence_level)
         elif request.method == "monte_carlo":
-            var_result = risk_manager.calculate_var_monte_carlo(
-                returns, request.confidence_level
-            )
+            var_result = risk_manager.calculate_var_monte_carlo(returns, request.confidence_level)
         else:
             raise ValueError(f"Unsupported VaR method: {request.method}")
 
@@ -202,15 +187,11 @@ async def calculate_var(
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.error(f"Failed to calculate VaR: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to calculate VaR: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to calculate VaR: {str(e)}")
 
 
 @router.post("/stress-test", response_model=StressTestResponse)
-async def run_stress_test(
-    request: StressTestRequest, current_user: dict = Depends(get_current_user)
-):
+async def run_stress_test(request: StressTestRequest, current_user: dict = Depends(get_current_user)):
     """ストレステストを実行"""
     try:
         # ダミーポートフォリオデータ
@@ -236,16 +217,12 @@ async def run_stress_test(
         elif request.scenario == "MARKET_CRASH_20_PERCENT":
             # 全体的に20%下落するシナリオ
             total_loss = portfolio_value * 0.20
-            individual_losses = {
-                symbol: pos["value"] * 0.20 for symbol, pos in positions.items()
-            }
+            individual_losses = {symbol: pos["value"] * 0.20 for symbol, pos in positions.items()}
 
         elif request.scenario == "FLASH_CRASH_50_PERCENT":
             # 瞬間的に50%下落するシナリオ
             total_loss = portfolio_value * 0.50
-            individual_losses = {
-                symbol: pos["value"] * 0.50 for symbol, pos in positions.items()
-            }
+            individual_losses = {symbol: pos["value"] * 0.50 for symbol, pos in positions.items()}
 
         else:
             raise ValueError(f"Unsupported stress test scenario: {request.scenario}")
@@ -263,9 +240,7 @@ async def run_stress_test(
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.error(f"Failed to run stress test: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to run stress test: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to run stress test: {str(e)}")
 
 
 @router.get("/position-sizing", response_model=PositionSizingResponse)
@@ -321,9 +296,7 @@ async def get_position_sizing(
 
     except Exception as e:
         logger.error(f"Failed to calculate position sizing: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to calculate position sizing: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to calculate position sizing: {str(e)}")
 
 
 @router.get("/scenarios")

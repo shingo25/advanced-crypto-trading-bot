@@ -5,9 +5,11 @@ Performance API endpoints
 
 import logging
 from datetime import datetime, timedelta, timezone
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
+
 from backend.core.supabase_db import get_supabase_client
 
 logger = logging.getLogger(__name__)
@@ -78,11 +80,7 @@ async def calculate_performance_from_price_data(
             total_value = initial_value * price_change_ratio
 
             # 日次リターンを計算
-            daily_return = (
-                (close_price - previous_close) / previous_close
-                if previous_close
-                else 0.0
-            )
+            daily_return = (close_price - previous_close) / previous_close if previous_close else 0.0
 
             # 累積リターンを計算
             cumulative_return = (close_price - initial_price) / initial_price
@@ -184,9 +182,7 @@ async def get_performance_history(
         for item in performance_data:
             response_data.append(
                 PerformanceData(
-                    timestamp=datetime.fromisoformat(
-                        item["timestamp"].replace("Z", "+00:00")
-                    ),
+                    timestamp=datetime.fromisoformat(item["timestamp"].replace("Z", "+00:00")),
                     total_value=item["total_value"],
                     daily_return=item["daily_return"],
                     cumulative_return=item["cumulative_return"],
@@ -198,9 +194,7 @@ async def get_performance_history(
 
     except Exception as e:
         logger.error(f"Error in get_performance_history: {e}")
-        raise HTTPException(
-            status_code=500, detail="パフォーマンスデータの取得に失敗しました"
-        )
+        raise HTTPException(status_code=500, detail="パフォーマンスデータの取得に失敗しました")
 
 
 @router.get("/summary")
@@ -213,9 +207,7 @@ async def get_performance_summary():
         performance_data = await calculate_performance_from_price_data("7d")
 
         if not performance_data:
-            raise HTTPException(
-                status_code=404, detail="パフォーマンスデータが見つかりません"
-            )
+            raise HTTPException(status_code=404, detail="パフォーマンスデータが見つかりません")
 
         # サマリー統計を計算
         latest = performance_data[-1]
@@ -223,20 +215,13 @@ async def get_performance_summary():
         cumulative_return = latest["cumulative_return"]
 
         # 過去7日間の日次リターンから統計を計算
-        daily_returns = [
-            item["daily_return"]
-            for item in performance_data
-            if item["daily_return"] != 0
-        ]
+        daily_returns = [item["daily_return"] for item in performance_data if item["daily_return"] != 0]
 
         if daily_returns:
             avg_daily_return = sum(daily_returns) / len(daily_returns)
             max_daily_return = max(daily_returns)
             min_daily_return = min(daily_returns)
-            volatility = (
-                sum((r - avg_daily_return) ** 2 for r in daily_returns)
-                / len(daily_returns)
-            ) ** 0.5
+            volatility = (sum((r - avg_daily_return) ** 2 for r in daily_returns) / len(daily_returns)) ** 0.5
         else:
             avg_daily_return = max_daily_return = min_daily_return = volatility = 0.0
 
@@ -260,9 +245,7 @@ async def get_performance_summary():
         raise
     except Exception as e:
         logger.error(f"Error in get_performance_summary: {e}")
-        raise HTTPException(
-            status_code=500, detail="パフォーマンスサマリーの取得に失敗しました"
-        )
+        raise HTTPException(status_code=500, detail="パフォーマンスサマリーの取得に失敗しました")
 
 
 @router.get("/health")
@@ -274,11 +257,7 @@ async def performance_health():
         # データベース接続テスト
         supabase = get_supabase_client()
         response = (
-            supabase.table("price_data")
-            .select("count", count="exact")
-            .eq("symbol", "BTCUSDT")
-            .limit(1)
-            .execute()
+            supabase.table("price_data").select("count", count="exact").eq("symbol", "BTCUSDT").limit(1).execute()
         )
 
         return {

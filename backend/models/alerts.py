@@ -5,12 +5,12 @@
 包括的なアラートシステムのデータモデル
 """
 
+import json
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Dict, List, Optional, Any
-import uuid
-import json
+from typing import Any, Dict, List, Optional
 
 
 class AlertLevel(Enum):
@@ -201,19 +201,13 @@ class UnifiedAlert:
             "message": self.message,
             "timestamp": self.timestamp.isoformat(),
             "metadata": {
-                "source_component": self.metadata.source_component
-                if self.metadata
-                else None,
+                "source_component": self.metadata.source_component if self.metadata else None,
                 "source_file": self.metadata.source_file if self.metadata else None,
                 "symbol": self.metadata.symbol if self.metadata else None,
                 "strategy_name": self.metadata.strategy_name if self.metadata else None,
                 "current_value": self.metadata.current_value if self.metadata else None,
-                "threshold_value": self.metadata.threshold_value
-                if self.metadata
-                else None,
-                "additional_data": self.metadata.additional_data
-                if self.metadata
-                else {},
+                "threshold_value": self.metadata.threshold_value if self.metadata else None,
+                "additional_data": self.metadata.additional_data if self.metadata else {},
             },
             "recommended_actions": [
                 {
@@ -226,9 +220,7 @@ class UnifiedAlert:
                 for action in self.recommended_actions
             ],
             "acknowledged": self.acknowledged,
-            "acknowledged_at": self.acknowledged_at.isoformat()
-            if self.acknowledged_at
-            else None,
+            "acknowledged_at": self.acknowledged_at.isoformat() if self.acknowledged_at else None,
             "acknowledged_by": self.acknowledged_by,
             "resolved": self.resolved,
             "resolved_at": self.resolved_at.isoformat() if self.resolved_at else None,
@@ -279,16 +271,12 @@ class UnifiedAlert:
             metadata=metadata,
             recommended_actions=actions,
             acknowledged=data.get("acknowledged", False),
-            acknowledged_at=datetime.fromisoformat(
-                data["acknowledged_at"].replace("Z", "+00:00")
-            )
+            acknowledged_at=datetime.fromisoformat(data["acknowledged_at"].replace("Z", "+00:00"))
             if data.get("acknowledged_at")
             else None,
             acknowledged_by=data.get("acknowledged_by"),
             resolved=data.get("resolved", False),
-            resolved_at=datetime.fromisoformat(
-                data["resolved_at"].replace("Z", "+00:00")
-            )
+            resolved_at=datetime.fromisoformat(data["resolved_at"].replace("Z", "+00:00"))
             if data.get("resolved_at")
             else None,
             notification_sent=data.get("notification_sent", False),
@@ -327,9 +315,7 @@ def create_risk_alert(
             AlertAction(
                 action_type="manual_review",
                 description=recommended_action,
-                urgency="high"
-                if level in [AlertLevel.ERROR, AlertLevel.CRITICAL]
-                else "medium",
+                urgency="high" if level in [AlertLevel.ERROR, AlertLevel.CRITICAL] else "medium",
             )
         )
 

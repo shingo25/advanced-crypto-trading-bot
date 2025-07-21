@@ -1,15 +1,17 @@
+import logging
 from datetime import timedelta
-from fastapi import APIRouter, Depends, HTTPException, status, Response
+
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
+
+from backend.core.config import settings
 from backend.core.security import (
     authenticate_user,
     create_access_token,
     get_current_user,
 )
-from backend.core.config import settings
 from backend.models.user import UserResponse
-import logging
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -76,9 +78,7 @@ async def get_current_user_info(current_user: dict = Depends(get_current_user)):
 
 
 @router.post("/refresh")
-async def refresh_token(
-    response: Response, current_user: dict = Depends(get_current_user)
-):
+async def refresh_token(response: Response, current_user: dict = Depends(get_current_user)):
     """トークンを更新"""
     access_token_expires = timedelta(hours=settings.JWT_EXPIRATION_HOURS)
     access_token = create_access_token(

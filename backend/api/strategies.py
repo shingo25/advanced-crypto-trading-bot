@@ -1,9 +1,11 @@
+import logging
+from typing import Any, Dict, List, Optional
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
+
 from backend.core.security import get_current_user
 from backend.models.trading import get_strategies_model
-import logging
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -60,9 +62,7 @@ async def get_strategies(current_user: dict = Depends(get_current_user)):
 
 
 @router.get("/{strategy_id}", response_model=Strategy)
-async def get_strategy(
-    strategy_id: str, current_user: dict = Depends(get_current_user)
-):
+async def get_strategy(strategy_id: str, current_user: dict = Depends(get_current_user)):
     """特定の戦略を取得"""
     try:
         strategies_model = get_strategies_model()
@@ -92,9 +92,7 @@ async def get_strategy(
 
 
 @router.post("/", response_model=Strategy)
-async def create_strategy(
-    strategy: StrategyCreate, current_user: dict = Depends(get_current_user)
-):
+async def create_strategy(strategy: StrategyCreate, current_user: dict = Depends(get_current_user)):
     """新しい戦略を作成（ユーザー専用）"""
     try:
         strategies_model = get_strategies_model()
@@ -205,14 +203,10 @@ async def toggle_strategy_status(
 
         # アクティブ状態を切り替え
         new_active_status = not existing_strategy.get("is_active", False)
-        updated_strategy = strategies_model.update_strategy(
-            strategy_id, is_active=new_active_status
-        )
+        updated_strategy = strategies_model.update_strategy(strategy_id, is_active=new_active_status)
 
         if not updated_strategy:
-            raise HTTPException(
-                status_code=400, detail="Failed to toggle strategy status"
-            )
+            raise HTTPException(status_code=400, detail="Failed to toggle strategy status")
 
         action = "activated" if new_active_status else "deactivated"
         logger.info(f"Strategy {strategy_id} {action} by {current_user['username']}")
@@ -256,18 +250,12 @@ async def update_strategy_parameters(
         current_parameters = existing_strategy.get("parameters", {})
         updated_parameters = {**current_parameters, **parameters}
 
-        updated_strategy = strategies_model.update_strategy(
-            strategy_id, parameters=updated_parameters
-        )
+        updated_strategy = strategies_model.update_strategy(strategy_id, parameters=updated_parameters)
 
         if not updated_strategy:
-            raise HTTPException(
-                status_code=400, detail="Failed to update strategy parameters"
-            )
+            raise HTTPException(status_code=400, detail="Failed to update strategy parameters")
 
-        logger.info(
-            f"Strategy {strategy_id} parameters updated by {current_user['username']}"
-        )
+        logger.info(f"Strategy {strategy_id} parameters updated by {current_user['username']}")
 
         return Strategy(
             id=updated_strategy["id"],
@@ -282,9 +270,7 @@ async def update_strategy_parameters(
         raise
     except Exception as e:
         logger.error(f"Failed to update strategy parameters {strategy_id}: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to update strategy parameters"
-        )
+        raise HTTPException(status_code=500, detail="Failed to update strategy parameters")
 
 
 @router.get("/{strategy_id}/status")
@@ -360,9 +346,5 @@ async def get_active_strategies(current_user: dict = Depends(get_current_user)):
             for s in active_strategies
         ]
     except Exception as e:
-        logger.error(
-            f"Failed to get active strategies for user {current_user['id']}: {e}"
-        )
-        raise HTTPException(
-            status_code=500, detail="Failed to retrieve active strategies"
-        )
+        logger.error(f"Failed to get active strategies for user {current_user['id']}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve active strategies")

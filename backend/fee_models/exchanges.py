@@ -26,9 +26,7 @@ class BinanceFeeModel(FeeModel):
         else:
             return notional * self.taker_fee
 
-    def calculate_slippage(
-        self, price: float, amount: float, side: str, symbol: str = "BTCUSDT"
-    ) -> float:
+    def calculate_slippage(self, price: float, amount: float, side: str, symbol: str = "BTCUSDT") -> float:
         """Binanceスリッページを計算"""
         slippage_amount = price * (self.slippage_bps / 10000)
 
@@ -62,9 +60,7 @@ class BybitFeeModel(FeeModel):
         else:
             return notional * self.taker_fee
 
-    def calculate_slippage(
-        self, price: float, amount: float, side: str, symbol: str = "BTCUSDT"
-    ) -> float:
+    def calculate_slippage(self, price: float, amount: float, side: str, symbol: str = "BTCUSDT") -> float:
         """Bybitスリッページを計算"""
         slippage_amount = price * (self.slippage_bps / 10000)
 

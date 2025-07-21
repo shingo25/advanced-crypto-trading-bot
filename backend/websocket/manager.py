@@ -6,13 +6,14 @@ WebSocket接続管理システム
 import asyncio
 import json
 import logging
-from datetime import datetime, timezone
-from typing import Dict, List, Optional, Set, Any, Callable
-from dataclasses import dataclass
-from enum import Enum
 import uuid
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from enum import Enum
+from typing import Any, Callable, Dict, List, Optional, Set
 
 from fastapi import WebSocket
+
 from backend.core.security import decode_token
 
 logger = logging.getLogger(__name__)
@@ -139,9 +140,7 @@ class WebSocketManager:
 
             self.connections[client_id] = connection
 
-            logger.info(
-                f"WebSocket接続確立: {client_id} (総接続数: {len(self.connections)})"
-            )
+            logger.info(f"WebSocket接続確立: {client_id} (総接続数: {len(self.connections)})")
 
             # ハートビートタスクを開始
             heartbeat_task = asyncio.create_task(self._heartbeat_task(client_id))
@@ -180,9 +179,7 @@ class WebSocketManager:
         # バックグラウンドタスクをクリーンアップ
         self._cleanup_background_tasks(client_id)
 
-        logger.info(
-            f"WebSocket接続切断: {client_id} (残り接続数: {len(self.connections)})"
-        )
+        logger.info(f"WebSocket接続切断: {client_id} (残り接続数: {len(self.connections)})")
 
     async def send_to_client(self, client_id: str, message: WebSocketMessage):
         """特定のクライアントにメッセージを送信"""
@@ -212,9 +209,7 @@ class WebSocketManager:
             if await self.send_to_client(client_id, message):
                 success_count += 1
 
-        logger.debug(
-            f"チャンネル '{channel}' に配信: {success_count}/{len(subscribers)} 成功"
-        )
+        logger.debug(f"チャンネル '{channel}' に配信: {success_count}/{len(subscribers)} 成功")
 
     async def broadcast_to_all(self, message: WebSocketMessage):
         """全てのクライアントにブロードキャスト"""
@@ -413,9 +408,7 @@ class WebSocketManager:
         now = datetime.now(timezone.utc)
 
         # リセット時間を過ぎた場合はカウンターをリセット
-        if (
-            now - connection.rate_limit_reset
-        ).total_seconds() >= self.rate_limit_window:
+        if (now - connection.rate_limit_reset).total_seconds() >= self.rate_limit_window:
             connection.rate_limit_count = 0
             connection.rate_limit_reset = now
 
@@ -439,9 +432,7 @@ class WebSocketManager:
                 now = datetime.now(timezone.utc)
 
                 # タイムアウトチェック
-                if (
-                    now - connection.last_heartbeat
-                ).total_seconds() > self.heartbeat_timeout:
+                if (now - connection.last_heartbeat).total_seconds() > self.heartbeat_timeout:
                     logger.warning(f"ハートビートタイムアウト: {client_id}")
                     await self.disconnect(client_id)
                     break
@@ -458,14 +449,9 @@ class WebSocketManager:
     def get_connection_stats(self) -> dict:
         """接続統計を取得"""
         total_connections = len(self.connections)
-        authenticated_connections = len(
-            [c for c in self.connections.values() if c.user_id]
-        )
+        authenticated_connections = len([c for c in self.connections.values() if c.user_id])
 
-        channel_stats = {
-            channel: len(subscribers)
-            for channel, subscribers in self.channel_subscribers.items()
-        }
+        channel_stats = {channel: len(subscribers) for channel, subscribers in self.channel_subscribers.items()}
 
         return {
             "total_connections": total_connections,

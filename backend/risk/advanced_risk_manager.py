@@ -6,12 +6,13 @@ VaR計算、ストレステスト、動的リスク調整などの
 """
 
 import logging
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Any, Tuple
-from datetime import datetime
-from dataclasses import dataclass, field
-from enum import Enum
 
 from .position_sizing import RiskManager
 
@@ -254,9 +255,7 @@ class AdvancedRiskManager(RiskManager):
             # 信頼区間計算（ブートストラップ）
             bootstrap_vars = []
             for _ in range(1000):
-                bootstrap_sample = np.random.choice(
-                    returns_array, size=len(returns_array), replace=True
-                )
+                bootstrap_sample = np.random.choice(returns_array, size=len(returns_array), replace=True)
                 bootstrap_var = -np.percentile(bootstrap_sample, 5)
                 bootstrap_vars.append(bootstrap_var)
 
@@ -337,9 +336,7 @@ class AdvancedRiskManager(RiskManager):
             logger.error(f"Error performing stress test: {e}")
             return StressTestResult(scenario_name, 0, {}, 0, 0, 0)
 
-    def calculate_correlation_matrix(
-        self, strategy_returns: Dict[str, List[float]]
-    ) -> pd.DataFrame:
+    def calculate_correlation_matrix(self, strategy_returns: Dict[str, List[float]]) -> pd.DataFrame:
         """戦略間相関行列を計算"""
         try:
             if len(strategy_returns) < 2:
@@ -350,10 +347,7 @@ class AdvancedRiskManager(RiskManager):
             if min_length < 30:  # 最低30観測
                 return pd.DataFrame()
 
-            aligned_returns = {
-                strategy: returns[-min_length:]
-                for strategy, returns in strategy_returns.items()
-            }
+            aligned_returns = {strategy: returns[-min_length:] for strategy, returns in strategy_returns.items()}
 
             df = pd.DataFrame(aligned_returns)
             correlation_matrix = df.corr()
@@ -376,13 +370,9 @@ class AdvancedRiskManager(RiskManager):
             var_result = self.calculate_var(portfolio_returns)
 
             # 基本統計
-            returns_array = (
-                np.array(portfolio_returns) if portfolio_returns else np.array([0])
-            )
+            returns_array = np.array(portfolio_returns) if portfolio_returns else np.array([0])
 
-            volatility = (
-                np.std(returns_array) * np.sqrt(252) if len(returns_array) > 1 else 0
-            )
+            volatility = np.std(returns_array) * np.sqrt(252) if len(returns_array) > 1 else 0
             mean_return = np.mean(returns_array) * 252 if len(returns_array) > 0 else 0
 
             # シャープレシオ（リスクフリーレート0と仮定）
@@ -416,18 +406,12 @@ class AdvancedRiskManager(RiskManager):
                 correlations = correlation_matrix.values
                 # 対角成分を除外して最大相関を取得
                 mask = ~np.eye(correlations.shape[0], dtype=bool)
-                correlation_risk = (
-                    np.max(np.abs(correlations[mask])) if mask.any() else 0
-                )
+                correlation_risk = np.max(np.abs(correlations[mask])) if mask.any() else 0
             else:
                 correlation_risk = 0
 
             # レバレッジ比率（簡略化）
-            leverage_ratio = (
-                sum(abs(pos) for pos in portfolio_positions.values())
-                if portfolio_positions
-                else 0
-            )
+            leverage_ratio = sum(abs(pos) for pos in portfolio_positions.values()) if portfolio_positions else 0
 
             # 時間別VaR
             daily_var = var_result.var_95
@@ -454,9 +438,7 @@ class AdvancedRiskManager(RiskManager):
             logger.error(f"Error calculating risk metrics: {e}")
             return RiskMetrics(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
-    def check_risk_limits(
-        self, risk_metrics: RiskMetrics, portfolio_positions: Dict[str, float]
-    ) -> List[RiskAlert]:
+    def check_risk_limits(self, risk_metrics: RiskMetrics, portfolio_positions: Dict[str, float]) -> List[RiskAlert]:
         """リスク制限をチェックしてアラートを生成"""
         alerts = []
 
@@ -492,9 +474,7 @@ class AdvancedRiskManager(RiskManager):
                 alerts.append(
                     RiskAlert(
                         alert_type=AlertType.DRAWDOWN,
-                        risk_level=RiskLevel.HIGH
-                        if risk_metrics.current_drawdown < 0.20
-                        else RiskLevel.CRITICAL,
+                        risk_level=RiskLevel.HIGH if risk_metrics.current_drawdown < 0.20 else RiskLevel.CRITICAL,
                         message="Current drawdown exceeds limit",
                         current_value=risk_metrics.current_drawdown,
                         threshold_value=max_dd_limit,
@@ -567,16 +547,12 @@ class AdvancedRiskManager(RiskManager):
             # ストレステスト実行
             stress_tests = {}
             for scenario in self.stress_test_scenarios.keys():
-                stress_tests[scenario] = self.perform_stress_test(
-                    portfolio_positions, scenario
-                )
+                stress_tests[scenario] = self.perform_stress_test(portfolio_positions, scenario)
 
             # VaR詳細計算
             var_results = {}
             for method in ["historical", "parametric", "monte_carlo"]:
-                var_results[method] = self.calculate_var(
-                    portfolio_returns, method=method
-                )
+                var_results[method] = self.calculate_var(portfolio_returns, method=method)
 
             # 相関分析
             correlation_matrix = self.calculate_correlation_matrix(strategy_returns)
@@ -632,9 +608,7 @@ class AdvancedRiskManager(RiskManager):
                     for scenario, result in stress_tests.items()
                 },
                 "correlation_analysis": {
-                    "matrix": correlation_matrix.to_dict()
-                    if not correlation_matrix.empty
-                    else {},
+                    "matrix": correlation_matrix.to_dict() if not correlation_matrix.empty else {},
                     "max_correlation": float(correlation_matrix.abs().max().max())
                     if not correlation_matrix.empty
                     else 0,
@@ -643,64 +617,42 @@ class AdvancedRiskManager(RiskManager):
                     else 0,
                 },
                 "risk_limits": self.risk_limits,
-                "recommendations": self._generate_risk_recommendations(
-                    risk_metrics, current_alerts
-                ),
+                "recommendations": self._generate_risk_recommendations(risk_metrics, current_alerts),
             }
 
         except Exception as e:
             logger.error(f"Error generating risk report: {e}")
             return {"error": str(e)}
 
-    def _generate_risk_recommendations(
-        self, risk_metrics: RiskMetrics, alerts: List[RiskAlert]
-    ) -> List[str]:
+    def _generate_risk_recommendations(self, risk_metrics: RiskMetrics, alerts: List[RiskAlert]) -> List[str]:
         """リスク推奨事項を生成"""
         recommendations = []
 
         try:
             # 高リスクアラートベースの推奨
-            high_risk_alerts = [
-                a
-                for a in alerts
-                if a.risk_level in [RiskLevel.HIGH, RiskLevel.CRITICAL]
-            ]
+            high_risk_alerts = [a for a in alerts if a.risk_level in [RiskLevel.HIGH, RiskLevel.CRITICAL]]
 
             if high_risk_alerts:
-                recommendations.append(
-                    "Immediate attention required: High/Critical risk alerts present"
-                )
+                recommendations.append("Immediate attention required: High/Critical risk alerts present")
 
             # 具体的な推奨事項
             if risk_metrics.concentration_risk > 0.4:
-                recommendations.append(
-                    "Diversify portfolio: Reduce concentration in single strategies"
-                )
+                recommendations.append("Diversify portfolio: Reduce concentration in single strategies")
 
             if risk_metrics.correlation_risk > 0.7:
-                recommendations.append(
-                    "Reduce correlation risk: Add uncorrelated strategies"
-                )
+                recommendations.append("Reduce correlation risk: Add uncorrelated strategies")
 
             if risk_metrics.volatility > 0.25:
-                recommendations.append(
-                    "Reduce volatility: Consider position sizing adjustments"
-                )
+                recommendations.append("Reduce volatility: Consider position sizing adjustments")
 
             if risk_metrics.sharpe_ratio < 0.5:
-                recommendations.append(
-                    "Improve risk-adjusted returns: Review strategy performance"
-                )
+                recommendations.append("Improve risk-adjusted returns: Review strategy performance")
 
             if risk_metrics.current_drawdown > 0.10:
-                recommendations.append(
-                    "Address drawdown: Consider defensive positioning"
-                )
+                recommendations.append("Address drawdown: Consider defensive positioning")
 
             if not recommendations:
-                recommendations.append(
-                    "Portfolio risk profile appears healthy - maintain current approach"
-                )
+                recommendations.append("Portfolio risk profile appears healthy - maintain current approach")
 
             return recommendations
 
@@ -729,9 +681,7 @@ class AdvancedRiskManager(RiskManager):
                 performance_factor = max(0.5, 1 + recent_performance)  # 最大50%削減
                 adjusted_size *= performance_factor
             elif recent_performance > 0.10:  # 10%以上の利益
-                performance_factor = min(
-                    1.2, 1 + recent_performance * 0.5
-                )  # 最大20%増加
+                performance_factor = min(1.2, 1 + recent_performance * 0.5)  # 最大20%増加
                 adjusted_size *= performance_factor
 
             # 最小・最大制限
@@ -740,9 +690,7 @@ class AdvancedRiskManager(RiskManager):
 
             adjusted_size = max(min_size, min(adjusted_size, max_size))
 
-            logger.info(
-                f"Dynamic position sizing for {strategy_name}: {base_position_size:.4f} -> {adjusted_size:.4f}"
-            )
+            logger.info(f"Dynamic position sizing for {strategy_name}: {base_position_size:.4f} -> {adjusted_size:.4f}")
             return adjusted_size
 
         except Exception as e:

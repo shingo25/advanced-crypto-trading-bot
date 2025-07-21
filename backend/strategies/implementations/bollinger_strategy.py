@@ -7,10 +7,11 @@ Bollinger Bands戦略
 ・バンド幅（ボラティリティ）とポジションも考慮
 """
 
-import pandas as pd
-from typing import Dict, Any, List, Optional
 import logging
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+import pandas as pd
 
 from ..base import BaseStrategy, Signal, TechnicalIndicators
 
@@ -84,16 +85,8 @@ class BollingerBandsStrategy(BaseStrategy):
             # %B = (Close - Lower Band) / (Upper Band - Lower Band)
             bb_position = []
             for i in range(len(data)):
-                upper = (
-                    bb_result["upper"][i]
-                    if isinstance(bb_result["upper"], list)
-                    else bb_result["upper"].iloc[i]
-                )
-                lower = (
-                    bb_result["lower"][i]
-                    if isinstance(bb_result["lower"], list)
-                    else bb_result["lower"].iloc[i]
-                )
+                upper = bb_result["upper"][i] if isinstance(bb_result["upper"], list) else bb_result["upper"].iloc[i]
+                lower = bb_result["lower"][i] if isinstance(bb_result["lower"], list) else bb_result["lower"].iloc[i]
                 close = close_prices[i]
 
                 if upper != lower:  # ゼロ除算を避ける
@@ -109,21 +102,9 @@ class BollingerBandsStrategy(BaseStrategy):
             # Band Width = (Upper Band - Lower Band) / Middle Band
             bb_width = []
             for i in range(len(data)):
-                upper = (
-                    bb_result["upper"][i]
-                    if isinstance(bb_result["upper"], list)
-                    else bb_result["upper"].iloc[i]
-                )
-                lower = (
-                    bb_result["lower"][i]
-                    if isinstance(bb_result["lower"], list)
-                    else bb_result["lower"].iloc[i]
-                )
-                middle = (
-                    bb_result["sma"][i]
-                    if isinstance(bb_result["sma"], list)
-                    else bb_result["sma"].iloc[i]
-                )
+                upper = bb_result["upper"][i] if isinstance(bb_result["upper"], list) else bb_result["upper"].iloc[i]
+                lower = bb_result["lower"][i] if isinstance(bb_result["lower"], list) else bb_result["lower"].iloc[i]
+                middle = bb_result["sma"][i] if isinstance(bb_result["sma"], list) else bb_result["sma"].iloc[i]
 
                 if middle != 0:  # ゼロ除算を避ける
                     width = (upper - lower) / middle
@@ -139,9 +120,7 @@ class BollingerBandsStrategy(BaseStrategy):
                 # 過去20期間の平均バンド幅と比較
                 current_width = bb_width[-1]
                 avg_width = sum(bb_width[-20:]) / 20
-                data["bb_squeeze"] = [
-                    current_width < avg_width * self.parameters["squeeze_threshold"]
-                ] * len(data)
+                data["bb_squeeze"] = [current_width < avg_width * self.parameters["squeeze_threshold"]] * len(data)
             else:
                 data["bb_squeeze"] = [False] * len(data)
 
@@ -156,16 +135,8 @@ class BollingerBandsStrategy(BaseStrategy):
 
             for i in range(len(data)):
                 close = close_prices[i]
-                upper = (
-                    bb_result["upper"][i]
-                    if isinstance(bb_result["upper"], list)
-                    else bb_result["upper"].iloc[i]
-                )
-                lower = (
-                    bb_result["lower"][i]
-                    if isinstance(bb_result["lower"], list)
-                    else bb_result["lower"].iloc[i]
-                )
+                upper = bb_result["upper"][i] if isinstance(bb_result["upper"], list) else bb_result["upper"].iloc[i]
+                lower = bb_result["lower"][i] if isinstance(bb_result["lower"], list) else bb_result["lower"].iloc[i]
 
                 price_above_upper.append(close > upper)
                 price_below_lower.append(close < lower)
@@ -248,26 +219,18 @@ class BollingerBandsStrategy(BaseStrategy):
                     prev_price_below_lower = False
 
             # NaN値をチェック
-            if (
-                pd.isna(current_bb_position)
-                or pd.isna(current_bb_width)
-                or pd.isna(upper_band)
-                or pd.isna(lower_band)
-            ):
+            if pd.isna(current_bb_position) or pd.isna(current_bb_width) or pd.isna(upper_band) or pd.isna(lower_band):
                 return signals
 
             # ボリューム確認
-            volume_ok = (
-                current_volume >= avg_volume * self.parameters["volume_threshold"]
-            )
+            volume_ok = current_volume >= avg_volume * self.parameters["volume_threshold"]
 
             # 買いシグナル判定
             # 条件：価格が下部バンドを下回った後、バンド内に戻る
             buy_condition = (
                 prev_price_below_lower  # 前回は下部バンド外
                 and price_inside_bands  # 現在はバンド内
-                and current_bb_position
-                < (1 - self.parameters["bb_position_threshold"])  # 下部寄り
+                and current_bb_position < (1 - self.parameters["bb_position_threshold"])  # 下部寄り
             )
 
             if buy_condition and volume_ok:
@@ -279,13 +242,8 @@ class BollingerBandsStrategy(BaseStrategy):
                     self.last_bb_signal = "buy"
 
                 # 確認期間を満たした場合にシグナル生成
-                if (
-                    self.signal_confirmation_count
-                    >= self.parameters["confirmation_bars"]
-                ):
-                    strength = self._calculate_signal_strength(
-                        current_bb_position, current_bb_width, "buy", bb_squeeze
-                    )
+                if self.signal_confirmation_count >= self.parameters["confirmation_bars"]:
+                    strength = self._calculate_signal_strength(current_bb_position, current_bb_width, "buy", bb_squeeze)
 
                     signal = Signal(
                         timestamp=current_time,
@@ -297,17 +255,14 @@ class BollingerBandsStrategy(BaseStrategy):
                     )
                     signals.append(signal)
 
-                    logger.info(
-                        f"BB Buy signal: %B={current_bb_position:.3f}, price={current_price}"
-                    )
+                    logger.info(f"BB Buy signal: %B={current_bb_position:.3f}, price={current_price}")
 
             # 売りシグナル判定
             # 条件：価格が上部バンドを上回った後、バンド内に戻る
             sell_condition = (
                 prev_price_above_upper  # 前回は上部バンド外
                 and price_inside_bands  # 現在はバンド内
-                and current_bb_position
-                > self.parameters["bb_position_threshold"]  # 上部寄り
+                and current_bb_position > self.parameters["bb_position_threshold"]  # 上部寄り
             )
 
             if sell_condition and volume_ok:
@@ -319,10 +274,7 @@ class BollingerBandsStrategy(BaseStrategy):
                     self.last_bb_signal = "sell"
 
                 # 確認期間を満たした場合にシグナル生成
-                if (
-                    self.signal_confirmation_count
-                    >= self.parameters["confirmation_bars"]
-                ):
+                if self.signal_confirmation_count >= self.parameters["confirmation_bars"]:
                     strength = self._calculate_signal_strength(
                         current_bb_position, current_bb_width, "sell", bb_squeeze
                     )
@@ -337,9 +289,7 @@ class BollingerBandsStrategy(BaseStrategy):
                     )
                     signals.append(signal)
 
-                    logger.info(
-                        f"BB Sell signal: %B={current_bb_position:.3f}, price={current_price}"
-                    )
+                    logger.info(f"BB Sell signal: %B={current_bb_position:.3f}, price={current_price}")
 
             # エグジットシグナル（既存ポジション向け）
             exit_signals = self._generate_exit_signals(data, current_idx)
@@ -351,9 +301,7 @@ class BollingerBandsStrategy(BaseStrategy):
             logger.error(f"Error generating Bollinger Bands signals: {e}")
             return signals
 
-    def _calculate_signal_strength(
-        self, bb_position: float, bb_width: float, signal_type: str, squeeze: bool
-    ) -> float:
+    def _calculate_signal_strength(self, bb_position: float, bb_width: float, signal_type: str, squeeze: bool) -> float:
         """シグナルの強度を計算"""
         base_strength = 1.0
 
@@ -378,9 +326,7 @@ class BollingerBandsStrategy(BaseStrategy):
 
         return min(1.0, max(0.3, total_strength))
 
-    def _generate_exit_signals(
-        self, data: pd.DataFrame, current_idx: int
-    ) -> List[Signal]:
+    def _generate_exit_signals(self, data: pd.DataFrame, current_idx: int) -> List[Signal]:
         """エグジットシグナルを生成"""
         signals = []
 

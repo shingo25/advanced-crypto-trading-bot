@@ -7,11 +7,11 @@ Redis Pub/Subを使用したアラート・通知システムの
 
 import asyncio
 import logging
-from typing import Dict, Any, Optional, Callable, List
 from datetime import datetime, timezone
+from typing import Any, Callable, Dict, List, Optional
 
+from ..models.alerts import AlertCategory, AlertLevel, UnifiedAlert
 from .redis import RedisManager, get_redis_manager
-from ..models.alerts import UnifiedAlert, AlertLevel, AlertCategory
 
 logger = logging.getLogger(__name__)
 
@@ -106,9 +106,7 @@ class AlertMessage:
         )
         message.message_id = data.get("message_id", f"msg_{alert.id}")
         if "created_at" in data:
-            message.created_at = datetime.fromisoformat(
-                data["created_at"].replace("Z", "+00:00")
-            )
+            message.created_at = datetime.fromisoformat(data["created_at"].replace("Z", "+00:00"))
         return message
 
 
@@ -143,20 +141,14 @@ class AlertPublisher:
             success_main = await redis_manager.publish(main_channel, message.to_dict())
 
             # 全体チャンネルにも発行（統計・監視用）
-            success_all = await redis_manager.publish(
-                AlertChannels.ALERTS, message.to_dict()
-            )
+            success_all = await redis_manager.publish(AlertChannels.ALERTS, message.to_dict())
 
             # 優先度別チャンネルにも発行
             if priority >= MessagePriority.HIGH:
-                await redis_manager.publish(
-                    AlertChannels.ALERTS_HIGH_PRIORITY, message.to_dict()
-                )
+                await redis_manager.publish(AlertChannels.ALERTS_HIGH_PRIORITY, message.to_dict())
 
             if alert.level == AlertLevel.CRITICAL:
-                await redis_manager.publish(
-                    AlertChannels.ALERTS_CRITICAL, message.to_dict()
-                )
+                await redis_manager.publish(AlertChannels.ALERTS_CRITICAL, message.to_dict())
 
             if success_main or success_all:
                 self._stats["published_count"] += 1
@@ -221,9 +213,7 @@ class AlertPublisher:
         """発行統計を取得"""
         return {
             **self._stats,
-            "last_published": self._stats["last_published"].isoformat()
-            if self._stats["last_published"]
-            else None,
+            "last_published": self._stats["last_published"].isoformat() if self._stats["last_published"] else None,
         }
 
 
@@ -262,9 +252,7 @@ class AlertSubscriber:
                 channels = [AlertChannels.ALERTS]
 
             # フィルター付きコールバックを作成
-            filtered_callback = self._create_filtered_callback(
-                callback, alert_levels, alert_categories
-            )
+            filtered_callback = self._create_filtered_callback(callback, alert_levels, alert_categories)
 
             # 各チャンネルに購読
             for channel in channels:
@@ -308,9 +296,7 @@ class AlertSubscriber:
                         # 直接Alert形式
                         alert = UnifiedAlert.from_dict(message_data)
                 else:
-                    logger.warning(
-                        f"Invalid message format from {channel}: {type(message_data)}"
-                    )
+                    logger.warning(f"Invalid message format from {channel}: {type(message_data)}")
                     return
 
                 # フィルター適用
@@ -334,9 +320,7 @@ class AlertSubscriber:
 
         return filtered_callback
 
-    async def subscribe_to_critical_alerts(
-        self, callback: Callable[[UnifiedAlert], None]
-    ) -> bool:
+    async def subscribe_to_critical_alerts(self, callback: Callable[[UnifiedAlert], None]) -> bool:
         """クリティカルアラート専用購読"""
         return await self.subscribe_to_alerts(
             callback,
@@ -344,9 +328,7 @@ class AlertSubscriber:
             alert_levels=[AlertLevel.CRITICAL],
         )
 
-    async def subscribe_to_risk_alerts(
-        self, callback: Callable[[UnifiedAlert], None]
-    ) -> bool:
+    async def subscribe_to_risk_alerts(self, callback: Callable[[UnifiedAlert], None]) -> bool:
         """リスクアラート専用購読"""
         return await self.subscribe_to_alerts(
             callback,
@@ -354,9 +336,7 @@ class AlertSubscriber:
             alert_categories=[AlertCategory.RISK],
         )
 
-    async def subscribe_to_status_updates(
-        self, callback: Callable[[str, str, Dict[str, Any]], None]
-    ) -> bool:
+    async def subscribe_to_status_updates(self, callback: Callable[[str, str, Dict[str, Any]], None]) -> bool:
         """ステータス更新に購読"""
         try:
             redis_manager = await self._get_redis_manager()
@@ -390,9 +370,7 @@ class AlertSubscriber:
             logger.error(f"Failed to subscribe to status updates: {e}")
             return False
 
-    async def unsubscribe(
-        self, channel: str, callback: Optional[Callable] = None
-    ) -> bool:
+    async def unsubscribe(self, channel: str, callback: Optional[Callable] = None) -> bool:
         """購読解除"""
         try:
             redis_manager = await self._get_redis_manager()
@@ -418,9 +396,7 @@ class AlertSubscriber:
             **self._stats,
             "active_subscriptions": len(self._subscriptions),
             "subscribed_channels": list(self._subscriptions.keys()),
-            "last_received": self._stats["last_received"].isoformat()
-            if self._stats["last_received"]
-            else None,
+            "last_received": self._stats["last_received"].isoformat() if self._stats["last_received"] else None,
         }
 
 
@@ -461,9 +437,7 @@ class AlertMessageBroker:
         except Exception as e:
             logger.error(f"Error stopping AlertMessageBroker: {e}")
 
-    async def publish(
-        self, alert: UnifiedAlert, priority: int = MessagePriority.NORMAL
-    ) -> bool:
+    async def publish(self, alert: UnifiedAlert, priority: int = MessagePriority.NORMAL) -> bool:
         """アラートを発行"""
         if not self._started:
             logger.warning("MessageBroker not started, attempting to start...")
@@ -482,9 +456,7 @@ class AlertMessageBroker:
             logger.warning("MessageBroker not started, attempting to start...")
             await self.start()
 
-        return await self.subscriber.subscribe_to_alerts(
-            callback, channels, **filter_kwargs
-        )
+        return await self.subscriber.subscribe_to_alerts(callback, channels, **filter_kwargs)
 
     def get_stats(self) -> Dict[str, Any]:
         """統計情報を取得"""
@@ -500,9 +472,7 @@ alert_broker = AlertMessageBroker()
 
 
 # 便利関数
-async def publish_alert(
-    alert: UnifiedAlert, priority: int = MessagePriority.NORMAL
-) -> bool:
+async def publish_alert(alert: UnifiedAlert, priority: int = MessagePriority.NORMAL) -> bool:
     """アラートを発行（便利関数）"""
     return await alert_broker.publish(alert, priority)
 

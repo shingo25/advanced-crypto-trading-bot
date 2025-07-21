@@ -7,10 +7,11 @@ MACD指標を利用したトレンドフォロー戦略
 ・ヒストグラムの変化も考慮
 """
 
-import pandas as pd
-from typing import Dict, Any, List, Optional
 import logging
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+import pandas as pd
 
 from ..base import BaseStrategy, Signal, TechnicalIndicators
 
@@ -113,9 +114,7 @@ class MACDStrategy(BaseStrategy):
                     else:
                         # DataFrameの場合
                         macd_val = (
-                            data["macd_line"].iloc[i]
-                            if hasattr(data["macd_line"], "iloc")
-                            else data["macd_line"][i]
+                            data["macd_line"].iloc[i] if hasattr(data["macd_line"], "iloc") else data["macd_line"][i]
                         )
                         signal_val = (
                             data["signal_line"].iloc[i]
@@ -171,9 +170,7 @@ class MACDStrategy(BaseStrategy):
                         else data["histogram"].iloc[i - 1]
                     )
                     curr_hist = (
-                        data["histogram"][i]
-                        if isinstance(data["histogram"], list)
-                        else data["histogram"].iloc[i]
+                        data["histogram"][i] if isinstance(data["histogram"], list) else data["histogram"].iloc[i]
                     )
                     histogram_change.append(curr_hist - prev_hist)
                 data["histogram_change"] = histogram_change
@@ -228,17 +225,11 @@ class MACDStrategy(BaseStrategy):
                 macd_cross_below = current_data.get("macd_cross_below", False)
 
             # NaN値をチェック
-            if (
-                pd.isna(current_macd)
-                or pd.isna(current_signal)
-                or pd.isna(current_histogram)
-            ):
+            if pd.isna(current_macd) or pd.isna(current_signal) or pd.isna(current_histogram):
                 return signals
 
             # ボリューム確認
-            volume_ok = (
-                current_volume >= avg_volume * self.parameters["volume_threshold"]
-            )
+            volume_ok = current_volume >= avg_volume * self.parameters["volume_threshold"]
 
             # ヒストグラム確認（設定されている場合）
             histogram_ok = True
@@ -264,13 +255,8 @@ class MACDStrategy(BaseStrategy):
                     self.last_macd_signal = "buy"
 
                 # 確認期間を満たした場合にシグナル生成
-                if (
-                    self.signal_confirmation_count
-                    >= self.parameters["confirmation_bars"]
-                ):
-                    strength = self._calculate_signal_strength(
-                        current_macd, current_signal, current_histogram, "buy"
-                    )
+                if self.signal_confirmation_count >= self.parameters["confirmation_bars"]:
+                    strength = self._calculate_signal_strength(current_macd, current_signal, current_histogram, "buy")
 
                     signal = Signal(
                         timestamp=current_time,
@@ -282,9 +268,7 @@ class MACDStrategy(BaseStrategy):
                     )
                     signals.append(signal)
 
-                    logger.info(
-                        f"MACD Buy signal: MACD={current_macd:.4f}, Signal={current_signal:.4f}"
-                    )
+                    logger.info(f"MACD Buy signal: MACD={current_macd:.4f}, Signal={current_signal:.4f}")
 
             # 売りシグナル判定
             elif macd_cross_below and volume_ok and histogram_ok:
@@ -296,13 +280,8 @@ class MACDStrategy(BaseStrategy):
                     self.last_macd_signal = "sell"
 
                 # 確認期間を満たした場合にシグナル生成
-                if (
-                    self.signal_confirmation_count
-                    >= self.parameters["confirmation_bars"]
-                ):
-                    strength = self._calculate_signal_strength(
-                        current_macd, current_signal, current_histogram, "sell"
-                    )
+                if self.signal_confirmation_count >= self.parameters["confirmation_bars"]:
+                    strength = self._calculate_signal_strength(current_macd, current_signal, current_histogram, "sell")
 
                     signal = Signal(
                         timestamp=current_time,
@@ -314,9 +293,7 @@ class MACDStrategy(BaseStrategy):
                     )
                     signals.append(signal)
 
-                    logger.info(
-                        f"MACD Sell signal: MACD={current_macd:.4f}, Signal={current_signal:.4f}"
-                    )
+                    logger.info(f"MACD Sell signal: MACD={current_macd:.4f}, Signal={current_signal:.4f}")
 
             # エグジットシグナル（既存ポジション向け）
             exit_signals = self._generate_exit_signals(data, current_idx)
@@ -342,22 +319,16 @@ class MACDStrategy(BaseStrategy):
         histogram_strength = min(1.0, abs(histogram) * 50)
 
         # 総合強度計算
-        total_strength = (
-            diff_strength * 0.6 + histogram_strength * 0.4
-        ) * base_strength
+        total_strength = (diff_strength * 0.6 + histogram_strength * 0.4) * base_strength
 
         return min(1.0, max(0.3, total_strength))
 
-    def _generate_exit_signals(
-        self, data: pd.DataFrame, current_idx: int
-    ) -> List[Signal]:
+    def _generate_exit_signals(self, data: pd.DataFrame, current_idx: int) -> List[Signal]:
         """エグジットシグナルを生成"""
         signals = []
 
         try:
-            current_data = (
-                data.iloc[current_idx] if hasattr(data, "iloc") else data[current_idx]
-            )
+            current_data = data.iloc[current_idx] if hasattr(data, "iloc") else data[current_idx]
 
             if hasattr(current_data, "get"):
                 current_macd = current_data.get("macd_line", 0)

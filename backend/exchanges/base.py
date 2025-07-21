@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import List, Dict, Optional
-from datetime import datetime
-import pandas as pd
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from typing import Dict, List, Optional
+
+import pandas as pd
 
 
 class TimeFrame(Enum):
@@ -132,9 +133,7 @@ class AbstractExchangeAdapter(ABC):
     def to_dataframe(self, ohlcv_list: List[OHLCV]) -> pd.DataFrame:
         """OHLCV リストを DataFrame に変換"""
         if not ohlcv_list:
-            return pd.DataFrame(
-                columns=["timestamp", "open", "high", "low", "close", "volume"]
-            )
+            return pd.DataFrame(columns=["timestamp", "open", "high", "low", "close", "volume"])
 
         data = []
         for ohlcv in ohlcv_list:

@@ -5,14 +5,15 @@ Redis接続管理システム
 Redis Pub/Sub およびキャッシュ機能を提供
 """
 
-import logging
 import asyncio
 import json
-from typing import Dict, Any, Optional, Callable, List
+import logging
+import os
+from typing import Any, Callable, Dict, List, Optional
+
 import redis.asyncio as redis
 from redis.asyncio import Redis
 from redis.exceptions import ConnectionError, TimeoutError
-import os
 
 logger = logging.getLogger(__name__)
 
@@ -92,9 +93,7 @@ class RedisManager:
             await self._redis_pool.ping()
             self._connection_healthy = True
 
-            logger.info(
-                f"Redis connection established: {self.config.host}:{self.config.port}"
-            )
+            logger.info(f"Redis connection established: {self.config.host}:{self.config.port}")
             return True
 
         except Exception as e:
@@ -215,9 +214,7 @@ class RedisManager:
             self._pubsub_connections[channel] = pubsub
 
             # リスナータスクを開始
-            task = asyncio.create_task(
-                self._listen_for_messages(channel, pubsub, deserialize)
-            )
+            task = asyncio.create_task(self._listen_for_messages(channel, pubsub, deserialize))
             self._running_tasks.append(task)
 
             logger.info(f"Created pubsub connection for channel: {channel}")
@@ -226,9 +223,7 @@ class RedisManager:
             logger.error(f"Failed to create pubsub connection for {channel}: {e}")
             raise
 
-    async def _listen_for_messages(
-        self, channel: str, pubsub, deserialize: bool = True
-    ):
+    async def _listen_for_messages(self, channel: str, pubsub, deserialize: bool = True):
         """メッセージリスナー"""
         logger.info(f"Started listening for messages on channel: {channel}")
 
@@ -260,23 +255,17 @@ class RedisManager:
                                         else:
                                             callback(channel, data)
                                     except Exception as e:
-                                        logger.error(
-                                            f"Error in subscriber callback: {e}"
-                                        )
+                                        logger.error(f"Error in subscriber callback: {e}")
 
                         except Exception as e:
-                            logger.error(
-                                f"Error processing message from {channel}: {e}"
-                            )
+                            logger.error(f"Error processing message from {channel}: {e}")
 
                 # 正常な終了
                 break
 
             except (ConnectionError, TimeoutError) as e:
                 retry_count += 1
-                logger.warning(
-                    f"Connection error on channel {channel}, retry {retry_count}/{max_retries}: {e}"
-                )
+                logger.warning(f"Connection error on channel {channel}, retry {retry_count}/{max_retries}: {e}")
 
                 if retry_count < max_retries:
                     await asyncio.sleep(self.config.retry_delay * retry_count)
@@ -285,9 +274,7 @@ class RedisManager:
                         await self._create_pubsub_connection(channel, deserialize)
                         retry_count = 0  # 成功したらリセット
                     except Exception as reconnect_error:
-                        logger.error(
-                            f"Reconnection failed for {channel}: {reconnect_error}"
-                        )
+                        logger.error(f"Reconnection failed for {channel}: {reconnect_error}")
                 else:
                     logger.error(f"Max retries reached for channel {channel}")
                     break
@@ -302,9 +289,7 @@ class RedisManager:
 
         logger.info(f"Stopped listening for messages on channel: {channel}")
 
-    async def unsubscribe(
-        self, channel: str, callback: Optional[Callable] = None
-    ) -> bool:
+    async def unsubscribe(self, channel: str, callback: Optional[Callable] = None) -> bool:
         """チャンネルから購読解除"""
         try:
             if channel in self._subscribers:
@@ -416,10 +401,7 @@ class RedisManager:
             stats = {
                 "active_channels": len(self._pubsub_connections),
                 "subscribed_channels": list(self._subscribers.keys()),
-                "redis_pubsub_channels": [
-                    ch.decode() if isinstance(ch, bytes) else ch
-                    for ch in pubsub_channels
-                ],
+                "redis_pubsub_channels": [ch.decode() if isinstance(ch, bytes) else ch for ch in pubsub_channels],
                 "running_tasks": len(self._running_tasks),
                 "connection_healthy": self._connection_healthy,
                 "config": {
@@ -454,9 +436,7 @@ async def publish_alert(alert_data: Dict[str, Any], channel: str = "alerts") -> 
     return await manager.publish(channel, alert_data)
 
 
-async def subscribe_to_alerts(
-    callback: Callable[[str, Any], None], channel: str = "alerts"
-) -> bool:
+async def subscribe_to_alerts(callback: Callable[[str, Any], None], channel: str = "alerts") -> bool:
     """アラートに購読（便利関数）"""
     manager = await get_redis_manager()
     return await manager.subscribe(channel, callback)

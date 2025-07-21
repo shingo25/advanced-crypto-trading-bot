@@ -1,11 +1,11 @@
 """価格データモデル - Supabase price_data テーブル用"""
 
+from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional
-from dataclasses import dataclass
 
-from sqlalchemy import Column, BigInteger, String, DateTime, Numeric, func
+from sqlalchemy import BigInteger, Column, DateTime, Numeric, String, func
 from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
@@ -53,9 +53,7 @@ class PriceData(Base):
         )
 
     @classmethod
-    def from_ohlcv(
-        cls, exchange: str, symbol: str, timeframe: str, ohlcv_data
-    ) -> "PriceData":
+    def from_ohlcv(cls, exchange: str, symbol: str, timeframe: str, ohlcv_data) -> "PriceData":
         """OHLCV データオブジェクトからPriceDataインスタンスを作成"""
         return cls(
             exchange=exchange,

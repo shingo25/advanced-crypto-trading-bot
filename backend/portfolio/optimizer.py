@@ -3,11 +3,11 @@
 """
 
 import logging
-from typing import Dict, List, Optional, Any
-from datetime import datetime
-from dataclasses import dataclass
-from enum import Enum
 import math
+from dataclasses import dataclass
+from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -101,21 +101,13 @@ class PortfolioOptimizer:
 
         # 最適化を実行
         if objective == OptimizationObjective.SHARPE_RATIO:
-            result = self._optimize_sharpe_ratio(
-                assets, expected_returns, covariance_matrix, constraints
-            )
+            result = self._optimize_sharpe_ratio(assets, expected_returns, covariance_matrix, constraints)
         elif objective == OptimizationObjective.MIN_VOLATILITY:
-            result = self._optimize_min_volatility(
-                assets, expected_returns, covariance_matrix, constraints
-            )
+            result = self._optimize_min_volatility(assets, expected_returns, covariance_matrix, constraints)
         elif objective == OptimizationObjective.MAX_RETURN:
-            result = self._optimize_max_return(
-                assets, expected_returns, covariance_matrix, constraints
-            )
+            result = self._optimize_max_return(assets, expected_returns, covariance_matrix, constraints)
         elif objective == OptimizationObjective.RISK_PARITY:
-            result = self._optimize_risk_parity(
-                assets, expected_returns, covariance_matrix, constraints
-            )
+            result = self._optimize_risk_parity(assets, expected_returns, covariance_matrix, constraints)
         else:
             raise ValueError(f"Unknown optimization objective: {objective}")
 
@@ -140,9 +132,7 @@ class PortfolioOptimizer:
 
         # 簡易最適化（実際の実装では scipy.optimize を使用）
         best_weights = self._equal_weight_portfolio(assets)
-        best_sharpe = self._calculate_sharpe_ratio(
-            best_weights, expected_returns, covariance_matrix
-        )
+        best_sharpe = self._calculate_sharpe_ratio(best_weights, expected_returns, covariance_matrix)
 
         # グリッドサーチによる近似最適化
         for iteration in range(100):
@@ -152,21 +142,15 @@ class PortfolioOptimizer:
             if weights is None:
                 continue
 
-            sharpe = self._calculate_sharpe_ratio(
-                weights, expected_returns, covariance_matrix
-            )
+            sharpe = self._calculate_sharpe_ratio(weights, expected_returns, covariance_matrix)
 
             if sharpe > best_sharpe:
                 best_sharpe = sharpe
                 best_weights = weights
 
         # 結果を作成
-        portfolio_return = self._calculate_portfolio_return(
-            best_weights, expected_returns
-        )
-        portfolio_volatility = self._calculate_portfolio_volatility(
-            best_weights, covariance_matrix
-        )
+        portfolio_return = self._calculate_portfolio_return(best_weights, expected_returns)
+        portfolio_volatility = self._calculate_portfolio_volatility(best_weights, covariance_matrix)
 
         return OptimizationResult(
             objective=OptimizationObjective.SHARPE_RATIO,
@@ -189,9 +173,7 @@ class PortfolioOptimizer:
         """ボラティリティを最小化"""
 
         best_weights = self._equal_weight_portfolio(assets)
-        best_volatility = self._calculate_portfolio_volatility(
-            best_weights, covariance_matrix
-        )
+        best_volatility = self._calculate_portfolio_volatility(best_weights, covariance_matrix)
 
         # グリッドサーチによる近似最適化
         for iteration in range(100):
@@ -200,21 +182,15 @@ class PortfolioOptimizer:
             if weights is None:
                 continue
 
-            volatility = self._calculate_portfolio_volatility(
-                weights, covariance_matrix
-            )
+            volatility = self._calculate_portfolio_volatility(weights, covariance_matrix)
 
             if volatility < best_volatility:
                 best_volatility = volatility
                 best_weights = weights
 
         # 結果を作成
-        portfolio_return = self._calculate_portfolio_return(
-            best_weights, expected_returns
-        )
-        sharpe_ratio = self._calculate_sharpe_ratio(
-            best_weights, expected_returns, covariance_matrix
-        )
+        portfolio_return = self._calculate_portfolio_return(best_weights, expected_returns)
+        sharpe_ratio = self._calculate_sharpe_ratio(best_weights, expected_returns, covariance_matrix)
 
         return OptimizationResult(
             objective=OptimizationObjective.MIN_VOLATILITY,
@@ -246,21 +222,15 @@ class PortfolioOptimizer:
             if weights is None:
                 continue
 
-            portfolio_return = self._calculate_portfolio_return(
-                weights, expected_returns
-            )
+            portfolio_return = self._calculate_portfolio_return(weights, expected_returns)
 
             if portfolio_return > best_return:
                 best_return = portfolio_return
                 best_weights = weights
 
         # 結果を作成
-        portfolio_volatility = self._calculate_portfolio_volatility(
-            best_weights, covariance_matrix
-        )
-        sharpe_ratio = self._calculate_sharpe_ratio(
-            best_weights, expected_returns, covariance_matrix
-        )
+        portfolio_volatility = self._calculate_portfolio_volatility(best_weights, covariance_matrix)
+        sharpe_ratio = self._calculate_sharpe_ratio(best_weights, expected_returns, covariance_matrix)
 
         return OptimizationResult(
             objective=OptimizationObjective.MAX_RETURN,
@@ -288,24 +258,15 @@ class PortfolioOptimizer:
             asset_volatilities[asset] = math.sqrt(covariance_matrix[asset][asset])
 
         # 逆ボラティリティの重みを計算
-        inverse_volatilities = {
-            asset: 1.0 / vol for asset, vol in asset_volatilities.items()
-        }
+        inverse_volatilities = {asset: 1.0 / vol for asset, vol in asset_volatilities.items()}
         total_inverse_vol = sum(inverse_volatilities.values())
 
-        weights = {
-            asset: inv_vol / total_inverse_vol
-            for asset, inv_vol in inverse_volatilities.items()
-        }
+        weights = {asset: inv_vol / total_inverse_vol for asset, inv_vol in inverse_volatilities.items()}
 
         # 結果を作成
         portfolio_return = self._calculate_portfolio_return(weights, expected_returns)
-        portfolio_volatility = self._calculate_portfolio_volatility(
-            weights, covariance_matrix
-        )
-        sharpe_ratio = self._calculate_sharpe_ratio(
-            weights, expected_returns, covariance_matrix
-        )
+        portfolio_volatility = self._calculate_portfolio_volatility(weights, covariance_matrix)
+        sharpe_ratio = self._calculate_sharpe_ratio(weights, expected_returns, covariance_matrix)
 
         return OptimizationResult(
             objective=OptimizationObjective.RISK_PARITY,
@@ -334,9 +295,7 @@ class PortfolioOptimizer:
         total_weight = sum(raw_weights)
 
         # 正規化
-        weights = {
-            asset: weight / total_weight for asset, weight in zip(assets, raw_weights)
-        }
+        weights = {asset: weight / total_weight for asset, weight in zip(assets, raw_weights)}
 
         # 制約をチェック
         if self._check_constraints(weights, constraints):
@@ -344,9 +303,7 @@ class PortfolioOptimizer:
 
         return None
 
-    def _check_constraints(
-        self, weights: Dict[str, float], constraints: List[OptimizationConstraint]
-    ) -> bool:
+    def _check_constraints(self, weights: Dict[str, float], constraints: List[OptimizationConstraint]) -> bool:
         """制約が満たされているかチェック"""
         for constraint in constraints:
             if constraint.asset == "_sum":
@@ -357,9 +314,7 @@ class PortfolioOptimizer:
                     return False
         return True
 
-    def _calculate_portfolio_return(
-        self, weights: Dict[str, float], expected_returns: Dict[str, float]
-    ) -> float:
+    def _calculate_portfolio_return(self, weights: Dict[str, float], expected_returns: Dict[str, float]) -> float:
         """ポートフォリオの期待リターンを計算"""
         return sum(weights[asset] * expected_returns[asset] for asset in weights)
 
@@ -371,11 +326,7 @@ class PortfolioOptimizer:
 
         for asset1 in weights:
             for asset2 in weights:
-                variance += (
-                    weights[asset1]
-                    * weights[asset2]
-                    * covariance_matrix[asset1][asset2]
-                )
+                variance += weights[asset1] * weights[asset2] * covariance_matrix[asset1][asset2]
 
         return math.sqrt(variance)
 
@@ -387,9 +338,7 @@ class PortfolioOptimizer:
     ) -> float:
         """シャープレシオを計算"""
         portfolio_return = self._calculate_portfolio_return(weights, expected_returns)
-        portfolio_volatility = self._calculate_portfolio_volatility(
-            weights, covariance_matrix
-        )
+        portfolio_volatility = self._calculate_portfolio_volatility(weights, covariance_matrix)
 
         if portfolio_volatility == 0:
             return 0.0
@@ -412,15 +361,12 @@ class PortfolioOptimizer:
         max_return = max(expected_returns.values())
 
         return_range = [
-            min_return + (max_return - min_return) * i / (num_portfolios - 1)
-            for i in range(num_portfolios)
+            min_return + (max_return - min_return) * i / (num_portfolios - 1) for i in range(num_portfolios)
         ]
 
         for target_return in return_range:
             # 目標リターンを制約として追加
-            constraints = [
-                OptimizationConstraint("_return", "exact_weight", target_return)
-            ]
+            constraints = [OptimizationConstraint("_return", "exact_weight", target_return)]
 
             # 最小ボラティリティで最適化
             try:
@@ -467,27 +413,19 @@ class PortfolioOptimizer:
                 continue
 
             # リターン制約をチェック
-            portfolio_return = self._calculate_portfolio_return(
-                weights, expected_returns
-            )
+            portfolio_return = self._calculate_portfolio_return(weights, expected_returns)
             if abs(portfolio_return - target_return) > 0.005:  # 0.5%の許容範囲
                 continue
 
-            volatility = self._calculate_portfolio_volatility(
-                weights, covariance_matrix
-            )
+            volatility = self._calculate_portfolio_volatility(weights, covariance_matrix)
 
             if volatility < best_volatility:
                 best_volatility = volatility
                 best_weights = weights
 
         # 結果を作成
-        portfolio_return = self._calculate_portfolio_return(
-            best_weights, expected_returns
-        )
-        sharpe_ratio = self._calculate_sharpe_ratio(
-            best_weights, expected_returns, covariance_matrix
-        )
+        portfolio_return = self._calculate_portfolio_return(best_weights, expected_returns)
+        sharpe_ratio = self._calculate_sharpe_ratio(best_weights, expected_returns, covariance_matrix)
 
         return OptimizationResult(
             objective=OptimizationObjective.MIN_VOLATILITY,

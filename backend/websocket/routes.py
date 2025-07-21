@@ -3,25 +3,26 @@ WebSocket APIルート
 リアルタイムデータ配信のためのWebSocketエンドポイント
 """
 
+import logging
+from datetime import datetime, timezone
+from typing import Optional
+
 from fastapi import (
     APIRouter,
-    WebSocket,
-    WebSocketDisconnect,
     Depends,
     HTTPException,
     Query,
+    WebSocket,
+    WebSocketDisconnect,
 )
-from typing import Optional
-from datetime import datetime, timezone
-import logging
 
-from backend.websocket.manager import (
-    websocket_manager,
-    WebSocketMessage,
-    MessageType,
-    ChannelType,
-)
 from backend.core.security import get_current_user
+from backend.websocket.manager import (
+    ChannelType,
+    MessageType,
+    WebSocketMessage,
+    websocket_manager,
+)
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -98,17 +99,13 @@ async def price_stream_endpoint(
         client_id = await websocket_manager.connect(websocket)
 
         # 価格チャンネルに自動購読
-        await websocket_manager._subscribe_to_channel(
-            client_id, ChannelType.PRICES.value
-        )
+        await websocket_manager._subscribe_to_channel(client_id, ChannelType.PRICES.value)
 
         # 特定のシンボルが指定された場合は個別チャンネルも購読
         if symbols:
             symbol_list = [s.strip().upper() for s in symbols.split(",")]
             for symbol in symbol_list:
-                await websocket_manager._subscribe_to_channel(
-                    client_id, f"{ChannelType.PRICES.value}:{symbol}"
-                )
+                await websocket_manager._subscribe_to_channel(client_id, f"{ChannelType.PRICES.value}:{symbol}")
 
         # 購読完了通知
         await websocket_manager.send_to_client(
@@ -147,9 +144,7 @@ async def trade_stream_endpoint(websocket: WebSocket):
         client_id = await websocket_manager.connect(websocket)
 
         # 取引チャンネルに自動購読
-        await websocket_manager._subscribe_to_channel(
-            client_id, ChannelType.TRADES.value
-        )
+        await websocket_manager._subscribe_to_channel(client_id, ChannelType.TRADES.value)
 
         await websocket_manager.send_to_client(
             client_id,
@@ -197,9 +192,7 @@ async def broadcast_message(
         raise HTTPException(status_code=403, detail="管理者権限が必要です")
 
     try:
-        message = WebSocketMessage(
-            type=MessageType.SYSTEM_ALERT, channel=ChannelType.ALERTS, data=message_data
-        )
+        message = WebSocketMessage(type=MessageType.SYSTEM_ALERT, channel=ChannelType.ALERTS, data=message_data)
 
         if channel:
             await websocket_manager.broadcast_to_channel(channel, message)
@@ -214,9 +207,7 @@ async def broadcast_message(
 
 
 @router.post("/send")
-async def send_message_to_client(
-    client_id: str, message_data: dict, current_user: dict = Depends(get_current_user)
-):
+async def send_message_to_client(client_id: str, message_data: dict, current_user: dict = Depends(get_current_user)):
     """
     特定のクライアントにメッセージを送信
     """
@@ -224,9 +215,7 @@ async def send_message_to_client(
         raise HTTPException(status_code=403, detail="権限が不足しています")
 
     try:
-        message = WebSocketMessage(
-            type=MessageType.SYSTEM_ALERT, channel=ChannelType.ALERTS, data=message_data
-        )
+        message = WebSocketMessage(type=MessageType.SYSTEM_ALERT, channel=ChannelType.ALERTS, data=message_data)
 
         success = await websocket_manager.send_to_client(client_id, message)
 
@@ -244,9 +233,7 @@ async def send_message_to_client(
 
 
 @router.delete("/connections/{client_id}")
-async def disconnect_client(
-    client_id: str, current_user: dict = Depends(get_current_user)
-):
+async def disconnect_client(client_id: str, current_user: dict = Depends(get_current_user)):
     """
     特定のクライアント接続を強制切断
     """

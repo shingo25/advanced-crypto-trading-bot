@@ -5,11 +5,12 @@ Phase3で実装したAdvancedPortfolioManagerの機能をAPI化
 戦略配分、パフォーマンス追跡、リバランシングなどの機能を提供
 """
 
+import logging
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
-from datetime import datetime
-import logging
 
 from backend.core.security import get_current_user
 from backend.portfolio.strategy_portfolio_manager import (
@@ -17,9 +18,9 @@ from backend.portfolio.strategy_portfolio_manager import (
     StrategyStatus,
 )
 from backend.strategies.base import BaseStrategy
-from backend.strategies.implementations.rsi_strategy import RSIStrategy
-from backend.strategies.implementations.macd_strategy import MACDStrategy
 from backend.strategies.implementations.bollinger_strategy import BollingerBandsStrategy
+from backend.strategies.implementations.macd_strategy import MACDStrategy
+from backend.strategies.implementations.rsi_strategy import RSIStrategy
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -41,12 +42,8 @@ class StrategyAllocationRequest(BaseModel):
     """戦略追加リクエスト"""
 
     strategy_type: str = Field(..., description="戦略タイプ (rsi, macd, bollinger)")
-    allocation_weight: float = Field(
-        ..., ge=0.01, le=1.0, description="配分重み (0.01-1.0)"
-    )
-    parameters: Optional[Dict[str, Any]] = Field(
-        default_factory=dict, description="戦略パラメータ"
-    )
+    allocation_weight: float = Field(..., ge=0.01, le=1.0, description="配分重み (0.01-1.0)")
+    parameters: Optional[Dict[str, Any]] = Field(default_factory=dict, description="戦略パラメータ")
     symbol: str = Field(default="BTCUSDT", description="取引シンボル")
     timeframe: str = Field(default="1h", description="時間足")
 
@@ -179,9 +176,7 @@ async def get_portfolio_summary(current_user: dict = Depends(get_current_user)):
             if allocation:
                 strategy_allocations[strategy_name] = StrategyAllocationResponse(
                     strategy_name=strategy_name,
-                    strategy_type=allocation.strategy_instance.__class__.__name__.replace(
-                        "Strategy", ""
-                    ).lower(),
+                    strategy_type=allocation.strategy_instance.__class__.__name__.replace("Strategy", "").lower(),
                     allocation_weight=alloc_data["target_weight"],
                     allocated_capital=alloc_data["allocated_capital"],
                     status=alloc_data["status"],
@@ -201,15 +196,11 @@ async def get_portfolio_summary(current_user: dict = Depends(get_current_user)):
 
     except Exception as e:
         logger.error(f"Failed to get portfolio summary: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get portfolio summary: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get portfolio summary: {str(e)}")
 
 
 @router.post("/strategies", response_model=StrategyAllocationResponse)
-async def add_strategy(
-    request: StrategyAllocationRequest, current_user: dict = Depends(get_current_user)
-):
+async def add_strategy(request: StrategyAllocationRequest, current_user: dict = Depends(get_current_user)):
     """新しい戦略をポートフォリオに追加"""
     try:
         portfolio_manager = get_portfolio_manager()
@@ -230,13 +221,9 @@ async def add_strategy(
         )
 
         if not success:
-            raise HTTPException(
-                status_code=400, detail="Failed to add strategy to portfolio"
-            )
+            raise HTTPException(status_code=400, detail="Failed to add strategy to portfolio")
 
-        logger.info(
-            f"Strategy {strategy.name} added to portfolio by user {current_user['id']}"
-        )
+        logger.info(f"Strategy {strategy.name} added to portfolio by user {current_user['id']}")
 
         # 追加された戦略情報を返す
         allocation = portfolio_manager.strategy_allocations[strategy.name]
@@ -259,9 +246,7 @@ async def add_strategy(
 
 
 @router.delete("/strategies/{strategy_name}")
-async def remove_strategy(
-    strategy_name: str, current_user: dict = Depends(get_current_user)
-):
+async def remove_strategy(strategy_name: str, current_user: dict = Depends(get_current_user)):
     """戦略をポートフォリオから削除"""
     try:
         portfolio_manager = get_portfolio_manager()
@@ -270,16 +255,12 @@ async def remove_strategy(
         if not success:
             raise HTTPException(status_code=404, detail="Strategy not found")
 
-        logger.info(
-            f"Strategy {strategy_name} removed from portfolio by user {current_user['id']}"
-        )
+        logger.info(f"Strategy {strategy_name} removed from portfolio by user {current_user['id']}")
         return {"message": f"Strategy {strategy_name} removed successfully"}
 
     except Exception as e:
         logger.error(f"Failed to remove strategy {strategy_name}: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to remove strategy: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to remove strategy: {str(e)}")
 
 
 @router.patch("/strategies/{strategy_name}/status")
@@ -311,26 +292,18 @@ async def update_strategy_status(
         if not success:
             raise HTTPException(status_code=404, detail="Strategy not found")
 
-        logger.info(
-            f"Strategy {strategy_name} status updated to {status_update.status} by user {current_user['id']}"
-        )
-        return {
-            "message": f"Strategy {strategy_name} status updated to {status_update.status}"
-        }
+        logger.info(f"Strategy {strategy_name} status updated to {status_update.status} by user {current_user['id']}")
+        return {"message": f"Strategy {strategy_name} status updated to {status_update.status}"}
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Failed to update strategy status: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to update strategy status: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to update strategy status: {str(e)}")
 
 
 @router.get("/strategies/{strategy_name}/performance", response_model=Dict[str, Any])
-async def get_strategy_performance(
-    strategy_name: str, current_user: dict = Depends(get_current_user)
-):
+async def get_strategy_performance(strategy_name: str, current_user: dict = Depends(get_current_user)):
     """特定戦略のパフォーマンスを取得"""
     try:
         portfolio_manager = get_portfolio_manager()
@@ -358,9 +331,7 @@ async def get_strategy_performance(
         raise
     except Exception as e:
         logger.error(f"Failed to get strategy performance: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get strategy performance: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get strategy performance: {str(e)}")
 
 
 @router.get("/correlation", response_model=Dict[str, Any])
@@ -385,9 +356,7 @@ async def get_strategy_correlation(current_user: dict = Depends(get_current_user
 
     except Exception as e:
         logger.error(f"Failed to get strategy correlation: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get strategy correlation: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get strategy correlation: {str(e)}")
 
 
 @router.post("/rebalance", response_model=RebalanceResponse)
@@ -399,8 +368,7 @@ async def get_rebalance_recommendations(current_user: dict = Depends(get_current
 
         # 現在の配分を取得
         current_allocations = {
-            name: allocation.target_weight
-            for name, allocation in portfolio_manager.strategy_allocations.items()
+            name: allocation.target_weight for name, allocation in portfolio_manager.strategy_allocations.items()
         }
 
         # 推奨配分を計算（リバランシングアクション適用後）
@@ -411,26 +379,12 @@ async def get_rebalance_recommendations(current_user: dict = Depends(get_current
 
         # 期待される改善効果を計算
         expected_improvement = {
-            "risk_reduction": len(
-                [
-                    a
-                    for a in rebalance_actions
-                    if "reduce" in a.get("reason", "").lower()
-                ]
-            ),
+            "risk_reduction": len([a for a in rebalance_actions if "reduce" in a.get("reason", "").lower()]),
             "diversification_improvement": len(
-                [
-                    a
-                    for a in rebalance_actions
-                    if "diversif" in a.get("reason", "").lower()
-                ]
+                [a for a in rebalance_actions if "diversif" in a.get("reason", "").lower()]
             ),
             "performance_optimization": len(
-                [
-                    a
-                    for a in rebalance_actions
-                    if "performance" in a.get("reason", "").lower()
-                ]
+                [a for a in rebalance_actions if "performance" in a.get("reason", "").lower()]
             ),
         }
 
@@ -443,9 +397,7 @@ async def get_rebalance_recommendations(current_user: dict = Depends(get_current
 
     except Exception as e:
         logger.error(f"Failed to get rebalance recommendations: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get rebalance recommendations: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get rebalance recommendations: {str(e)}")
 
 
 @router.get("/risk-report", response_model=Dict[str, Any])
@@ -459,9 +411,7 @@ async def get_portfolio_risk_report(current_user: dict = Depends(get_current_use
 
     except Exception as e:
         logger.error(f"Failed to get portfolio risk report: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get portfolio risk report: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get portfolio risk report: {str(e)}")
 
 
 @router.post("/optimize", response_model=Dict[str, Any])
@@ -475,9 +425,7 @@ async def get_portfolio_optimization(current_user: dict = Depends(get_current_us
 
     except Exception as e:
         logger.error(f"Failed to get portfolio optimization: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get portfolio optimization: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get portfolio optimization: {str(e)}")
 
 
 @router.get("/health")

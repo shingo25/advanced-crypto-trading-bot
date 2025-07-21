@@ -2,15 +2,15 @@
 監視・アラートシステム
 """
 
-import logging
-from typing import Dict, List, Optional, Any
-from datetime import datetime, timezone, timedelta
-from dataclasses import dataclass, field
-from enum import Enum
 import json
+import logging
 import smtplib
-from email.mime.text import MIMEText
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta, timezone
 from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -79,9 +79,7 @@ class AlertRule:
         if self.last_triggered is None:
             return True
 
-        time_since_last = (
-            datetime.now(timezone.utc) - self.last_triggered
-        ).total_seconds()
+        time_since_last = (datetime.now(timezone.utc) - self.last_triggered).total_seconds()
         return time_since_last >= self.cooldown_seconds
 
     def trigger(self):
@@ -295,9 +293,7 @@ class AlertManager:
         )
         rule.trigger()
 
-    def report_order_execution_issue(
-        self, order_id: str, symbol: str, error_message: str
-    ):
+    def report_order_execution_issue(self, order_id: str, symbol: str, error_message: str):
         """注文実行の問題を報告"""
         self.create_alert(
             alert_type=AlertType.ORDER_EXECUTION,
@@ -326,9 +322,7 @@ class AlertManager:
             filtered_alerts = [a for a in filtered_alerts if a.alert_type == alert_type]
 
         if acknowledged is not None:
-            filtered_alerts = [
-                a for a in filtered_alerts if a.acknowledged == acknowledged
-            ]
+            filtered_alerts = [a for a in filtered_alerts if a.acknowledged == acknowledged]
 
         # 最新のアラートを返す
         return sorted(filtered_alerts, key=lambda x: x.created_at, reverse=True)[:limit]
@@ -356,18 +350,14 @@ class AlertManager:
 
     def _cleanup_old_alerts(self):
         """古いアラートを削除"""
-        cutoff_date = datetime.now(timezone.utc) - timedelta(
-            days=self.config["alert_retention_days"]
-        )
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=self.config["alert_retention_days"])
 
         old_count = len(self.alerts)
         self.alerts = [alert for alert in self.alerts if alert.created_at > cutoff_date]
 
         # 最大数を超えた場合は古いものから削除
         if len(self.alerts) > self.config["max_alerts"]:
-            self.alerts = sorted(self.alerts, key=lambda x: x.created_at, reverse=True)[
-                : self.config["max_alerts"]
-            ]
+            self.alerts = sorted(self.alerts, key=lambda x: x.created_at, reverse=True)[: self.config["max_alerts"]]
 
         removed_count = old_count - len(self.alerts)
         if removed_count > 0:
@@ -423,9 +413,7 @@ Data:
             msg.attach(MIMEText(body, "plain"))
 
             # SMTPサーバーに接続して送信
-            server = smtplib.SMTP(
-                email_config["smtp_server"], email_config["smtp_port"]
-            )
+            server = smtplib.SMTP(email_config["smtp_server"], email_config["smtp_port"])
             server.starttls()
             server.login(email_config["username"], email_config["password"])
             server.send_message(msg)
@@ -459,19 +447,12 @@ Data:
 
         return {
             "total_alerts": len(self.alerts),
-            "unacknowledged_alerts": len(
-                [a for a in self.alerts if not a.acknowledged]
-            ),
+            "unacknowledged_alerts": len([a for a in self.alerts if not a.acknowledged]),
             "alerts_last_24h": len(recent_alerts),
             "alerts_last_7d": len(weekly_alerts),
-            "alerts_by_level": {
-                level.value: len([a for a in self.alerts if a.level == level])
-                for level in AlertLevel
-            },
+            "alerts_by_level": {level.value: len([a for a in self.alerts if a.level == level]) for level in AlertLevel},
             "alerts_by_type": {
-                alert_type.value: len(
-                    [a for a in self.alerts if a.alert_type == alert_type]
-                )
+                alert_type.value: len([a for a in self.alerts if a.alert_type == alert_type])
                 for alert_type in AlertType
             },
             "active_rules": len([r for r in self.alert_rules.values() if r.enabled]),
@@ -501,13 +482,9 @@ Data:
                 "data": alert.data,
                 "created_at": alert.created_at.isoformat(),
                 "acknowledged": alert.acknowledged,
-                "acknowledged_at": alert.acknowledged_at.isoformat()
-                if alert.acknowledged_at
-                else None,
+                "acknowledged_at": alert.acknowledged_at.isoformat() if alert.acknowledged_at else None,
             }
-            for alert in sorted(
-                filtered_alerts, key=lambda x: x.created_at, reverse=True
-            )
+            for alert in sorted(filtered_alerts, key=lambda x: x.created_at, reverse=True)
         ]
 
 
@@ -541,9 +518,7 @@ class PerformanceMonitor:
         # パフォーマンスアラートをチェック
         self._check_strategy_performance_alerts(strategy_name, metrics)
 
-    def _check_strategy_performance_alerts(
-        self, strategy_name: str, metrics: Dict[str, Any]
-    ):
+    def _check_strategy_performance_alerts(self, strategy_name: str, metrics: Dict[str, Any]):
         """戦略パフォーマンスアラートをチェック"""
 
         # シャープレシオが低い

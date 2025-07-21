@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 try:
     import pandas as pd
@@ -9,9 +9,9 @@ try:
     HAS_PANDAS = True
 except ImportError:
     HAS_PANDAS = False
-from datetime import datetime
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -102,9 +102,7 @@ class BaseStrategy(ABC):
             self.data = pd.DataFrame([new_row])
         else:
             if hasattr(self.data, "tail"):
-                self.data = pd.concat(
-                    [self.data, pd.DataFrame([new_row])], ignore_index=True
-                )
+                self.data = pd.concat([self.data, pd.DataFrame([new_row])], ignore_index=True)
             else:
                 self.data = pd.DataFrame([new_row])
 
@@ -179,9 +177,7 @@ class BaseStrategy(ABC):
 
     def get_performance_stats(self) -> Dict[str, Any]:
         """パフォーマンス統計を取得"""
-        win_rate = (
-            self.winning_trades / self.trades_count if self.trades_count > 0 else 0
-        )
+        win_rate = self.winning_trades / self.trades_count if self.trades_count > 0 else 0
 
         return {
             "total_trades": self.trades_count,
@@ -336,9 +332,7 @@ class TechnicalIndicators:
         return result
 
     @staticmethod
-    def macd(
-        data: List[float], fast: int = 12, slow: int = 26, signal: int = 9
-    ) -> Dict[str, List[float]]:
+    def macd(data: List[float], fast: int = 12, slow: int = 26, signal: int = 9) -> Dict[str, List[float]]:
         """MACD"""
         if not HAS_PANDAS:
             ema_fast = TechnicalIndicators.ema(data, fast)
@@ -378,9 +372,7 @@ class TechnicalIndicators:
             }
 
     @staticmethod
-    def bollinger_bands(
-        data: List[float], period: int = 20, std_dev: float = 2
-    ) -> Dict[str, List[float]]:
+    def bollinger_bands(data: List[float], period: int = 20, std_dev: float = 2) -> Dict[str, List[float]]:
         """ボリンジャーバンド"""
         if not HAS_PANDAS:
             sma_values = TechnicalIndicators.sma(data, period)
@@ -396,12 +388,8 @@ class TechnicalIndicators:
                     variance = sum((x - mean) ** 2 for x in window_data) / period
                     std_values.append(variance**0.5)
 
-            upper_band = [
-                sma + (std * std_dev) for sma, std in zip(sma_values, std_values)
-            ]
-            lower_band = [
-                sma - (std * std_dev) for sma, std in zip(sma_values, std_values)
-            ]
+            upper_band = [sma + (std * std_dev) for sma, std in zip(sma_values, std_values)]
+            lower_band = [sma - (std * std_dev) for sma, std in zip(sma_values, std_values)]
 
             return {"sma": sma_values, "upper": upper_band, "lower": lower_band}
 
@@ -477,9 +465,7 @@ class StrategyValidator:
 
             elif signal.action == "enter_short":
                 if position_state["short"]:
-                    logger.error(
-                        "Attempting to enter short position while already short"
-                    )
+                    logger.error("Attempting to enter short position while already short")
                     return False
                 if position_state["long"]:
                     logger.error("Attempting to enter short position while long")
@@ -503,9 +489,7 @@ class StrategyValidator:
             return True
 
         if len(data) < strategy.get_required_data_length():
-            logger.error(
-                f"Insufficient data: required {strategy.get_required_data_length()}, got {len(data)}"
-            )
+            logger.error(f"Insufficient data: required {strategy.get_required_data_length()}, got {len(data)}")
             return False
 
         # 必要な列の存在チェック

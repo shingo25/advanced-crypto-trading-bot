@@ -10,8 +10,8 @@ import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Dict, Any, Optional, List
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
 from ...models.alerts import UnifiedAlert
 
@@ -133,9 +133,7 @@ class NotificationChannel(ABC):
 
         # 1分前より古いリクエストを除去
         self._rate_limiter["requests"] = [
-            req_time
-            for req_time in self._rate_limiter["requests"]
-            if req_time > minute_ago
+            req_time for req_time in self._rate_limiter["requests"] if req_time > minute_ago
         ]
 
         # レート制限チェック
@@ -152,9 +150,7 @@ class NotificationChannel(ABC):
         # レベルフィルター
         if config.min_level:
             level_order = {"info": 1, "warning": 2, "error": 3, "critical": 4}
-            if level_order.get(alert.level.value, 0) < level_order.get(
-                config.min_level, 0
-            ):
+            if level_order.get(alert.level.value, 0) < level_order.get(config.min_level, 0):
                 return False
 
         # カテゴリフィルター
@@ -170,9 +166,7 @@ class NotificationChannel(ABC):
         return True
 
     @abstractmethod
-    async def _send_notification(
-        self, alert: UnifiedAlert, formatted_message: str
-    ) -> NotificationResult:
+    async def _send_notification(self, alert: UnifiedAlert, formatted_message: str) -> NotificationResult:
         """実際の通知送信処理（サブクラスで実装）"""
         pass
 
@@ -213,9 +207,7 @@ class NotificationChannel(ABC):
             lines.append(f"**Strategy:** {alert.metadata.strategy_name}")
 
         if alert.recommended_actions:
-            actions = ", ".join(
-                [action.description for action in alert.recommended_actions]
-            )
+            actions = ", ".join([action.description for action in alert.recommended_actions])
             lines.append(f"**Recommended Actions:** {actions}")
 
         return "\n".join(lines)
@@ -225,11 +217,7 @@ class NotificationChannel(ABC):
         level_emoji = {"info": "ℹ️", "warning": "⚠️", "error": "❌", "critical": "🚨"}
 
         emoji = level_emoji.get(alert.level.value, "")
-        symbol_str = (
-            f" [{alert.metadata.symbol}]"
-            if alert.metadata and alert.metadata.symbol
-            else ""
-        )
+        symbol_str = f" [{alert.metadata.symbol}]" if alert.metadata and alert.metadata.symbol else ""
 
         return f"{emoji} {alert.level.value.upper()}{symbol_str}: {alert.message}"
 
@@ -242,14 +230,10 @@ class NotificationChannel(ABC):
             metadata_lines = []
 
             if alert.metadata.current_value is not None:
-                metadata_lines.append(
-                    f"**Current Value:** {alert.metadata.current_value}"
-                )
+                metadata_lines.append(f"**Current Value:** {alert.metadata.current_value}")
 
             if alert.metadata.threshold_value is not None:
-                metadata_lines.append(
-                    f"**Threshold:** {alert.metadata.threshold_value}"
-                )
+                metadata_lines.append(f"**Threshold:** {alert.metadata.threshold_value}")
 
             if alert.metadata.additional_data:
                 for key, value in alert.metadata.additional_data.items():
@@ -321,9 +305,7 @@ class NotificationChannel(ABC):
 
                         # リトライが必要な場合
                         if result.should_retry and attempt < self.config.retry_attempts:
-                            await asyncio.sleep(
-                                self.config.retry_delay_seconds * (attempt + 1)
-                            )
+                            await asyncio.sleep(self.config.retry_delay_seconds * (attempt + 1))
                             last_result = result
                             continue
 
@@ -341,9 +323,7 @@ class NotificationChannel(ABC):
                         )
 
                         if attempt < self.config.retry_attempts:
-                            await asyncio.sleep(
-                                self.config.retry_delay_seconds * (attempt + 1)
-                            )
+                            await asyncio.sleep(self.config.retry_delay_seconds * (attempt + 1))
                             last_result = result
                             continue
 
@@ -361,9 +341,7 @@ class NotificationChannel(ABC):
                         )
 
                         if attempt < self.config.retry_attempts:
-                            await asyncio.sleep(
-                                self.config.retry_delay_seconds * (attempt + 1)
-                            )
+                            await asyncio.sleep(self.config.retry_delay_seconds * (attempt + 1))
                             last_result = result
                             continue
 
@@ -408,13 +386,9 @@ class NotificationChannel(ABC):
         if self._stats["average_response_time"] == 0:
             self._stats["average_response_time"] = execution_time
         else:
-            self._stats["average_response_time"] = (
-                self._stats["average_response_time"] * 0.9 + execution_time * 0.1
-            )
+            self._stats["average_response_time"] = self._stats["average_response_time"] * 0.9 + execution_time * 0.1
 
-    async def send_bulk_alerts(
-        self, alerts: List[UnifiedAlert]
-    ) -> List[NotificationResult]:
+    async def send_bulk_alerts(self, alerts: List[UnifiedAlert]) -> List[NotificationResult]:
         """複数のアラートを一括送信"""
         tasks = [self.send_alert(alert) for alert in alerts]
         results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -440,12 +414,8 @@ class NotificationChannel(ABC):
     def get_stats(self) -> Dict[str, Any]:
         """統計情報を取得"""
         stats = dict(self._stats)
-        stats["success_rate"] = self._stats["total_success"] / max(
-            self._stats["total_sent"], 1
-        )
-        stats["last_sent"] = (
-            self._stats["last_sent"].isoformat() if self._stats["last_sent"] else None
-        )
+        stats["success_rate"] = self._stats["total_success"] / max(self._stats["total_sent"], 1)
+        stats["last_sent"] = self._stats["last_sent"].isoformat() if self._stats["last_sent"] else None
         return stats
 
     async def health_check(self) -> Dict[str, Any]:

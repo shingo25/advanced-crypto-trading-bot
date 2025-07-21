@@ -3,9 +3,10 @@
 """
 
 import logging
-from typing import Dict, List, Optional, Callable, Any
-from datetime import datetime, timezone, timedelta
-from .engine import Order, OrderStatus, OrderType, OrderSide
+from datetime import datetime, timedelta, timezone
+from typing import Any, Callable, Dict, List, Optional
+
+from .engine import Order, OrderSide, OrderStatus, OrderType
 
 logger = logging.getLogger(__name__)
 
@@ -127,11 +128,7 @@ class OrderManager:
 
     def get_orders_by_strategy(self, strategy_name: str) -> List[Order]:
         """戦略別の注文を取得"""
-        return [
-            order
-            for order in self.orders.values()
-            if order.strategy_name == strategy_name
-        ]
+        return [order for order in self.orders.values() if order.strategy_name == strategy_name]
 
     def cancel_orders_by_symbol(self, symbol: str) -> int:
         """シンボル別の注文をキャンセル"""
@@ -192,16 +189,12 @@ class OrderManager:
             return False
 
         # 価格チェック
-        if order.order_type == OrderType.LIMIT and (
-            order.price is None or order.price <= 0
-        ):
+        if order.order_type == OrderType.LIMIT and (order.price is None or order.price <= 0):
             logger.error(f"Invalid limit order price: {order.price}")
             return False
 
         # リスク制限チェック
-        max_position_size = self.config.get("risk_limits", {}).get(
-            "max_position_size", 10000.0
-        )
+        max_position_size = self.config.get("risk_limits", {}).get("max_position_size", 10000.0)
         if order.amount > max_position_size:
             logger.error(f"Order amount exceeds max position size: {order.amount}")
             return False
@@ -239,9 +232,7 @@ class OrderManager:
             )
 
             if result.get("success"):
-                order.update_status(
-                    OrderStatus.FILLED, order.amount, result.get("price")
-                )
+                order.update_status(OrderStatus.FILLED, order.amount, result.get("price"))
                 self._handle_order_filled(order)
             else:
                 order.update_status(OrderStatus.REJECTED)
@@ -307,8 +298,7 @@ class OrderManager:
             "filled_orders": self.stats["filled_orders"],
             "cancelled_orders": self.stats["cancelled_orders"],
             "rejected_orders": self.stats["rejected_orders"],
-            "fill_rate": self.stats["filled_orders"]
-            / max(self.stats["total_orders"], 1),
+            "fill_rate": self.stats["filled_orders"] / max(self.stats["total_orders"], 1),
             "total_volume": self.stats["total_volume"],
             "active_orders": len(self.get_active_orders()),
         }
