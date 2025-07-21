@@ -1,37 +1,38 @@
 {
   "version": 2,
-  "buildCommand": "cd frontend && npm ci && npm run build",
+  "buildCommand": "./scripts/vercel-build.sh",
   "outputDirectory": "frontend/out",
+  "framework": null,
   "functions": {
     "api/**/*.py": {
       "runtime": "python3.9",
       "maxDuration": 30
     }
   },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/auth/(.*)",
-      "dest": "/api/auth.py"
+      "source": "/api/auth/(.*)",
+      "destination": "/api/auth.py"
     },
     {
-      "src": "/api/portfolio/(.*)",
-      "dest": "/api/portfolio.py"
+      "source": "/api/portfolio/(.*)",
+      "destination": "/api/portfolio.py"
     },
     {
-      "src": "/strategies/(.*)",
-      "dest": "/api/strategies.py"
+      "source": "/strategies/(.*)",
+      "destination": "/api/strategies.py"
     },
     {
-      "src": "/api/market-data/(.*)",
-      "dest": "/api/market-data.py"
+      "source": "/api/market-data/(.*)",
+      "destination": "/api/market-data.py"
     },
     {
-      "src": "/health",
-      "dest": "/api/index.py"
+      "source": "/api/(.*)",
+      "destination": "/api/index.py"
     },
     {
-      "src": "/(.*)",
-      "dest": "/api/index.py"
+      "source": "/(.*)",
+      "destination": "/$1"
     }
   ],
   "headers": [
@@ -58,5 +59,8 @@
     "USE_REAL_DATA": "true",
     "RATE_LIMIT_ENABLED": "true",
     "MAX_REQUESTS_PER_MINUTE": "60"
+  },
+  "github": {
+    "silent": false
   }
 }
