@@ -258,6 +258,8 @@ async def remove_strategy(strategy_name: str, current_user: dict = Depends(get_c
         logger.info(f"Strategy {strategy_name} removed from portfolio by user {current_user['id']}")
         return {"message": f"Strategy {strategy_name} removed successfully"}
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Failed to remove strategy {strategy_name}: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to remove strategy: {str(e)}")

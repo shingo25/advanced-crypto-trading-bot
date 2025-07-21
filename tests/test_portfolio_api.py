@@ -185,7 +185,7 @@ class TestPortfolioAPI:
     @pytest.mark.asyncio
     async def test_get_risk_report(self, client, mock_portfolio_manager):
         """リスクレポート取得テスト"""
-        response = await client.get("/api/portfolio/risk")
+        response = await client.get("/api/portfolio/risk-report")
 
         assert response.status_code == 200
         data = response.json()
@@ -194,7 +194,7 @@ class TestPortfolioAPI:
     @pytest.mark.asyncio
     async def test_get_optimization(self, client, mock_portfolio_manager):
         """ポートフォリオ最適化取得テスト"""
-        response = await client.get("/api/portfolio/optimization")
+        response = await client.post("/api/portfolio/optimize")
 
         assert response.status_code == 200
         data = response.json()
@@ -222,7 +222,7 @@ class TestPortfolioAPI:
         assert corr_response.status_code == 200
 
         # 3. リスクレポート取得
-        risk_response = await client.get("/api/portfolio/risk")
+        risk_response = await client.get("/api/portfolio/risk-report")
         assert risk_response.status_code == 200
 
 
