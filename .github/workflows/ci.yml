@@ -171,6 +171,10 @@ jobs:
           # CI環境用の設定を追加
           echo "REDIS_URL=redis://redis:6379" >> .env
           echo "DATABASE_URL=postgresql://postgres:password@localhost:5432/testdb" >> .env
+          echo "CI=true" >> .env
+          echo "GITHUB_ACTIONS=true" >> .env
+          echo "ENVIRONMENT=development" >> .env
+          echo "ENABLE_PRICE_STREAMING=false" >> .env
 
       - name: 🏗️ Build Docker images
         run: |
@@ -181,13 +185,32 @@ jobs:
           DOCKER_BUILDKIT=1 docker compose build --no-cache
 
       - name: 🧪 Test Docker containers
-        run: docker compose up -d
+        run: |
+          echo "🚀 Starting Docker containers..."
+          docker compose up -d
+          echo "📋 Initial container status:"
+          docker compose ps
 
       - name: ⏳ Wait for services to start
-        run: sleep 30
+        run: |
+          echo "⏳ Waiting 60 seconds for services to initialize..."
+          sleep 60
 
-      - name: 🔍 Check container status
-        run: docker compose ps
+      - name: 🔍 Check container status and logs
+        run: |
+          echo "📋 Final container status:"
+          docker compose ps
+          echo ""
+          echo "📝 Backend container logs:"
+          docker compose logs backend || echo "No backend logs available"
+          echo ""
+          echo "📝 Redis container logs:"
+          docker compose logs redis || echo "No redis logs available"
+          echo ""
+          echo "🔍 Testing backend health endpoints:"
+          curl -f http://localhost:8000/health || echo "Health check failed"
+          echo ""
+          curl -f http://localhost:8000/ready || echo "Readiness check failed"
 
       - name: 🧹 Cleanup Docker containers
         if: always()

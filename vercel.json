@@ -19,30 +19,30 @@
       }
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/auth/(.*)",
-      "dest": "/api/auth.py"
+      "source": "/api/auth/(.*)",
+      "destination": "/api/auth.py"
     },
     {
-      "src": "/api/portfolio/(.*)",
-      "dest": "/api/portfolio.py"
+      "source": "/api/portfolio/(.*)",
+      "destination": "/api/portfolio.py"
     },
     {
-      "src": "/strategies/(.*)",
-      "dest": "/api/strategies.py"
+      "source": "/strategies/(.*)",
+      "destination": "/api/strategies.py"
     },
     {
-      "src": "/api/market-data/(.*)",
-      "dest": "/api/market-data.py"
+      "source": "/api/market-data/(.*)",
+      "destination": "/api/market-data.py"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "/api/index.py"
+      "source": "/api/(.*)",
+      "destination": "/api/index.py"
     },
     {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "source": "/(.*)",
+      "destination": "/$1"
     }
   ],
   "headers": [
