@@ -4,7 +4,9 @@
   "outputDirectory": "frontend/out",
   "framework": null,
   "functions": {
-    "api/**/*.py": {}
+    "api/**/*.py": {
+      "runtime": "python3.9"
+    }
   },
   "rewrites": [
     {
@@ -55,7 +57,8 @@
     "ENVIRONMENT": "production",
     "USE_REAL_DATA": "true",
     "RATE_LIMIT_ENABLED": "true",
-    "MAX_REQUESTS_PER_MINUTE": "60"
+    "MAX_REQUESTS_PER_MINUTE": "60",
+    "ENABLE_PRICE_STREAMING": "false"
   },
   "github": {
     "silent": false

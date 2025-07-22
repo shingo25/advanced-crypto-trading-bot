@@ -36,21 +36,27 @@ async def lifespan(app: FastAPI):
     logger.info("Starting crypto bot backend...")
     init_db()
 
-    # 価格配信システムを開始
-    try:
-        await price_stream_manager.start()
-        logger.info("Price streaming system started")
-    except Exception as e:
-        logger.error(f"Failed to start price streaming: {e}")
+    # Docker環境でのみ価格配信システムを開始（Vercelではスキップ）
+    if settings.ENVIRONMENT != "production" and settings.ENABLE_PRICE_STREAMING:
+        try:
+            await price_stream_manager.start()
+            logger.info("Price streaming system started")
+        except Exception as e:
+            logger.error(f"Failed to start price streaming: {e}")
+            # ヘルスチェックに影響させないため、エラーでも続行
+            logger.info("Continuing without price streaming...")
+    else:
+        logger.info("Price streaming disabled for production/serverless environment")
 
     yield
 
     # 価格配信システムを停止
-    try:
-        await price_stream_manager.stop()
-        logger.info("Price streaming system stopped")
-    except Exception as e:
-        logger.error(f"Failed to stop price streaming: {e}")
+    if settings.ENVIRONMENT != "production" and settings.ENABLE_PRICE_STREAMING:
+        try:
+            await price_stream_manager.stop()
+            logger.info("Price streaming system stopped")
+        except Exception as e:
+            logger.error(f"Failed to stop price streaming: {e}")
 
     logger.info("Shutting down crypto bot backend...")
 

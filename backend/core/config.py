@@ -42,6 +42,9 @@ class Settings(BaseSettings):
     # Rate Limiting
     RATE_LIMIT_PER_MINUTE: int = 100
 
+    # Streaming System
+    ENABLE_PRICE_STREAMING: bool = True
+
     # CORS
     ALLOWED_ORIGINS: List[str] = [
         "http://localhost:3000",
