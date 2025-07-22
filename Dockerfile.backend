@@ -20,9 +20,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf ta-lib ta-lib-0.4.0-src.tar.gz
 
 # Python依存関係をコピーしてインストール
-COPY requirements-full.txt .
-COPY requirements-backend.txt .
-RUN pip install --no-cache-dir -r requirements-full.txt && \
+# 確実に存在するファイルのみを使用する安全なアプローチ
+COPY requirements-ci.txt requirements-backend.txt ./
+RUN pip install --no-cache-dir -r requirements-ci.txt && \
     pip install --no-cache-dir -r requirements-backend.txt
 
 # アプリケーションコードをコピー

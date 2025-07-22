@@ -1,0 +1,32 @@
+# Vercel Serverless Functions用最小限依存関係
+# 軽量化のため重いライブラリは除外
+
+# Core Framework
+fastapi==0.109.1
+uvicorn==0.25.0
+python-multipart==0.0.6
+
+# Auth & Security
+python-jose[cryptography]==3.5.0
+passlib[bcrypt]==1.7.4
+cryptography>=42.0.5
+
+# Config & Utilities
+python-dotenv==1.0.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+orjson==3.9.10
+
+# Database & Supabase
+supabase==2.4.2
+asyncpg==0.29.0
+
+# Async & Networking
+httpx==0.26.0
+aiohttp==3.9.1
+
+# Logging
+loguru==0.7.2
+
+# Redis (lightweight)
+redis==5.0.1

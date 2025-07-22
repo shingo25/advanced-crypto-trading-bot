@@ -25,6 +25,10 @@ npm run build
 # Return to root
 cd ..
 
+# Generate requirements.txt for Vercel functions (critical for Python functions)
+echo "📦 Generating requirements.txt for Vercel..."
+cp requirements-vercel.txt api/requirements.txt
+
 # Create a build marker
 echo "📝 Creating build marker..."
 echo "BUILD_TIMESTAMP=$(date -u +%Y%m%d_%H%M%S)" > .vercel_build_info

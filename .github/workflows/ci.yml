@@ -175,6 +175,9 @@ jobs:
       - name: 🏗️ Build Docker images
         run: |
           # CI環境用のビルド引数を設定
+          echo "📦 Verifying requirements files..."
+          ls -la requirements*.txt
+          echo "🐳 Building with Docker Compose..."
           DOCKER_BUILDKIT=1 docker compose build --no-cache
 
       - name: 🧪 Test Docker containers

@@ -1,20 +1,26 @@
 # Phase3 対応フロントエンドDockerfile
 FROM node:20-alpine
 
+# curlをインストール（ヘルスチェック用）
+RUN apk add --no-cache curl
+
 # 作業ディレクトリを設定
 WORKDIR /app
 
 # package.jsonとpackage-lock.jsonをコピー
 COPY frontend/package*.json ./
 
-# 依存関係をインストール
-RUN npm ci --only=production
+# 依存関係をインストール（dev依存関係も含める - ビルドに必要）
+RUN npm ci
 
 # アプリケーションコードをコピー
 COPY frontend/ ./
 
 # Next.jsアプリケーションをビルド
 RUN npm run build
+
+# 本番用依存関係のみ再インストール（ビルド後は不要な依存関係を削除）
+RUN npm ci --only=production && npm cache clean --force
 
 # ポート3000を公開
 EXPOSE 3000
