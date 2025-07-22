@@ -4,9 +4,7 @@
   "outputDirectory": "frontend/out",
   "framework": null,
   "functions": {
-    "api/**/*.py": {
-      "runtime": "@vercel/python"
-    }
+    "api/**/*.py": {}
   },
   "rewrites": [
     {
