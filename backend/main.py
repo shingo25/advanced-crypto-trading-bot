@@ -36,13 +36,21 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     logger.info("Starting crypto bot backend...")
 
-    # データベース初期化（基本動作に必要）
-    try:
-        init_db()
-        logger.info("Database initialized successfully")
-    except Exception as e:
-        logger.error(f"Database initialization failed: {e}")
-        # データベース初期化失敗でもアプリケーションは起動させる
+    # CI環境の検出
+    is_ci_environment = (
+        os.getenv("CI", "false").lower() == "true" or os.getenv("GITHUB_ACTIONS", "false").lower() == "true"
+    )
+
+    # データベース初期化（CI環境以外で実行）
+    if not is_ci_environment:
+        try:
+            init_db()
+            logger.info("Database initialized successfully")
+        except Exception as e:
+            logger.error(f"Database initialization failed: {e}")
+            # データベース初期化失敗でもアプリケーションは起動させる
+    else:
+        logger.info("Skipping database initialization in CI environment")
 
     # 価格配信システム（オプション機能）
     if settings.ENVIRONMENT != "production" and settings.ENABLE_PRICE_STREAMING:
