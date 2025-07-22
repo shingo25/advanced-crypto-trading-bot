@@ -3,35 +3,43 @@
   "buildCommand": "./scripts/vercel-build.sh",
   "outputDirectory": "frontend/out",
   "framework": null,
-  "functions": {
-    "api/**/*.py": {
-      "runtime": "@vercel/python"
+  "builds": [
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "../frontend/out"
+      }
+    },
+    {
+      "src": "api/**/*.py",
+      "use": "@vercel/python"
     }
-  },
-  "rewrites": [
+  ],
+  "routes": [
     {
-      "source": "/api/auth/(.*)",
-      "destination": "/api/auth.py"
+      "src": "/api/auth/(.*)",
+      "dest": "/api/auth.py"
     },
     {
-      "source": "/api/portfolio/(.*)",
-      "destination": "/api/portfolio.py"
+      "src": "/api/portfolio/(.*)",
+      "dest": "/api/portfolio.py"
     },
     {
-      "source": "/strategies/(.*)",
-      "destination": "/api/strategies.py"
+      "src": "/strategies/(.*)",
+      "dest": "/api/strategies.py"
     },
     {
-      "source": "/api/market-data/(.*)",
-      "destination": "/api/market-data.py"
+      "src": "/api/market-data/(.*)",
+      "dest": "/api/market-data.py"
     },
     {
-      "source": "/api/(.*)",
-      "destination": "/api/index.py"
+      "src": "/api/(.*)",
+      "dest": "/api/index.py"
     },
     {
-      "source": "/(.*)",
-      "destination": "/$1"
+      "src": "/(.*)",
+      "dest": "/$1"
     }
   ],
   "headers": [

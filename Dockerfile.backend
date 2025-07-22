@@ -4,20 +4,13 @@ FROM python:3.9-slim
 # 作業ディレクトリを設定
 WORKDIR /app
 
-# システムの依存関係をインストール
+# システムの依存関係をインストール（ta-lib含む）
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    wget \
     curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz \
-    && tar -xzf ta-lib-0.4.0-src.tar.gz \
-    && cd ta-lib/ \
-    && ./configure --prefix=/usr \
-    && make \
-    && make install \
-    && cd .. \
-    && rm -rf ta-lib ta-lib-0.4.0-src.tar.gz
+    libta-lib-dev \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
 
 # Python依存関係をコピーしてインストール
 # 確実に存在するファイルのみを使用する安全なアプローチ

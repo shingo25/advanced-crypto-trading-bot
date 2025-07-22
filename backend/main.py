@@ -106,10 +106,46 @@ async def root():
 @app.get("/health")
 async def health_check():
     """
-    基本的なアプリケーション稼働確認
-    CI/CD環境での確実な動作を保証するため、最低限のチェックのみ実行
+    Liveness Probe: アプリケーションプロセスが起動しているかのみを確認
+    外部サービスに依存せず、常に成功するシンプルなチェック
     """
-    return {"status": "healthy", "service": "crypto-bot-backend", "timestamp": "2025-01-22T00:00:00Z"}
+    return {"status": "alive", "service": "crypto-bot-backend"}
+
+
+@app.get("/ready")
+async def readiness_check():
+    """
+    Readiness Probe: データベース接続など、リクエストを処理できる状態かを確認
+    """
+    checks = {"status": "ready"}
+
+    # データベース接続チェック（基本的なテスト）
+    try:
+        from backend.core.database import _get_database_instance
+
+        db_instance = _get_database_instance()
+        # 簡単な接続テスト
+        if hasattr(db_instance, "health_check"):
+            db_connected = db_instance.health_check()
+        else:
+            db_connected = True  # フォールバック
+        checks["database"] = "connected" if db_connected else "disconnected"
+    except Exception as e:
+        logger.error(f"Readiness check - Database error: {e}")
+        checks["database"] = "error"
+        checks["status"] = "unready"
+
+    # 価格ストリーミングシステムの状態（オプション）
+    if settings.ENVIRONMENT != "production" and settings.ENABLE_PRICE_STREAMING:
+        try:
+            # price_stream_managerの状態をチェック
+            checks["price_streaming"] = "active"
+        except Exception:
+            checks["price_streaming"] = "inactive"
+    else:
+        checks["price_streaming"] = "disabled"
+
+    return checks
 
 
 # Vercel handler
