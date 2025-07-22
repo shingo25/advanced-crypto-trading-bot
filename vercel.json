@@ -6,9 +6,9 @@
   "builds": [
     {
       "src": "frontend/package.json",
-      "use": "@vercel/static-build",
+      "use": "@vercel/next",
       "config": {
-        "distDir": "../frontend/out"
+        "distDir": "out"
       }
     },
     {
