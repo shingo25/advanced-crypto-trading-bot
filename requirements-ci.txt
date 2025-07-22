@@ -73,5 +73,5 @@ requests==2.31.0  # API tests need this
 aiosmtplib==3.0.1  # Alert notification tests
 
 # Additional dependencies for E2E and integration tests
-starlette==0.36.3  # Required for FastAPI testing
+starlette==0.35.1  # FastAPI 0.109.1 compatible version (<0.36.0)
 typing-extensions==4.9.0  # Required for Pydantic compatibility
