@@ -104,6 +104,19 @@ export const authApi = {
       throw error;
     }
   },
+
+  async register(username: string, email: string, password: string): Promise<any> {
+    try {
+      const response = await apiClient.post('/api/auth/register', {
+        username,
+        email,
+        password,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 // ダッシュボードAPI
