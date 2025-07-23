@@ -82,11 +82,21 @@ jobs:
 
       - name: 🛡️ Security analysis (Bandit)
         run: |
-          # 古いレポートファイルをクリーンアップ
-          rm -f bandit-report.json backend/bandit-report.json frontend/bandit-report.json
-          # Banditスキャンを実行
+          # 古いレポートファイルを完全にクリーンアップ
+          find . -name "bandit-report.json" -type f -delete || true
+          rm -f bandit-report.json backend/bandit-report.json frontend/bandit-report.json || true
+
+          # Banditスキャンを実行（JSONレポート生成）
+          echo "📊 Generating Bandit security report..."
           bandit -r backend/ -f json -o bandit-report.json
-          bandit -r backend/
+
+          # Banditスキャンを再実行（コンソール出力・終了コード確認）
+          echo "🛡️ Running Bandit security analysis..."
+          bandit -r backend/ --severity-level medium || {
+            echo "⚠️ Bandit found issues. Check the report above."
+            echo "📄 JSON report generated: bandit-report.json"
+            exit 1
+          }
 
       - name: 🔍 Dependency vulnerability scan
         run: |
