@@ -22,7 +22,7 @@
   "rewrites": [
     {
       "source": "/api/auth/(.*)",
-      "destination": "/api/auth.py"
+      "destination": "/api/auth_simple.py"
     },
     {
       "source": "/api/portfolio/(.*)",
@@ -69,7 +69,10 @@
     "USE_REAL_DATA": "true",
     "RATE_LIMIT_ENABLED": "true",
     "MAX_REQUESTS_PER_MINUTE": "60",
-    "ENABLE_PRICE_STREAMING": "false"
+    "ENABLE_PRICE_STREAMING": "false",
+    "JWT_SECRET_KEY": "prod-jwt-secret-key-vercel-crypto-trading-bot-32-chars-long",
+    "JWT_ALGORITHM": "HS256",
+    "JWT_EXPIRATION": "86400"
   },
   "github": {
     "silent": false
