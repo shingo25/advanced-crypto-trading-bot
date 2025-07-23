@@ -6,17 +6,18 @@ Binance WebSocketから価格データを取得してクライアントに配信
 import asyncio
 import json
 import logging
-import websockets
-from datetime import datetime, timezone
-from typing import Dict, Set, List
 from dataclasses import dataclass
+from datetime import datetime, timezone
+from typing import Dict, List, Set
+
 import aiohttp
+import websockets
 
 from backend.websocket.manager import (
-    websocket_manager,
-    WebSocketMessage,
-    MessageType,
     ChannelType,
+    MessageType,
+    WebSocketMessage,
+    websocket_manager,
 )
 
 logger = logging.getLogger(__name__)
@@ -109,9 +110,7 @@ class BinanceWebSocketStreamer:
         # 24時間統計データを定期取得
         asyncio.create_task(self._fetch_24h_stats_periodically())
 
-        logger.info(
-            f"Binance streamer started with {len(self.default_symbols)} symbols"
-        )
+        logger.info(f"Binance streamer started with {len(self.default_symbols)} symbols")
 
     async def stop(self):
         """ストリーミング停止"""
@@ -128,9 +127,7 @@ class BinanceWebSocketStreamer:
 
     async def subscribe_symbols(self, symbols: List[str]):
         """シンボルを購読"""
-        new_symbols = [
-            s.upper() for s in symbols if s.upper() not in self.subscribed_symbols
-        ]
+        new_symbols = [s.upper() for s in symbols if s.upper() not in self.subscribed_symbols]
 
         if not new_symbols:
             return
@@ -190,9 +187,7 @@ class BinanceWebSocketStreamer:
                             data = json.loads(message)
                             await self._handle_ticker_data(data)
                         except Exception as e:
-                            logger.error(
-                                f"Error processing ticker data for {symbol}: {e}"
-                            )
+                            logger.error(f"Error processing ticker data for {symbol}: {e}")
 
             except Exception as e:
                 logger.error(f"Ticker stream error for {symbol}: {e}")
@@ -221,9 +216,7 @@ class BinanceWebSocketStreamer:
                             data = json.loads(message)
                             await self._handle_trade_data(data)
                         except Exception as e:
-                            logger.error(
-                                f"Error processing trade data for {symbol}: {e}"
-                            )
+                            logger.error(f"Error processing trade data for {symbol}: {e}")
 
             except Exception as e:
                 logger.error(f"Trade stream error for {symbol}: {e}")
@@ -267,9 +260,7 @@ class BinanceWebSocketStreamer:
                 price=float(data["p"]),
                 quantity=float(data["q"]),
                 is_buyer_maker=data["m"],
-                timestamp=datetime.fromtimestamp(
-                    data["T"] / 1000, timezone.utc
-                ).isoformat(),
+                timestamp=datetime.fromtimestamp(data["T"] / 1000, timezone.utc).isoformat(),
                 trade_id=str(data["t"]),
             )
 
@@ -340,9 +331,7 @@ class BinanceWebSocketStreamer:
                                     cached.high_24h = float(ticker["highPrice"])
                                     cached.low_24h = float(ticker["lowPrice"])
                                     cached.change_24h = float(ticker["priceChange"])
-                                    cached.change_percent_24h = float(
-                                        ticker["priceChangePercent"]
-                                    )
+                                    cached.change_percent_24h = float(ticker["priceChangePercent"])
                     else:
                         logger.warning(f"Failed to fetch 24h stats: {response.status}")
 

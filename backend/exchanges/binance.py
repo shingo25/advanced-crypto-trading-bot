@@ -1,25 +1,26 @@
-import ccxt
 import asyncio
-from typing import List, Dict, Optional
+import logging
 from datetime import datetime, timezone
+from typing import Dict, List, Optional
+
+import ccxt
 from tenacity import (
     retry,
+    retry_if_exception_type,
     stop_after_attempt,
     wait_exponential,
-    retry_if_exception_type,
 )
-import logging
 
 from .base import (
-    AbstractExchangeAdapter,
     OHLCV,
+    AbstractExchangeAdapter,
+    APIError,
+    ExchangeError,
     FundingRate,
     OpenInterest,
+    RateLimitError,
     Ticker,
     TimeFrame,
-    ExchangeError,
-    RateLimitError,
-    APIError,
 )
 
 logger = logging.getLogger(__name__)
@@ -86,9 +87,7 @@ class BinanceAdapter(AbstractExchangeAdapter):
             # 非同期でデータを取得
             ohlcv_data = await asyncio.get_event_loop().run_in_executor(
                 None,
-                lambda: self.exchange.fetch_ohlcv(
-                    normalized_symbol, ccxt_timeframe, since_timestamp, limit
-                ),
+                lambda: self.exchange.fetch_ohlcv(normalized_symbol, ccxt_timeframe, since_timestamp, limit),
             )
 
             # OHLCV オブジェクトに変換
@@ -130,23 +129,17 @@ class BinanceAdapter(AbstractExchangeAdapter):
             # Binanceの先物用エンドポイントを使用
             funding_info = await asyncio.get_event_loop().run_in_executor(
                 None,
-                lambda: self.exchange.fapiPublicGetPremiumIndex(
-                    {"symbol": normalized_symbol}
-                ),
+                lambda: self.exchange.fapiPublicGetPremiumIndex({"symbol": normalized_symbol}),
             )
 
             funding_rate = FundingRate(
                 timestamp=datetime.now(timezone.utc),
                 symbol=normalized_symbol,
                 funding_rate=float(funding_info["lastFundingRate"]),
-                next_funding_time=datetime.fromtimestamp(
-                    int(funding_info["nextFundingTime"]) / 1000, tz=timezone.utc
-                ),
+                next_funding_time=datetime.fromtimestamp(int(funding_info["nextFundingTime"]) / 1000, tz=timezone.utc),
             )
 
-            logger.info(
-                f"Fetched funding rate for {symbol}: {funding_rate.funding_rate}"
-            )
+            logger.info(f"Fetched funding rate for {symbol}: {funding_rate.funding_rate}")
             return funding_rate
 
         except ccxt.RateLimitExceeded as e:
@@ -170,25 +163,17 @@ class BinanceAdapter(AbstractExchangeAdapter):
             # Binanceの先物用エンドポイントを使用
             oi_info = await asyncio.get_event_loop().run_in_executor(
                 None,
-                lambda: self.exchange.fapiPublicGetOpenInterest(
-                    {"symbol": normalized_symbol}
-                ),
+                lambda: self.exchange.fapiPublicGetOpenInterest({"symbol": normalized_symbol}),
             )
 
             open_interest = OpenInterest(
-                timestamp=datetime.fromtimestamp(
-                    int(oi_info["time"]) / 1000, tz=timezone.utc
-                ),
+                timestamp=datetime.fromtimestamp(int(oi_info["time"]) / 1000, tz=timezone.utc),
                 symbol=normalized_symbol,
                 open_interest=float(oi_info["openInterest"]),
-                open_interest_value=float(
-                    oi_info["openInterest"]
-                ),  # 値は別途計算が必要
+                open_interest_value=float(oi_info["openInterest"]),  # 値は別途計算が必要
             )
 
-            logger.info(
-                f"Fetched open interest for {symbol}: {open_interest.open_interest}"
-            )
+            logger.info(f"Fetched open interest for {symbol}: {open_interest.open_interest}")
             return open_interest
 
         except ccxt.RateLimitExceeded as e:
@@ -214,9 +199,7 @@ class BinanceAdapter(AbstractExchangeAdapter):
             )
 
             ticker = Ticker(
-                timestamp=datetime.fromtimestamp(
-                    ticker_data["timestamp"] / 1000, tz=timezone.utc
-                ),
+                timestamp=datetime.fromtimestamp(ticker_data["timestamp"] / 1000, tz=timezone.utc),
                 symbol=normalized_symbol,
                 bid=float(ticker_data["bid"]),
                 ask=float(ticker_data["ask"]),
@@ -237,9 +220,7 @@ class BinanceAdapter(AbstractExchangeAdapter):
     async def get_symbols(self) -> List[str]:
         """利用可能なシンボル一覧を取得"""
         try:
-            markets = await asyncio.get_event_loop().run_in_executor(
-                None, lambda: self.exchange.load_markets()
-            )
+            markets = await asyncio.get_event_loop().run_in_executor(None, lambda: self.exchange.load_markets())
 
             symbols = list(markets.keys())
             logger.info(f"Fetched {len(symbols)} symbols from Binance")
@@ -252,9 +233,7 @@ class BinanceAdapter(AbstractExchangeAdapter):
     async def get_balance(self) -> Dict[str, float]:
         """残高を取得"""
         try:
-            balance = await asyncio.get_event_loop().run_in_executor(
-                None, lambda: self.exchange.fetch_balance()
-            )
+            balance = await asyncio.get_event_loop().run_in_executor(None, lambda: self.exchange.fetch_balance())
 
             # フリー残高のみを返す
             free_balance = {
@@ -278,6 +257,4 @@ class BinanceAdapter(AbstractExchangeAdapter):
     async def close(self):
         """接続を閉じる"""
         if self.exchange:
-            await asyncio.get_event_loop().run_in_executor(
-                None, lambda: self.exchange.close()
-            )
+            await asyncio.get_event_loop().run_in_executor(None, lambda: self.exchange.close())

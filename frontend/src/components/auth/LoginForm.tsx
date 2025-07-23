@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
   Box,
   Paper,
@@ -120,6 +121,14 @@ export default function LoginForm() {
             >
               {isLoading ? <CircularProgress size={24} /> : 'ログイン'}
             </Button>
+          </Box>
+
+          <Box sx={{ textAlign: 'center', mt: 2 }}>
+            <Link href="/register" style={{ textDecoration: 'none' }}>
+              <Typography variant="body2" color="primary" sx={{ cursor: 'pointer' }}>
+                新規アカウント作成はこちら
+              </Typography>
+            </Link>
           </Box>
 
           <Box sx={{ mt: 2, p: 2, backgroundColor: 'grey.50', borderRadius: 1 }}>

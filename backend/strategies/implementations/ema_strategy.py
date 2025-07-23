@@ -1,7 +1,8 @@
-import pandas as pd
-import numpy as np
-from typing import Dict, Any, List, Optional
 import logging
+from typing import Any, Dict, List, Optional
+
+import numpy as np
+import pandas as pd
 
 from ..base import BaseStrategy, Signal, TechnicalIndicators
 
@@ -43,9 +44,7 @@ class EMAStrategy(BaseStrategy):
         self.last_cross_type = None  # 'golden' or 'dead'
         self.cross_confirmation_count = 0
 
-        logger.info(
-            f"EMA Strategy initialized: fast={self.parameters['ema_fast']}, slow={self.parameters['ema_slow']}"
-        )
+        logger.info(f"EMA Strategy initialized: fast={self.parameters['ema_fast']}, slow={self.parameters['ema_slow']}")
 
     def calculate_indicators(self, data: pd.DataFrame) -> pd.DataFrame:
         """テクニカル指標を計算"""
@@ -54,20 +53,14 @@ class EMAStrategy(BaseStrategy):
             return data
 
         # EMAを計算
-        data["ema_fast"] = TechnicalIndicators.ema(
-            data["close"], self.parameters["ema_fast"]
-        )
-        data["ema_slow"] = TechnicalIndicators.ema(
-            data["close"], self.parameters["ema_slow"]
-        )
+        data["ema_fast"] = TechnicalIndicators.ema(data["close"], self.parameters["ema_fast"])
+        data["ema_slow"] = TechnicalIndicators.ema(data["close"], self.parameters["ema_slow"])
 
         # 出来高移動平均
         data["volume_sma"] = TechnicalIndicators.sma(data["volume"], 20)
 
         # トレンド強度の計算
-        data["trend_strength"] = (data["ema_fast"] - data["ema_slow"]) / data[
-            "ema_slow"
-        ]
+        data["trend_strength"] = (data["ema_fast"] - data["ema_slow"]) / data["ema_slow"]
 
         # クロスオーバーの検出
         data["cross_above"] = (data["ema_fast"] > data["ema_slow"]) & (
@@ -88,9 +81,7 @@ class EMAStrategy(BaseStrategy):
             data["downtrend"] = True
 
         # 出来高フィルター
-        data["volume_filter"] = data["volume"] > (
-            data["volume_sma"] * self.parameters["volume_threshold"]
-        )
+        data["volume_filter"] = data["volume"] > (data["volume_sma"] * self.parameters["volume_threshold"])
 
         return data
 
@@ -128,20 +119,14 @@ class EMAStrategy(BaseStrategy):
             signals.append(signal)
 
             # ストップロスとテイクプロフィットを設定
-            self.state.stop_loss = current_price * (
-                1 - self.parameters["stop_loss_pct"]
-            )
-            self.state.take_profit = current_price * (
-                1 + self.parameters["take_profit_pct"]
-            )
+            self.state.stop_loss = current_price * (1 - self.parameters["stop_loss_pct"])
+            self.state.take_profit = current_price * (1 + self.parameters["take_profit_pct"])
 
             logger.info(f"Long entry signal: {current_price:.2f}")
 
         # ロングイグジット条件
         elif self.state.is_long and (
-            current["cross_below"]
-            or current_price <= self.state.stop_loss
-            or current_price >= self.state.take_profit
+            current["cross_below"] or current_price <= self.state.stop_loss or current_price >= self.state.take_profit
         ):
             exit_reason = "EMA Dead Cross"
             if current_price <= self.state.stop_loss:
@@ -181,20 +166,14 @@ class EMAStrategy(BaseStrategy):
             signals.append(signal)
 
             # ストップロスとテイクプロフィットを設定
-            self.state.stop_loss = current_price * (
-                1 + self.parameters["stop_loss_pct"]
-            )
-            self.state.take_profit = current_price * (
-                1 - self.parameters["take_profit_pct"]
-            )
+            self.state.stop_loss = current_price * (1 + self.parameters["stop_loss_pct"])
+            self.state.take_profit = current_price * (1 - self.parameters["take_profit_pct"])
 
             logger.info(f"Short entry signal: {current_price:.2f}")
 
         # ショートイグジット条件
         elif self.state.is_short and (
-            current["cross_above"]
-            or current_price >= self.state.stop_loss
-            or current_price <= self.state.take_profit
+            current["cross_above"] or current_price >= self.state.stop_loss or current_price <= self.state.take_profit
         ):
             exit_reason = "EMA Golden Cross"
             if current_price >= self.state.stop_loss:
@@ -237,9 +216,7 @@ class EMAStrategy(BaseStrategy):
             "ema_fast": current["ema_fast"],
             "ema_slow": current["ema_slow"],
             "trend_strength": current["trend_strength"],
-            "trend_direction": "bullish"
-            if current["ema_fast"] > current["ema_slow"]
-            else "bearish",
+            "trend_direction": "bullish" if current["ema_fast"] > current["ema_slow"] else "bearish",
             "volume_filter": current["volume_filter"],
             "uptrend": current["uptrend"],
             "position": {
@@ -263,13 +240,9 @@ class EMAStrategy(BaseStrategy):
 
     def get_required_data_length(self) -> int:
         """必要なデータ長を取得"""
-        return max(
-            self.parameters["ema_slow"] * 2, self.parameters["required_data_length"]
-        )
+        return max(self.parameters["ema_slow"] * 2, self.parameters["required_data_length"])
 
-    def optimize_parameters(
-        self, data: pd.DataFrame, metric: str = "sharpe_ratio"
-    ) -> Dict[str, Any]:
+    def optimize_parameters(self, data: pd.DataFrame, metric: str = "sharpe_ratio") -> Dict[str, Any]:
         """パラメータを最適化"""
 
         from itertools import product
@@ -303,17 +276,13 @@ class EMAStrategy(BaseStrategy):
                 continue
 
         if best_params:
-            logger.info(
-                f"Best parameters found: {best_params}, score: {best_score:.4f}"
-            )
+            logger.info(f"Best parameters found: {best_params}, score: {best_score:.4f}")
             return best_params
         else:
             logger.warning("Parameter optimization failed")
             return self.parameters
 
-    def _backtest_with_params(
-        self, data: pd.DataFrame, params: Dict[str, Any], metric: str
-    ) -> float:
+    def _backtest_with_params(self, data: pd.DataFrame, params: Dict[str, Any], metric: str) -> float:
         """パラメータでバックテストを実行して評価値を返す"""
 
         # 簡易バックテスト（実際の実装では BacktestEngine を使用）
@@ -339,12 +308,7 @@ class EMAStrategy(BaseStrategy):
             row = temp_data.iloc[i]
 
             # ロングエントリー
-            if (
-                row["cross_above"]
-                and row["uptrend"]
-                and row["volume_filter"]
-                and position == 0
-            ):
+            if row["cross_above"] and row["uptrend"] and row["volume_filter"] and position == 0:
                 position = 1
                 entry_price = row["close"]
 
@@ -366,18 +330,10 @@ class EMAStrategy(BaseStrategy):
         returns_array = np.array(returns)
 
         if metric == "sharpe_ratio":
-            return float(
-                np.mean(returns_array) / np.std(returns_array)
-                if np.std(returns_array) > 0
-                else 0.0
-            )
+            return float(np.mean(returns_array) / np.std(returns_array) if np.std(returns_array) > 0 else 0.0)
         elif metric == "total_return":
             return float(np.sum(returns_array))
         elif metric == "win_rate":
             return float(np.mean(returns_array > 0))
         else:
-            return float(
-                np.mean(returns_array) / np.std(returns_array)
-                if np.std(returns_array) > 0
-                else 0.0
-            )
+            return float(np.mean(returns_array) / np.std(returns_array) if np.std(returns_array) > 0 else 0.0)

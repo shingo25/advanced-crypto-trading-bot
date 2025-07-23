@@ -2,10 +2,11 @@
 取引関連のデータモデル（Supabase SDK版）
 """
 
-from typing import Optional, List, Dict, Any
-from datetime import datetime
-from backend.core.supabase_db import SupabaseTable, get_supabase_connection
 import logging
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+from backend.core.supabase_db import SupabaseTable, get_supabase_connection
 
 logger = logging.getLogger(__name__)
 
@@ -84,9 +85,7 @@ class StrategiesModel:
             logger.error(f"戦略無効化エラー (ID: {strategy_id}): {e}")
             return False
 
-    def get_active_strategies(
-        self, user_id: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
+    def get_active_strategies(self, user_id: Optional[str] = None) -> List[Dict[str, Any]]:
         """アクティブな戦略を取得"""
         try:
             filters: Dict[str, Any] = {"is_active": True}
@@ -110,22 +109,16 @@ class TradesModel:
         try:
             trades = self.table.select("*", user_id=user_id)
             # 時間順でソート（最新が先頭）
-            return sorted(trades, key=lambda x: x.get("timestamp", ""), reverse=True)[
-                :limit
-            ]
+            return sorted(trades, key=lambda x: x.get("timestamp", ""), reverse=True)[:limit]
         except Exception as e:
             logger.error(f"ユーザー取引履歴取得エラー (ID: {user_id}): {e}")
             return []
 
-    def get_strategy_trades(
-        self, strategy_id: str, limit: int = 100
-    ) -> List[Dict[str, Any]]:
+    def get_strategy_trades(self, strategy_id: str, limit: int = 100) -> List[Dict[str, Any]]:
         """戦略の取引履歴を取得"""
         try:
             trades = self.table.select("*", strategy_id=strategy_id)
-            return sorted(trades, key=lambda x: x.get("timestamp", ""), reverse=True)[
-                :limit
-            ]
+            return sorted(trades, key=lambda x: x.get("timestamp", ""), reverse=True)[:limit]
         except Exception as e:
             logger.error(f"戦略取引履歴取得エラー (ID: {strategy_id}): {e}")
             return []
@@ -179,9 +172,7 @@ class PositionsModel:
             logger.error(f"ユーザーポジション取得エラー (ID: {user_id}): {e}")
             return []
 
-    def get_position_by_symbol(
-        self, user_id: str, symbol: str
-    ) -> Optional[Dict[str, Any]]:
+    def get_position_by_symbol(self, user_id: str, symbol: str) -> Optional[Dict[str, Any]]:
         """シンボルでポジションを取得"""
         try:
             positions = self.table.select("*", user_id=user_id, symbol=symbol)
@@ -205,9 +196,7 @@ class PositionsModel:
 
             if existing:
                 # 更新
-                return self.table.update(position_data, user_id=user_id, symbol=symbol)[
-                    0
-                ]
+                return self.table.update(position_data, user_id=user_id, symbol=symbol)[0]
             else:
                 # 新規作成
                 position_data.update({"user_id": user_id, "symbol": symbol})

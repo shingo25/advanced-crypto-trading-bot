@@ -3,12 +3,13 @@
 価格ストリーミングシステムの制御とステータス管理
 """
 
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
-from typing import List, Dict, Any
-from pydantic import BaseModel
-from datetime import datetime, timezone
 import asyncio
 import logging
+from datetime import datetime, timezone
+from typing import Any, Dict, List
+
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from pydantic import BaseModel
 
 from backend.core.security import get_current_user
 from backend.streaming.price_streamer import price_stream_manager
@@ -43,9 +44,7 @@ class PriceStreamStats(BaseModel):
 
 
 @router.post("/start")
-async def start_price_streaming(
-    background_tasks: BackgroundTasks, current_user: dict = Depends(get_current_user)
-):
+async def start_price_streaming(background_tasks: BackgroundTasks, current_user: dict = Depends(get_current_user)):
     """
     価格配信システムを開始
     管理者またはアナリストのみ実行可能
@@ -68,9 +67,7 @@ async def start_price_streaming(
 
 
 @router.post("/stop")
-async def stop_price_streaming(
-    background_tasks: BackgroundTasks, current_user: dict = Depends(get_current_user)
-):
+async def stop_price_streaming(background_tasks: BackgroundTasks, current_user: dict = Depends(get_current_user)):
     """
     価格配信システムを停止
     管理者のみ実行可能
@@ -110,9 +107,7 @@ async def get_streaming_status(current_user: dict = Depends(get_current_user)):
 
     except Exception as e:
         logger.error(f"Failed to get streaming status: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"ステータス取得に失敗しました: {e}"
-        )
+        raise HTTPException(status_code=500, detail=f"ステータス取得に失敗しました: {e}")
 
 
 @router.get("/prices")
@@ -132,9 +127,7 @@ async def get_all_prices(current_user: dict = Depends(get_current_user)):
 
     except Exception as e:
         logger.error(f"Failed to get prices: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"価格データ取得に失敗しました: {e}"
-        )
+        raise HTTPException(status_code=500, detail=f"価格データ取得に失敗しました: {e}")
 
 
 @router.get("/prices/{symbol}")
@@ -147,9 +140,7 @@ async def get_symbol_price(symbol: str, current_user: dict = Depends(get_current
         prices = price_stream_manager.get_all_prices()
 
         if symbol not in prices:
-            raise HTTPException(
-                status_code=404, detail=f"シンボル {symbol} が見つかりません"
-            )
+            raise HTTPException(status_code=404, detail=f"シンボル {symbol} が見つかりません")
 
         return {"status": "success", "symbol": symbol, "data": prices[symbol]}
 
@@ -157,15 +148,11 @@ async def get_symbol_price(symbol: str, current_user: dict = Depends(get_current
         raise
     except Exception as e:
         logger.error(f"Failed to get price for {symbol}: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"価格データ取得に失敗しました: {e}"
-        )
+        raise HTTPException(status_code=500, detail=f"価格データ取得に失敗しました: {e}")
 
 
 @router.post("/subscribe", response_model=SymbolSubscriptionResponse)
-async def subscribe_symbols(
-    request: SymbolSubscriptionRequest, current_user: dict = Depends(get_current_user)
-):
+async def subscribe_symbols(request: SymbolSubscriptionRequest, current_user: dict = Depends(get_current_user)):
     """
     シンボルを購読
     """
@@ -197,9 +184,7 @@ async def subscribe_symbols(
 
 
 @router.delete("/subscribe/{symbol}")
-async def unsubscribe_symbol(
-    symbol: str, current_user: dict = Depends(get_current_user)
-):
+async def unsubscribe_symbol(symbol: str, current_user: dict = Depends(get_current_user)):
     """
     シンボルの購読を解除
     """
@@ -232,15 +217,11 @@ async def get_subscribed_symbols(current_user: dict = Depends(get_current_user))
 
     except Exception as e:
         logger.error(f"Failed to get subscribed symbols: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"シンボル一覧取得に失敗しました: {e}"
-        )
+        raise HTTPException(status_code=500, detail=f"シンボル一覧取得に失敗しました: {e}")
 
 
 @router.post("/restart")
-async def restart_price_streaming(
-    background_tasks: BackgroundTasks, current_user: dict = Depends(get_current_user)
-):
+async def restart_price_streaming(background_tasks: BackgroundTasks, current_user: dict = Depends(get_current_user)):
     """
     価格配信システムを再起動
     管理者のみ実行可能
@@ -276,11 +257,7 @@ async def health_check():
         stats = price_stream_manager.get_stats()
 
         # ヘルスチェック基準
-        is_healthy = (
-            stats["manager_running"]
-            and stats["total_symbols"] > 0
-            and stats["binance"]["is_running"]
-        )
+        is_healthy = stats["manager_running"] and stats["total_symbols"] > 0 and stats["binance"]["is_running"]
 
         return {
             "status": "healthy" if is_healthy else "unhealthy",

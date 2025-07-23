@@ -1,6 +1,7 @@
-from pydantic_settings import BaseSettings
-from typing import List
 import secrets
+from typing import List
+
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -41,13 +42,18 @@ class Settings(BaseSettings):
     # Rate Limiting
     RATE_LIMIT_PER_MINUTE: int = 100
 
+    # Streaming System
+    ENABLE_PRICE_STREAMING: bool = True
+
     # CORS
-    ALLOWED_ORIGINS: List[str] = [
-        "http://localhost:3000",
-        "http://localhost:8000",
-        "https://*.vercel.app",
-        "https://crypto-bot-frontend.vercel.app",
-    ]
+    ALLOWED_ORIGINS: str = (
+        "http://localhost:3000,http://localhost:8000,https://*.vercel.app,https://crypto-bot-frontend.vercel.app"
+    )
+
+    @property
+    def allowed_origins_list(self) -> List[str]:
+        """Convert comma-separated ALLOWED_ORIGINS to list"""
+        return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",") if origin.strip()]
 
     # Notifications
     NTFY_TOPIC: str = "crypto-bot-alerts"
@@ -56,6 +62,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"  # Ignore extra environment variables
 
 
 settings = Settings()

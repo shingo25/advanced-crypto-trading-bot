@@ -4,13 +4,12 @@
 """
 
 from .price_streamer import (
-    price_stream_manager,
-    PriceStreamManager,
     BinanceWebSocketStreamer,
     PriceData,
+    PriceStreamManager,
     TradeData,
+    price_stream_manager,
 )
-
 from .routes import router
 
 __all__ = [

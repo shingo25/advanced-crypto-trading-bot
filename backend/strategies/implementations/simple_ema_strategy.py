@@ -1,5 +1,5 @@
-from typing import Dict, Any, List, Optional
 import logging
+from typing import Any, Dict, List, Optional
 
 from ..base import BaseStrategy, Signal
 
@@ -120,12 +120,8 @@ class SimpleEMAStrategy(BaseStrategy):
             signals.append(signal)
 
             # ストップロスとテイクプロフィットを設定
-            self.state.stop_loss = current_price * (
-                1 - self.parameters["stop_loss_pct"]
-            )
-            self.state.take_profit = current_price * (
-                1 + self.parameters["take_profit_pct"]
-            )
+            self.state.stop_loss = current_price * (1 - self.parameters["stop_loss_pct"])
+            self.state.take_profit = current_price * (1 + self.parameters["take_profit_pct"])
 
             logger.info(f"Long entry signal: {current_price:.2f}")
 
@@ -167,9 +163,7 @@ class SimpleEMAStrategy(BaseStrategy):
         analysis = {
             "ema_fast": current_ema_fast,
             "ema_slow": current_ema_slow,
-            "trend_direction": "bullish"
-            if current_ema_fast > current_ema_slow
-            else "bearish",
+            "trend_direction": "bullish" if current_ema_fast > current_ema_slow else "bearish",
             "position": {
                 "is_long": self.state.is_long,
                 "is_short": self.state.is_short,
@@ -183,9 +177,7 @@ class SimpleEMAStrategy(BaseStrategy):
 
     def get_required_data_length(self) -> int:
         """必要なデータ長を取得"""
-        return max(
-            self.parameters["ema_slow"] * 2, self.parameters["required_data_length"]
-        )
+        return max(self.parameters["ema_slow"] * 2, self.parameters["required_data_length"])
 
     def validate_parameters(self) -> bool:
         """パラメータの妥当性を検証"""
@@ -201,10 +193,7 @@ class SimpleEMAStrategy(BaseStrategy):
             logger.error("EMA periods must be positive")
             return False
 
-        if (
-            self.parameters["stop_loss_pct"] <= 0
-            or self.parameters["take_profit_pct"] <= 0
-        ):
+        if self.parameters["stop_loss_pct"] <= 0 or self.parameters["take_profit_pct"] <= 0:
             logger.error("Stop loss and take profit percentages must be positive")
             return False
 

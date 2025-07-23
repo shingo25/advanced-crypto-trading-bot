@@ -3,10 +3,12 @@ Supabase SDKベースのデータベース接続層
 SQLAlchemyの代替として、Supabase SDKを使用したデータベース操作を提供
 """
 
-from typing import Optional, List, Dict, Any
-from supabase import create_client, Client
-from backend.core.config import settings
 import logging
+from typing import Any, Dict, List, Optional
+
+from supabase import Client, create_client
+
+from backend.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -26,9 +28,7 @@ class SupabaseConnection:
             key = settings.SUPABASE_SERVICE_ROLE_KEY
 
             if not url or not key:
-                raise ValueError(
-                    "SUPABASE_URLまたはSUPABASE_SERVICE_ROLE_KEYが設定されていません"
-                )
+                raise ValueError("SUPABASE_URLまたはSUPABASE_SERVICE_ROLE_KEYが設定されていません")
 
             self._client = create_client(url, key)
             logger.info("Supabaseクライアント初期化成功")

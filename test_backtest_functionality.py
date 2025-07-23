@@ -141,7 +141,6 @@ async def test_performance_metrics():
     try:
         print("\n🔍 Testing performance metrics calculation...")
 
-        from backend.backtesting.engine import PerformanceMonitor
         import pandas as pd
         import numpy as np
 
@@ -152,7 +151,6 @@ async def test_performance_metrics():
         test_portfolio = pd.Series(returns, index=dates).cumsum()
 
         # パフォーマンス指標を計算
-        monitor = PerformanceMonitor()
         # シンプルなメトリクス計算のテスト
         metrics = {
             "total_return": test_portfolio.iloc[-1] - test_portfolio.iloc[0],

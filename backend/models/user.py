@@ -2,11 +2,13 @@
 ユーザー関連のデータモデル（Supabase SDK版）
 """
 
-from typing import Optional, List, Dict, Any
-from datetime import datetime
-from backend.core.supabase_db import SupabaseTable, get_supabase_connection
-from pydantic import BaseModel
 import logging
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel
+
+from backend.core.supabase_db import SupabaseTable, get_supabase_connection
 
 logger = logging.getLogger(__name__)
 
@@ -119,9 +121,7 @@ class ExchangesModel:
             logger.error(f"取引所取得エラー (ID: {exchange_id}): {e}")
             return None
 
-    def create_exchange(
-        self, user_id: str, name: str, api_key: str, api_secret: str
-    ) -> Optional[Dict[str, Any]]:
+    def create_exchange(self, user_id: str, name: str, api_key: str, api_secret: str) -> Optional[Dict[str, Any]]:
         """新しい取引所を追加"""
         try:
             exchange_data = {

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Dict
 from enum import Enum
+from typing import Dict
 
 
 class TradeType(Enum):
@@ -23,9 +23,7 @@ class FeeModel(ABC):
         pass
 
     @abstractmethod
-    def calculate_slippage(
-        self, price: float, amount: float, side: str, symbol: str = "BTCUSDT"
-    ) -> float:
+    def calculate_slippage(self, price: float, amount: float, side: str, symbol: str = "BTCUSDT") -> float:
         """スリッページを計算"""
         pass
 
@@ -58,9 +56,7 @@ class SimpleFeeModel(FeeModel):
         else:
             return notional * self.taker_fee
 
-    def calculate_slippage(
-        self, price: float, amount: float, side: str, symbol: str = "BTCUSDT"
-    ) -> float:
+    def calculate_slippage(self, price: float, amount: float, side: str, symbol: str = "BTCUSDT") -> float:
         """スリッページを計算"""
         slippage_amount = price * self.slippage_bps
 
@@ -73,9 +69,7 @@ class SimpleFeeModel(FeeModel):
 class VolumeBasedFeeModel(FeeModel):
     """出来高ベースの手数料モデル"""
 
-    def __init__(
-        self, fee_tiers: Dict[float, Dict[str, float]], base_slippage: float = 0.5
-    ):
+    def __init__(self, fee_tiers: Dict[float, Dict[str, float]], base_slippage: float = 0.5):
         """
         fee_tiers: {volume_threshold: {"maker": fee, "taker": fee}}
         """
@@ -99,9 +93,7 @@ class VolumeBasedFeeModel(FeeModel):
         fee_rate = self._get_fee_rate(volume_30d, trade_type)
         return notional * fee_rate
 
-    def calculate_slippage(
-        self, price: float, amount: float, side: str, symbol: str = "BTCUSDT"
-    ) -> float:
+    def calculate_slippage(self, price: float, amount: float, side: str, symbol: str = "BTCUSDT") -> float:
         """出来高に基づいてスリッページを計算"""
         # 大きな注文ほどスリッページが大きくなる
         size_factor = min(amount / 10.0, 2.0)  # 最大2倍

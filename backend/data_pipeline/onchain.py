@@ -1,10 +1,11 @@
 import asyncio
-import httpx
-from typing import Dict, Any, Optional, List
-from datetime import datetime, timezone, timedelta
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import httpx
 
 from backend.core.config import settings
 from backend.core.database import get_db
@@ -65,16 +66,12 @@ class GlassnodeClient:
         """セッションを閉じる"""
         await self.session.aclose()
 
-    async def _make_request(
-        self, endpoint: str, params: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+    async def _make_request(self, endpoint: str, params: Dict[str, Any]) -> List[Dict[str, Any]]:
         """APIリクエストを実行"""
         params["api_key"] = self.api_key
 
         try:
-            response = await self.session.get(
-                f"{self.base_url}/{endpoint}", params=params
-            )
+            response = await self.session.get(f"{self.base_url}/{endpoint}", params=params)
             response.raise_for_status()
             return response.json()
 
@@ -101,9 +98,7 @@ class GlassnodeClient:
 
         try:
             # 実際のエンドポイントは複数の指標から合成
-            inflow_data = await self._make_request(
-                "addresses/new_non_zero_count", params
-            )
+            inflow_data = await self._make_request("addresses/new_non_zero_count", params)
 
             outflow_data = await self._make_request("addresses/active_count", params)
 
@@ -159,9 +154,7 @@ class GlassnodeClient:
                     timestamp=datetime.fromtimestamp(nvt["t"], tz=timezone.utc),
                     symbol=symbol,
                     nvt_ratio=float(nvt["v"]) if nvt["v"] is not None else 0,
-                    nvt_signal=float(nvt_signal["v"])
-                    if nvt_signal and nvt_signal["v"]
-                    else 0,
+                    nvt_signal=float(nvt_signal["v"]) if nvt_signal and nvt_signal["v"] else 0,
                 )
                 nvt_list.append(nvt_obj)
 
@@ -189,23 +182,17 @@ class GlassnodeClient:
         try:
             nupl_data = await self._make_request("indicators/nupl", params)
 
-            supply_profit_data = await self._make_request(
-                "indicators/supply_profit_relative", params
-            )
+            supply_profit_data = await self._make_request("indicators/supply_profit_relative", params)
 
             nupl_list = []
             for i, nupl in enumerate(nupl_data):
-                supply_profit = (
-                    supply_profit_data[i] if i < len(supply_profit_data) else None
-                )
+                supply_profit = supply_profit_data[i] if i < len(supply_profit_data) else None
 
                 nupl_obj = NUPLData(
                     timestamp=datetime.fromtimestamp(nupl["t"], tz=timezone.utc),
                     symbol=symbol,
                     nupl_value=float(nupl["v"]) if nupl["v"] is not None else 0,
-                    supply_in_profit=float(supply_profit["v"])
-                    if supply_profit and supply_profit["v"]
-                    else 0,
+                    supply_in_profit=float(supply_profit["v"]) if supply_profit and supply_profit["v"] else 0,
                 )
                 nupl_list.append(nupl_obj)
 
@@ -229,16 +216,12 @@ class CryptoQuantClient:
         """セッションを閉じる"""
         await self.session.aclose()
 
-    async def _make_request(
-        self, endpoint: str, params: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    async def _make_request(self, endpoint: str, params: Dict[str, Any]) -> Dict[str, Any]:
         """APIリクエストを実行"""
         headers = {"Authorization": f"Bearer {self.api_key}"}
 
         try:
-            response = await self.session.get(
-                f"{self.base_url}/{endpoint}", params=params, headers=headers
-            )
+            response = await self.session.get(f"{self.base_url}/{endpoint}", params=params, headers=headers)
             response.raise_for_status()
             return response.json()
 
@@ -277,9 +260,7 @@ class CryptoQuantClient:
                 )
                 outflow_list.append(outflow)
 
-            logger.info(
-                f"Fetched {len(outflow_list)} miner outflow records for {symbol}"
-            )
+            logger.info(f"Fetched {len(outflow_list)} miner outflow records for {symbol}")
             return outflow_list
 
         except Exception as e:
@@ -378,9 +359,7 @@ class OnChainDataCollector:
 
         for symbol in symbols:
             try:
-                whale_flows = await self.glassnode_client.get_whale_flow(
-                    symbol=symbol, since=since
-                )
+                whale_flows = await self.glassnode_client.get_whale_flow(symbol=symbol, since=since)
 
                 results[symbol] = whale_flows
 
@@ -406,9 +385,7 @@ class OnChainDataCollector:
 
         for symbol in symbols:
             try:
-                nvt_data = await self.glassnode_client.get_nvt_data(
-                    symbol=symbol, since=since
-                )
+                nvt_data = await self.glassnode_client.get_nvt_data(symbol=symbol, since=since)
 
                 results[symbol] = nvt_data
 
@@ -434,9 +411,7 @@ class OnChainDataCollector:
 
         for symbol in symbols:
             try:
-                outflow_data = await self.cryptoquant_client.get_miner_outflow(
-                    symbol=symbol, since=since
-                )
+                outflow_data = await self.cryptoquant_client.get_miner_outflow(symbol=symbol, since=since)
 
                 results[symbol] = outflow_data
 

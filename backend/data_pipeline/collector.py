@@ -1,15 +1,16 @@
 import asyncio
 import logging
-from typing import List, Dict, Any, Optional
-from datetime import datetime, timedelta, timezone
 from dataclasses import asdict
-import pandas as pd
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-from backend.exchanges.factory import ExchangeFactory
-from backend.exchanges.base import AbstractExchangeAdapter, TimeFrame, OHLCV
+import pandas as pd
+
 from backend.core.database import get_db
 from backend.core.supabase_db import get_supabase_client
+from backend.exchanges.base import OHLCV, AbstractExchangeAdapter, TimeFrame
+from backend.exchanges.factory import ExchangeFactory
 
 logger = logging.getLogger(__name__)
 
@@ -68,13 +69,9 @@ class DataCollector:
             raise RuntimeError("DataCollector not initialized")
 
         try:
-            ohlcv_data = await self.adapter.fetch_ohlcv(
-                symbol=symbol, timeframe=timeframe, since=since, limit=limit
-            )
+            ohlcv_data = await self.adapter.fetch_ohlcv(symbol=symbol, timeframe=timeframe, since=since, limit=limit)
 
-            logger.info(
-                f"Collected {len(ohlcv_data)} OHLCV records for {symbol} {timeframe.value}"
-            )
+            logger.info(f"Collected {len(ohlcv_data)} OHLCV records for {symbol} {timeframe.value}")
             return ohlcv_data
 
         except Exception as e:
@@ -153,16 +150,12 @@ class DataCollector:
                 await self._save_ohlcv_to_supabase(symbol, timeframe, ohlcv_data)
 
             except Exception as e:
-                logger.error(
-                    f"Error in batch collection for {symbol} {timeframe.value}: {e}"
-                )
+                logger.error(f"Error in batch collection for {symbol} {timeframe.value}: {e}")
                 results[symbol][timeframe.value] = []
 
         return results
 
-    async def _save_ohlcv_to_parquet(
-        self, symbol: str, timeframe: TimeFrame, ohlcv_data: List[OHLCV]
-    ):
+    async def _save_ohlcv_to_parquet(self, symbol: str, timeframe: TimeFrame, ohlcv_data: List[OHLCV]):
         """OHLCV データを Parquet ファイルに保存"""
         if not ohlcv_data:
             return
@@ -186,9 +179,7 @@ class DataCollector:
         df.to_parquet(filepath, index=False)
         logger.info(f"Saved {len(df)} records to {filepath}")
 
-    async def _save_ohlcv_to_supabase(
-        self, symbol: str, timeframe: TimeFrame, ohlcv_data: List[OHLCV]
-    ):
+    async def _save_ohlcv_to_supabase(self, symbol: str, timeframe: TimeFrame, ohlcv_data: List[OHLCV]):
         """OHLCV データを Supabase に保存"""
         if not ohlcv_data:
             return

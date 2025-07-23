@@ -1,11 +1,13 @@
-from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
-from pydantic import BaseModel
-from typing import List, Optional
-from datetime import datetime
-from backend.core.security import get_current_user
-from backend.core.database import get_db
 import json
 import logging
+from datetime import datetime
+from typing import List, Optional
+
+from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
+from pydantic import BaseModel
+
+from backend.core.database import get_db
+from backend.core.security import get_current_user
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -43,15 +45,11 @@ class ConnectionManager:
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         self.active_connections.append(websocket)
-        logger.info(
-            f"WebSocket connection established. Total: {len(self.active_connections)}"
-        )
+        logger.info(f"WebSocket connection established. Total: {len(self.active_connections)}")
 
     def disconnect(self, websocket: WebSocket):
         self.active_connections.remove(websocket)
-        logger.info(
-            f"WebSocket connection closed. Total: {len(self.active_connections)}"
-        )
+        logger.info(f"WebSocket connection closed. Total: {len(self.active_connections)}")
 
     async def send_personal_message(self, message: str, websocket: WebSocket):
         await websocket.send_text(message)
@@ -108,9 +106,7 @@ async def get_trades(
 
 
 @router.get("/positions", response_model=List[Position])
-async def get_positions(
-    strategy_id: Optional[int] = None, current_user: dict = Depends(get_current_user)
-):
+async def get_positions(strategy_id: Optional[int] = None, current_user: dict = Depends(get_current_user)):
     """ポジション一覧を取得"""
     db = get_db()
     query = """

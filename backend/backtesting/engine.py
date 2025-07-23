@@ -1,20 +1,21 @@
-import numpy as np
-import pandas as pd
-from typing import Dict, List, Any, Optional
-from datetime import datetime, timedelta, timezone
-from dataclasses import dataclass, asdict
-from enum import Enum
-import logging
-from pathlib import Path
 import asyncio
+import logging
+import multiprocessing as mp
 import time
 from concurrent.futures import ThreadPoolExecutor
-import multiprocessing as mp
+from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta, timezone
+from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-from backend.risk.position_sizing import RiskManager
+import numpy as np
+import pandas as pd
+
+from backend.core.supabase_db import get_supabase_client
 from backend.fee_models.base import TradeType
 from backend.fee_models.exchanges import FeeModelFactory
-from backend.core.supabase_db import get_supabase_client
+from backend.risk.position_sizing import RiskManager
 
 logger = logging.getLogger(__name__)
 
@@ -41,9 +42,7 @@ class DataValidator:
     """データ品質チェッククラス"""
 
     @staticmethod
-    def validate_ohlcv_data(
-        df: pd.DataFrame, symbol: str, timeframe: str
-    ) -> DataQualityReport:
+    def validate_ohlcv_data(df: pd.DataFrame, symbol: str, timeframe: str) -> DataQualityReport:
         """OHLCVデータの品質をチェック"""
         issues = []
 
@@ -75,9 +74,7 @@ class DataValidator:
                     pct_change = df[col].pct_change().abs()
                     extreme_changes = (pct_change > 0.5).sum()  # 50%以上の変動
                     if extreme_changes > 0:
-                        issues.append(
-                            f"{col}に異常な価格変動({extreme_changes}件)が検出されました"
-                        )
+                        issues.append(f"{col}に異常な価格変動({extreme_changes}件)が検出されました")
 
         # High >= Low の確認
         if "high_price" in df.columns and "low_price" in df.columns:
@@ -89,9 +86,7 @@ class DataValidator:
         if "volume" in df.columns:
             zero_volume = (df["volume"] == 0).sum()
             if zero_volume > len(df) * 0.1:  # 10%以上がゼロボリューム
-                issues.append(
-                    f"ゼロボリュームの割合が高すぎます({zero_volume}/{len(df)})"
-                )
+                issues.append(f"ゼロボリュームの割合が高すぎます({zero_volume}/{len(df)})")
 
         # データカバレッジ計算
         data_coverage = max(0, 1 - (missing_count / max(total_records, 1)))
@@ -126,9 +121,7 @@ class DataValidator:
         return intervals.get(timeframe, timedelta(hours=1))
 
     @staticmethod
-    def _calculate_quality_score(
-        total: int, missing: int, duplicates: int, issues: int
-    ) -> float:
+    def _calculate_quality_score(total: int, missing: int, duplicates: int, issues: int) -> float:
         """品質スコアを計算"""
         if total == 0:
             return 0.0
@@ -177,9 +170,7 @@ class RealDataLoader:
             )
 
             if not response.data:
-                logger.warning(
-                    f"No data found for {symbol} {timeframe} from {start_date} to {end_date}"
-                )
+                logger.warning(f"No data found for {symbol} {timeframe} from {start_date} to {end_date}")
                 return pd.DataFrame()
 
             # DataFrameに変換
@@ -270,9 +261,7 @@ class BacktestOptimizer:
         return df
 
     @staticmethod
-    def split_data_for_parallel_processing(
-        df: pd.DataFrame, num_chunks: int = None
-    ) -> List[pd.DataFrame]:
+    def split_data_for_parallel_processing(df: pd.DataFrame, num_chunks: int = None) -> List[pd.DataFrame]:
         """並列処理用にデータを分割"""
         if num_chunks is None:
             num_chunks = min(mp.cpu_count(), len(df) // 1000)  # 最小1000行/チャンク
@@ -290,9 +279,7 @@ class BacktestOptimizer:
         return chunks
 
     @staticmethod
-    def estimate_processing_time(
-        data_size: int, complexity_factor: float = 1.0
-    ) -> float:
+    def estimate_processing_time(data_size: int, complexity_factor: float = 1.0) -> float:
         """処理時間を推定"""
         # 基本的な推定式（実際の環境に応じて調整）
         base_time_per_row = 0.0001  # 100マイクロ秒/行
@@ -471,9 +458,7 @@ class BacktestEngine:
         self.fee_model = FeeModelFactory.create(exchange)
 
         # ポートフォリオ
-        self.portfolio = Portfolio(
-            equity=initial_capital, cash=initial_capital, positions={}, trades=[]
-        )
+        self.portfolio = Portfolio(equity=initial_capital, cash=initial_capital, positions={}, trades=[])
 
         # 取引記録
         self.orders: List[Order] = []
@@ -526,9 +511,7 @@ class BacktestEngine:
         (
             available_start,
             available_end,
-        ) = await self.data_loader.get_available_data_range(
-            symbol, timeframe, self.exchange
-        )
+        ) = await self.data_loader.get_available_data_range(symbol, timeframe, self.exchange)
 
         if not available_start or not available_end:
             raise ValueError(f"No data available for {symbol} {timeframe}")
@@ -540,14 +523,10 @@ class BacktestEngine:
         if actual_start >= actual_end:
             raise ValueError(f"Invalid date range: {actual_start} to {actual_end}")
 
-        logger.info(
-            f"Running backtest for {symbol} from {actual_start} to {actual_end}"
-        )
+        logger.info(f"Running backtest for {symbol} from {actual_start} to {actual_end}")
 
         # データを読み込み
-        df = await self.data_loader.load_ohlcv_data(
-            symbol, timeframe, actual_start, actual_end, self.exchange
-        )
+        df = await self.data_loader.load_ohlcv_data(symbol, timeframe, actual_start, actual_end, self.exchange)
 
         if df.empty:
             raise ValueError(f"No data loaded for {symbol} {timeframe}")
@@ -559,15 +538,15 @@ class BacktestEngine:
         logger.info(f"Data quality score: {quality_report.quality_score:.3f}")
 
         if not quality_report.is_valid(self.data_quality_threshold):
-            warning_msg = f"Data quality below threshold ({quality_report.quality_score:.3f} < {self.data_quality_threshold})"
+            warning_msg = (
+                f"Data quality below threshold ({quality_report.quality_score:.3f} < {self.data_quality_threshold})"
+            )
             logger.warning(warning_msg)
             if quality_report.issues:
                 logger.warning(f"Issues found: {', '.join(quality_report.issues)}")
 
         # バックテストを実行
-        return await self._run_backtest_on_dataframe(
-            df, strategy, symbol, strategy_name
-        )
+        return await self._run_backtest_on_dataframe(df, strategy, symbol, strategy_name)
 
     async def _run_backtest_on_dataframe(
         self,
@@ -588,9 +567,7 @@ class BacktestEngine:
 
         # 処理時間推定
         estimated_time = self.optimizer.estimate_processing_time(len(df))
-        logger.info(
-            f"Estimated processing time: {estimated_time:.2f} seconds for {len(df)} records"
-        )
+        logger.info(f"Estimated processing time: {estimated_time:.2f} seconds for {len(df)} records")
 
         # エンジンをリセット
         self.reset()
@@ -641,9 +618,7 @@ class BacktestEngine:
         performance_metrics = self.performance_monitor.finish()
         result.metrics["performance"] = performance_metrics
 
-        logger.info(
-            f"Backtest completed in {performance_metrics['total_duration']:.2f} seconds"
-        )
+        logger.info(f"Backtest completed in {performance_metrics['total_duration']:.2f} seconds")
 
         return result
 
@@ -657,15 +632,11 @@ class BacktestEngine:
         if max_workers is None:
             max_workers = min(mp.cpu_count(), len(backtest_configs))
 
-        logger.info(
-            f"Running {len(backtest_configs)} backtests with {max_workers} workers"
-        )
+        logger.info(f"Running {len(backtest_configs)} backtests with {max_workers} workers")
 
         # 実行時間を推定
         total_estimated_time = sum(
-            self.optimizer.estimate_processing_time(
-                config.get("data_size", 1000), config.get("complexity_factor", 1.0)
-            )
+            self.optimizer.estimate_processing_time(config.get("data_size", 1000), config.get("complexity_factor", 1.0))
             for config in backtest_configs
         )
 
@@ -690,9 +661,7 @@ class BacktestEngine:
 
         return results
 
-    async def _run_single_backtest_from_config(
-        self, config: Dict[str, Any]
-    ) -> BacktestResult:
+    async def _run_single_backtest_from_config(self, config: Dict[str, Any]) -> BacktestResult:
         """設定から単一のバックテストを実行"""
         # エンジンの新しいインスタンスを作成（並列実行のため）
         engine = BacktestEngine(
@@ -724,9 +693,7 @@ class BacktestEngine:
         if not self.data_loader:
             raise ValueError("Real data loader not initialized")
 
-        df = await self.data_loader.load_ohlcv_data(
-            symbol, timeframe, start_date, end_date, self.exchange
-        )
+        df = await self.data_loader.load_ohlcv_data(symbol, timeframe, start_date, end_date, self.exchange)
 
         if df.empty:
             # 空のデータの場合のレポート
@@ -782,15 +749,11 @@ class BacktestEngine:
                 "timestamp": timestamp,
                 "equity": self.portfolio.equity,
                 "cash": self.portfolio.cash,
-                "unrealized_pnl": sum(
-                    pos.unrealized_pnl for pos in self.portfolio.positions.values()
-                ),
+                "unrealized_pnl": sum(pos.unrealized_pnl for pos in self.portfolio.positions.values()),
             }
         )
 
-    def _process_long_entry(
-        self, timestamp: datetime, symbol: str, price: float, strategy_name: str
-    ):
+    def _process_long_entry(self, timestamp: datetime, symbol: str, price: float, strategy_name: str):
         """ロングエントリーを処理"""
 
         # 既にポジションがある場合はスキップ
@@ -817,9 +780,7 @@ class BacktestEngine:
         execution_price = price * (1 + self.slippage)
 
         # 手数料を計算
-        fee = self.fee_model.calculate_fee(
-            TradeType.TAKER, execution_price, position_size, symbol
-        )
+        fee = self.fee_model.calculate_fee(TradeType.TAKER, execution_price, position_size, symbol)
 
         # ポジションを作成
         position = Position(
@@ -850,13 +811,9 @@ class BacktestEngine:
         self.portfolio.trades.append(trade)
         self.stats["total_trades"] += 1
 
-        logger.info(
-            f"Long entry: {symbol} @ ${execution_price:.2f}, size: {position_size:.6f}"
-        )
+        logger.info(f"Long entry: {symbol} @ ${execution_price:.2f}, size: {position_size:.6f}")
 
-    def _process_long_exit(
-        self, timestamp: datetime, symbol: str, price: float, strategy_name: str
-    ):
+    def _process_long_exit(self, timestamp: datetime, symbol: str, price: float, strategy_name: str):
         """ロングイグジットを処理"""
 
         if symbol not in self.portfolio.positions:
@@ -871,9 +828,7 @@ class BacktestEngine:
         execution_price = price * (1 - self.slippage)
 
         # 手数料を計算
-        fee = self.fee_model.calculate_fee(
-            TradeType.TAKER, execution_price, position.size, symbol
-        )
+        fee = self.fee_model.calculate_fee(TradeType.TAKER, execution_price, position.size, symbol)
 
         # 損益を計算
         realized_pnl = (execution_price - position.entry_price) * position.size - fee
@@ -904,13 +859,9 @@ class BacktestEngine:
         else:
             self.stats["losing_trades"] += 1
 
-        logger.info(
-            f"Long exit: {symbol} @ ${execution_price:.2f}, PnL: ${realized_pnl:.2f}"
-        )
+        logger.info(f"Long exit: {symbol} @ ${execution_price:.2f}, PnL: ${realized_pnl:.2f}")
 
-    def _process_short_entry(
-        self, timestamp: datetime, symbol: str, price: float, strategy_name: str
-    ):
+    def _process_short_entry(self, timestamp: datetime, symbol: str, price: float, strategy_name: str):
         """ショートエントリーを処理"""
 
         # 既にポジションがある場合はスキップ
@@ -937,9 +888,7 @@ class BacktestEngine:
         execution_price = price * (1 - self.slippage)
 
         # 手数料を計算
-        fee = self.fee_model.calculate_fee(
-            TradeType.TAKER, execution_price, position_size, symbol
-        )
+        fee = self.fee_model.calculate_fee(TradeType.TAKER, execution_price, position_size, symbol)
 
         # ポジションを作成
         position = Position(
@@ -970,13 +919,9 @@ class BacktestEngine:
         self.portfolio.trades.append(trade)
         self.stats["total_trades"] += 1
 
-        logger.info(
-            f"Short entry: {symbol} @ ${execution_price:.2f}, size: {position_size:.6f}"
-        )
+        logger.info(f"Short entry: {symbol} @ ${execution_price:.2f}, size: {position_size:.6f}")
 
-    def _process_short_exit(
-        self, timestamp: datetime, symbol: str, price: float, strategy_name: str
-    ):
+    def _process_short_exit(self, timestamp: datetime, symbol: str, price: float, strategy_name: str):
         """ショートイグジットを処理"""
 
         if symbol not in self.portfolio.positions:
@@ -991,9 +936,7 @@ class BacktestEngine:
         execution_price = price * (1 + self.slippage)
 
         # 手数料を計算
-        fee = self.fee_model.calculate_fee(
-            TradeType.TAKER, execution_price, position.size, symbol
-        )
+        fee = self.fee_model.calculate_fee(TradeType.TAKER, execution_price, position.size, symbol)
 
         # 損益を計算
         realized_pnl = (position.entry_price - execution_price) * position.size - fee
@@ -1024,13 +967,9 @@ class BacktestEngine:
         else:
             self.stats["losing_trades"] += 1
 
-        logger.info(
-            f"Short exit: {symbol} @ ${execution_price:.2f}, PnL: ${realized_pnl:.2f}"
-        )
+        logger.info(f"Short exit: {symbol} @ ${execution_price:.2f}, PnL: ${realized_pnl:.2f}")
 
-    def _calculate_position_size(
-        self, symbol: str, price: float, strategy_name: str
-    ) -> float:
+    def _calculate_position_size(self, symbol: str, price: float, strategy_name: str) -> float:
         """ポジションサイズを計算"""
 
         if self.risk_manager:
@@ -1060,9 +999,7 @@ class BacktestEngine:
 
         # ドローダウンを計算
         if self.stats["peak_equity"] > 0:
-            drawdown = (self.stats["peak_equity"] - current_equity) / self.stats[
-                "peak_equity"
-            ]
+            drawdown = (self.stats["peak_equity"] - current_equity) / self.stats["peak_equity"]
             if drawdown > self.stats["max_drawdown"]:
                 self.stats["max_drawdown"] = drawdown
 
@@ -1106,9 +1043,7 @@ class BacktestEngine:
 
         return result
 
-    def _calculate_performance_metrics(
-        self, equity_df: pd.DataFrame
-    ) -> Dict[str, float]:
+    def _calculate_performance_metrics(self, equity_df: pd.DataFrame) -> Dict[str, float]:
         """パフォーマンス指標を計算（精度向上版）"""
 
         if len(equity_df) < 2:
@@ -1136,36 +1071,22 @@ class BacktestEngine:
         # 年間化リターンの改良計算
         total_return = (equity_df["equity"].iloc[-1] / equity_df["equity"].iloc[0]) - 1
         periods_count = len(returns)
-        annualized_return = (
-            (1 + total_return) ** (periods_per_year / periods_count)
-        ) - 1
+        annualized_return = ((1 + total_return) ** (periods_per_year / periods_count)) - 1
 
         # リスクフリーレート（3%想定）
         risk_free_rate = 0.03
         excess_return = mean_return - (risk_free_rate / periods_per_year)
 
         # シャープレシオ（リスクフリーレート考慮）
-        sharpe_ratio = (
-            (excess_return / std_return * np.sqrt(periods_per_year))
-            if std_return > 0
-            else 0
-        )
+        sharpe_ratio = (excess_return / std_return * np.sqrt(periods_per_year)) if std_return > 0 else 0
 
         # ソルティノレシオ（改良版）
         negative_returns = returns[returns < 0]
         downside_std = negative_returns.std() if len(negative_returns) > 0 else 0
-        sortino_ratio = (
-            (excess_return / downside_std * np.sqrt(periods_per_year))
-            if downside_std > 0
-            else 0
-        )
+        sortino_ratio = (excess_return / downside_std * np.sqrt(periods_per_year)) if downside_std > 0 else 0
 
         # カルマーレシオ（改良版）
-        calmar_ratio = (
-            annualized_return / self.stats["max_drawdown"]
-            if self.stats["max_drawdown"] > 0
-            else 0
-        )
+        calmar_ratio = annualized_return / self.stats["max_drawdown"] if self.stats["max_drawdown"] > 0 else 0
 
         # プロフィットファクターとその他の取引統計
         winning_trades = [t for t in self.portfolio.trades if t.realized_pnl > 0]
@@ -1189,25 +1110,15 @@ class BacktestEngine:
         # VaRとCVaR（精度向上版）
         var_95 = returns.quantile(0.05)
         var_99 = returns.quantile(0.01)
-        cvar_95 = (
-            returns[returns <= var_95].mean()
-            if len(returns[returns <= var_95]) > 0
-            else 0
-        )
-        cvar_99 = (
-            returns[returns <= var_99].mean()
-            if len(returns[returns <= var_99]) > 0
-            else 0
-        )
+        cvar_95 = returns[returns <= var_95].mean() if len(returns[returns <= var_95]) > 0 else 0
+        cvar_99 = returns[returns <= var_99].mean() if len(returns[returns <= var_99]) > 0 else 0
 
         # ベータ計算（市場リターンとの相関 - BTC基準）
         beta = self._calculate_beta(returns) if len(returns) > 30 else 0
 
         # 情報比率（Information Ratio）
         tracking_error = std_return * np.sqrt(periods_per_year)
-        information_ratio = (
-            annualized_return / tracking_error if tracking_error > 0 else 0
-        )
+        information_ratio = annualized_return / tracking_error if tracking_error > 0 else 0
 
         return {
             # 基本リターン指標
@@ -1238,9 +1149,7 @@ class BacktestEngine:
             # ドローダウン分析
             "max_drawdown_duration": dd_analysis.get("max_duration", 0),
             "avg_drawdown": dd_analysis.get("avg_drawdown", 0),
-            "recovery_factor": total_return / self.stats["max_drawdown"]
-            if self.stats["max_drawdown"] > 0
-            else 0,
+            "recovery_factor": total_return / self.stats["max_drawdown"] if self.stats["max_drawdown"] > 0 else 0,
             # その他
             "periods_per_year": periods_per_year,
             "total_periods": periods_count,
@@ -1368,9 +1277,7 @@ class BacktestEngine:
             }
 
             # バックテスト結果をメインテーブルに保存
-            backtest_response = (
-                supabase.table("backtest_results").insert(result_record).execute()
-            )
+            backtest_response = supabase.table("backtest_results").insert(result_record).execute()
 
             if not backtest_response.data:
                 raise Exception("Failed to save backtest result")
@@ -1431,13 +1338,7 @@ class BacktestEngine:
             supabase = get_supabase_client()
 
             # メイン結果を取得
-            result_response = (
-                supabase.table("backtest_results")
-                .select("*")
-                .eq("id", backtest_id)
-                .single()
-                .execute()
-            )
+            result_response = supabase.table("backtest_results").select("*").eq("id", backtest_id).single().execute()
 
             if not result_response.data:
                 return None
@@ -1534,11 +1435,7 @@ class BacktestEngine:
             if strategy_name:
                 query = query.eq("strategy_name", strategy_name)
 
-            response = (
-                query.order("created_at", desc=True)
-                .range(offset, offset + limit - 1)
-                .execute()
-            )
+            response = query.order("created_at", desc=True).range(offset, offset + limit - 1).execute()
 
             return response.data
 

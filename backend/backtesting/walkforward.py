@@ -1,11 +1,12 @@
-import pandas as pd
-import numpy as np
-from typing import Dict, List, Any, Optional, Tuple, Callable
-from datetime import datetime, timedelta
-from concurrent.futures import ProcessPoolExecutor
-import logging
-from pathlib import Path
 import json
+import logging
+from concurrent.futures import ProcessPoolExecutor
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Tuple
+
+import numpy as np
+import pandas as pd
 
 from .engine import BacktestEngine, BacktestResult
 
@@ -30,9 +31,7 @@ class WalkForwardAnalysis:
         self.optimization_results: List[Dict[str, Any]] = []
         self.forward_test_results: List[BacktestResult] = []
 
-        logger.info(
-            f"WalkForwardAnalysis initialized: lookback={lookback_days}d, forward={forward_days}d"
-        )
+        logger.info(f"WalkForwardAnalysis initialized: lookback={lookback_days}d, forward={forward_days}d")
 
     def run_analysis(
         self,
@@ -63,19 +62,13 @@ class WalkForwardAnalysis:
         results = []
 
         for i, (opt_start, opt_end, test_start, test_end) in enumerate(periods):
-            logger.info(
-                f"Processing period {i + 1}/{len(periods)}: {opt_start.date()} to {test_end.date()}"
-            )
+            logger.info(f"Processing period {i + 1}/{len(periods)}: {opt_start.date()} to {test_end.date()}")
 
             # 最適化期間のデータ
-            opt_data = data[
-                (data["timestamp"] >= opt_start) & (data["timestamp"] < opt_end)
-            ]
+            opt_data = data[(data["timestamp"] >= opt_start) & (data["timestamp"] < opt_end)]
 
             # テスト期間のデータ
-            test_data = data[
-                (data["timestamp"] >= test_start) & (data["timestamp"] < test_end)
-            ]
+            test_data = data[(data["timestamp"] >= test_start) & (data["timestamp"] < test_end)]
 
             if len(opt_data) < 100 or len(test_data) < 20:
                 logger.warning(f"Insufficient data for period {i + 1}, skipping...")
@@ -92,9 +85,7 @@ class WalkForwardAnalysis:
             )
 
             # フォワードテスト
-            forward_result = self._run_forward_test(
-                test_data, strategy_func, best_params, initial_capital
-            )
+            forward_result = self._run_forward_test(test_data, strategy_func, best_params, initial_capital)
 
             results.append(
                 {
@@ -184,9 +175,7 @@ class WalkForwardAnalysis:
                             {
                                 "params": params,
                                 "result": result,
-                                "metric_value": self._get_metric_value(
-                                    result, optimization_metric
-                                ),
+                                "metric_value": self._get_metric_value(result, optimization_metric),
                             }
                         )
                 except Exception as e:
@@ -204,9 +193,7 @@ class WalkForwardAnalysis:
 
         return best_result["params"]
 
-    def _generate_parameter_combinations(
-        self, parameter_ranges: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+    def _generate_parameter_combinations(self, parameter_ranges: Dict[str, Any]) -> List[Dict[str, Any]]:
         """パラメータ組み合わせを生成"""
 
         import itertools
@@ -218,11 +205,7 @@ class WalkForwardAnalysis:
         for name, value_range in parameter_ranges.items():
             param_names.append(name)
 
-            if (
-                isinstance(value_range, dict)
-                and "min" in value_range
-                and "max" in value_range
-            ):
+            if isinstance(value_range, dict) and "min" in value_range and "max" in value_range:
                 # 数値範囲の場合
                 min_val = value_range["min"]
                 max_val = value_range["max"]
@@ -384,11 +367,7 @@ class WalkForwardAnalysis:
 
             # シャープレシオを計算
             returns = equity_df["equity"].pct_change().dropna()
-            sharpe_ratio = (
-                returns.mean() / returns.std() * np.sqrt(252 * 24)
-                if returns.std() > 0
-                else 0
-            )
+            sharpe_ratio = returns.mean() / returns.std() * np.sqrt(252 * 24) if returns.std() > 0 else 0
         else:
             initial_capital = 10000
             final_capital = 10000
@@ -409,9 +388,7 @@ class WalkForwardAnalysis:
             "parameter_stability": self._analyze_parameter_stability(results),
         }
 
-    def _analyze_parameter_stability(
-        self, results: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+    def _analyze_parameter_stability(self, results: List[Dict[str, Any]]) -> Dict[str, Any]:
         """パラメータの安定性を分析"""
 
         if not results:
@@ -441,9 +418,7 @@ class WalkForwardAnalysis:
                 cv = std_dev / mean_val if mean_val != 0 else 0
 
                 # 値の変化回数
-                changes = sum(
-                    1 for i in range(1, len(values)) if values[i] != values[i - 1]
-                )
+                changes = sum(1 for i in range(1, len(values)) if values[i] != values[i - 1])
                 change_frequency = changes / (len(values) - 1) if len(values) > 1 else 0
 
                 stability_metrics[param_name] = {
@@ -456,9 +431,7 @@ class WalkForwardAnalysis:
 
         return stability_metrics
 
-    def save_results(
-        self, results: Dict[str, Any], output_dir: str = "walkforward_results"
-    ):
+    def save_results(self, results: Dict[str, Any], output_dir: str = "walkforward_results"):
         """結果を保存"""
 
         output_path = Path(output_dir)
@@ -481,9 +454,7 @@ class WalkForwardAnalysis:
 
         # 取引履歴を保存
         if results["combined_trades"]:
-            trades_df = pd.DataFrame(
-                [trade.to_dict() for trade in results["combined_trades"]]
-            )
+            trades_df = pd.DataFrame([trade.to_dict() for trade in results["combined_trades"]])
             trades_file = output_path / "walkforward_trades.csv"
             trades_df.to_csv(trades_file, index=False)
 
@@ -525,25 +496,17 @@ class MonteCarloAnalysis:
     def __init__(self, num_simulations: int = 1000):
         self.num_simulations = num_simulations
 
-    def run_analysis(
-        self, trades: List[Dict[str, Any]], initial_capital: float = 10000.0
-    ) -> Dict[str, Any]:
+    def run_analysis(self, trades: List[Dict[str, Any]], initial_capital: float = 10000.0) -> Dict[str, Any]:
         """モンテカルロ分析を実行"""
 
-        logger.info(
-            f"Starting Monte Carlo analysis with {self.num_simulations} simulations"
-        )
+        logger.info(f"Starting Monte Carlo analysis with {self.num_simulations} simulations")
 
         if not trades:
             logger.error("No trades provided for Monte Carlo analysis")
             return {}
 
         # 取引からリターンを抽出
-        returns = [
-            trade["realized_pnl"] / initial_capital
-            for trade in trades
-            if trade["realized_pnl"] != 0
-        ]
+        returns = [trade["realized_pnl"] / initial_capital for trade in trades if trade["realized_pnl"] != 0]
 
         if not returns:
             logger.error("No profitable/losing trades found")
@@ -554,9 +517,7 @@ class MonteCarloAnalysis:
 
         for i in range(self.num_simulations):
             # ランダムに取引順序を並び替え
-            shuffled_returns = np.random.choice(
-                returns, size=len(returns), replace=True
-            )
+            shuffled_returns = np.random.choice(returns, size=len(returns), replace=True)
 
             # 資産曲線を計算
             equity_curve = [initial_capital]
@@ -627,17 +588,14 @@ class MonteCarloAnalysis:
                     "95th": np.percentile(max_drawdowns, 95),
                 },
             },
-            "probability_of_loss": sum(1 for r in total_returns if r < 0)
-            / len(total_returns),
+            "probability_of_loss": sum(1 for r in total_returns if r < 0) / len(total_returns),
             "simulation_results": simulation_results,
         }
 
         logger.info("Monte Carlo analysis completed")
         return results
 
-    def save_results(
-        self, results: Dict[str, Any], output_dir: str = "montecarlo_results"
-    ):
+    def save_results(self, results: Dict[str, Any], output_dir: str = "montecarlo_results"):
         """結果を保存"""
 
         output_path = Path(output_dir)

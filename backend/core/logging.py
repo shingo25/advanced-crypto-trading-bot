@@ -1,7 +1,9 @@
 import logging
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
 from rich.logging import RichHandler
+
 from backend.core.config import settings
 
 
@@ -42,6 +44,4 @@ def setup_logging():
     logging.getLogger("httpcore").setLevel(logging.WARNING)
     logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
 
-    root_logger.info(
-        f"Logging initialized. Level: {settings.LOG_LEVEL}, File: {log_file}"
-    )
+    root_logger.info(f"Logging initialized. Level: {settings.LOG_LEVEL}, File: {log_file}")

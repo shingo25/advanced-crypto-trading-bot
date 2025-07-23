@@ -1,6 +1,6 @@
-from abc import ABC, abstractmethod
-from typing import Dict, Any
 import logging
+from abc import ABC, abstractmethod
+from typing import Any, Dict
 
 logger = logging.getLogger(__name__)
 
@@ -118,9 +118,7 @@ class RiskManager:
         self.position_sizers = {
             "fixed": FixedRiskSizer(config.get("fixed_risk_per_trade", 0.02)),
             "kelly": KellyCriterionSizer(config.get("kelly_fraction_cap", 0.5)),
-            "volatility": VolatilityAdjustedSizer(
-                config.get("target_volatility", 0.15)
-            ),
+            "volatility": VolatilityAdjustedSizer(config.get("target_volatility", 0.15)),
         }
 
     def calculate_position_size(
@@ -140,9 +138,7 @@ class RiskManager:
         sizing_method = strategy_config.get("position_sizing", "fixed")
 
         if sizing_method not in self.position_sizers:
-            logger.warning(
-                f"Unknown position sizing method: {sizing_method}, using fixed"
-            )
+            logger.warning(f"Unknown position sizing method: {sizing_method}, using fixed")
             sizing_method = "fixed"
 
         sizer = self.position_sizers[sizing_method]
@@ -159,9 +155,7 @@ class RiskManager:
         max_position_size = self.config.get("max_position_size_pct", 0.1)
         position_size = min(position_size, max_position_size)
 
-        logger.info(
-            f"Position size calculated: {position_size:.4f} for {strategy_name}"
-        )
+        logger.info(f"Position size calculated: {position_size:.4f} for {strategy_name}")
         return position_size
 
     def check_drawdown_limit(self, current_equity: float, peak_equity: float) -> bool:
@@ -173,9 +167,7 @@ class RiskManager:
         max_drawdown = self.config.get("max_drawdown_per_strategy", 0.15)
 
         if drawdown > max_drawdown:
-            logger.warning(
-                f"Drawdown limit exceeded: {drawdown:.4f} > {max_drawdown:.4f}"
-            )
+            logger.warning(f"Drawdown limit exceeded: {drawdown:.4f} > {max_drawdown:.4f}")
             return False
 
         return True

@@ -2,12 +2,12 @@
 ポートフォリオ管理システム
 """
 
-import logging
-from typing import Dict, List, Optional, Any
-from datetime import datetime
-from dataclasses import dataclass, field
-from enum import Enum
 import json
+import logging
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -127,9 +127,7 @@ class Portfolio:
                             "weight_diff": weight_diff,
                             "trade_value": trade_value,
                             "action": "buy" if trade_value > 0 else "sell",
-                            "amount": abs(trade_value) / asset.current_price
-                            if asset.current_price > 0
-                            else 0,
+                            "amount": abs(trade_value) / asset.current_price if asset.current_price > 0 else 0,
                         }
                     )
 
@@ -165,9 +163,7 @@ class Portfolio:
             "total_value": self.total_value,
             "asset_count": len(self.assets),
             "created_at": self.created_at.isoformat(),
-            "last_rebalance": self.last_rebalance.isoformat()
-            if self.last_rebalance
-            else None,
+            "last_rebalance": self.last_rebalance.isoformat() if self.last_rebalance else None,
             "assets": {
                 symbol: {
                     "balance": asset.balance,
@@ -194,9 +190,7 @@ class PortfolioManager:
         }
         logger.info("PortfolioManager initialized")
 
-    def create_portfolio(
-        self, name: str, initial_allocation: Optional[Dict[str, float]] = None
-    ) -> Portfolio:
+    def create_portfolio(self, name: str, initial_allocation: Optional[Dict[str, float]] = None) -> Portfolio:
         """ポートフォリオを作成"""
         portfolio = Portfolio(name=name)
 
@@ -296,9 +290,7 @@ class PortfolioManager:
         """ボラティリティリスクを評価"""
         # 簡単なボラティリティ評価（実際の実装では価格履歴を使用）
         crypto_weight = sum(
-            asset.actual_weight
-            for asset in portfolio.assets.values()
-            if asset.asset_type == AssetType.CRYPTO
+            asset.actual_weight for asset in portfolio.assets.values() if asset.asset_type == AssetType.CRYPTO
         )
 
         if crypto_weight > 0.8:
@@ -336,9 +328,7 @@ class PortfolioManager:
                     "type": "risk_reduction",
                     "priority": "medium",
                     "description": "Portfolio has high risk, consider diversification",
-                    "actions": self._get_risk_reduction_actions(
-                        portfolio, risk_assessment
-                    ),
+                    "actions": self._get_risk_reduction_actions(portfolio, risk_assessment),
                 }
             )
 
@@ -378,10 +368,7 @@ class PortfolioManager:
         """すべてのポートフォリオの概要を取得"""
         return {
             "total_portfolios": len(self.portfolios),
-            "portfolios": {
-                name: portfolio.get_portfolio_summary()
-                for name, portfolio in self.portfolios.items()
-            },
+            "portfolios": {name: portfolio.get_portfolio_summary() for name, portfolio in self.portfolios.items()},
         }
 
     def save_portfolio_state(self, name: str, filepath: str):
@@ -399,9 +386,7 @@ class PortfolioManager:
                     "current_price": asset.current_price,
                     "balance": asset.balance,
                     "target_weight": asset.target_weight,
-                    "last_update": asset.last_update.isoformat()
-                    if asset.last_update
-                    else None,
+                    "last_update": asset.last_update.isoformat() if asset.last_update else None,
                 }
                 for symbol, asset in portfolio.assets.items()
             },
@@ -409,9 +394,7 @@ class PortfolioManager:
             "rebalance_threshold": portfolio.rebalance_threshold,
             "min_trade_amount": portfolio.min_trade_amount,
             "created_at": portfolio.created_at.isoformat(),
-            "last_rebalance": portfolio.last_rebalance.isoformat()
-            if portfolio.last_rebalance
-            else None,
+            "last_rebalance": portfolio.last_rebalance.isoformat() if portfolio.last_rebalance else None,
         }
 
         with open(filepath, "w") as f:

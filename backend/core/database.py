@@ -2,12 +2,13 @@
 Supabase SDKベースのデータベース操作（DuckDB移植版）
 """
 
-from typing import Optional, Dict, Any, List, Union
-from backend.models.user import get_profiles_model
-from backend.core.supabase_db import get_supabase_connection
-from backend.core.config import settings
 import logging
 import uuid
+from typing import Any, Dict, List, Optional, Union
+
+from backend.core.config import settings
+from backend.core.supabase_db import get_supabase_connection
+from backend.models.user import get_profiles_model
 
 logger = logging.getLogger(__name__)
 
@@ -31,9 +32,7 @@ class Database:
         """接続の健全性をチェック"""
         return self.connection.health_check()
 
-    def execute(
-        self, query: str, params: Optional[Union[Dict[str, Any], List[Any]]] = None
-    ) -> Any:
+    def execute(self, query: str, params: Optional[Union[Dict[str, Any], List[Any]]] = None) -> Any:
         """SQL文を実行"""
         try:
             # Supabaseの場合、適切なクエリをORM経由で実行
@@ -44,9 +43,7 @@ class Database:
             logger.error(f"Error executing query: {e}")
             raise
 
-    def fetchall(
-        self, query: str, params: Optional[Union[Dict[str, Any], List[Any]]] = None
-    ) -> List[Any]:
+    def fetchall(self, query: str, params: Optional[Union[Dict[str, Any], List[Any]]] = None) -> List[Any]:
         """クエリを実行し、すべての結果を取得"""
         try:
             # Supabaseの場合、適切なクエリをORM経由で実行
@@ -57,9 +54,7 @@ class Database:
             logger.error(f"Error fetching all: {e}")
             raise
 
-    def fetchone(
-        self, query: str, params: Optional[Union[Dict[str, Any], List[Any]]] = None
-    ) -> Optional[Any]:
+    def fetchone(self, query: str, params: Optional[Union[Dict[str, Any], List[Any]]] = None) -> Optional[Any]:
         """クエリを実行し、単一の結果を取得"""
         try:
             # Supabaseの場合、適切なクエリをORM経由で実行
@@ -128,9 +123,7 @@ def get_user_by_username(username: str) -> Optional[Dict[str, Any]]:
             return {
                 "id": profile["id"],
                 "username": profile["username"],
-                "password_hash": profile.get(
-                    "password_hash", ""
-                ),  # Supabaseスキーマにはない場合
+                "password_hash": profile.get("password_hash", ""),  # Supabaseスキーマにはない場合
                 "role": profile.get("role", "viewer"),
                 "created_at": profile.get("created_at"),
             }
@@ -163,18 +156,14 @@ def get_user_by_id(user_id) -> Optional[Dict[str, Any]]:
         return None
 
 
-def create_user(
-    username: str, password_hash: str, role: str = "viewer"
-) -> Dict[str, Any]:
+def create_user(username: str, password_hash: str, role: str = "viewer") -> Dict[str, Any]:
     """ユーザーを作成"""
     try:
         # 新しいUUIDを生成
         user_id = str(uuid.uuid4())
 
         db_instance = _get_database_instance()
-        profile = db_instance.profiles_model.create_profile(
-            user_id=user_id, username=username
-        )
+        profile = db_instance.profiles_model.create_profile(user_id=user_id, username=username)
 
         if profile:
             # Supabaseスキーマにパスワードハッシュとロールが含まれていない場合は
@@ -205,15 +194,11 @@ def update_user(user_id, **kwargs) -> Optional[Dict[str, Any]]:
             return get_user_by_id(user_id)
 
         # Supabaseのprofilesテーブルで更新可能なフィールドのみ処理
-        updatable_fields = {
-            k: v for k, v in kwargs.items() if k in ["username", "role"]
-        }
+        updatable_fields = {k: v for k, v in kwargs.items() if k in ["username", "role"]}
 
         if updatable_fields:
             db_instance = _get_database_instance()
-            updated_profile = db_instance.profiles_model.update_profile(
-                user_id, **updatable_fields
-            )
+            updated_profile = db_instance.profiles_model.update_profile(user_id, **updatable_fields)
             if updated_profile:
                 return {
                     "id": updated_profile["id"],
@@ -238,9 +223,7 @@ def delete_user(user_id) -> bool:
 
         # Supabaseでは通常、行レベルセキュリティにより削除が制限される
         # 実装は環境に依存するため、ここでは仮実装
-        logger.warning(
-            f"User deletion attempted for {user_id} - implementation may need adjustment"
-        )
+        logger.warning(f"User deletion attempted for {user_id} - implementation may need adjustment")
         return False
 
     except Exception as e:

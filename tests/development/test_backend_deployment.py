@@ -2,15 +2,21 @@
 """
 バックエンドAPIのデプロイ前テストスクリプト
 """
-import sys
+
+# 標準ライブラリは最初にインポート
 import os
+import sys
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# Project rootをpathに追加（インポートより前）
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from fastapi.testclient import TestClient
-from backend.main import app
-from backend.core.config import settings
+# 外部ライブラリをインポート
 from dotenv import load_dotenv
+from fastapi.testclient import TestClient
+
+# プロジェクト内モジュールをインポート
+from backend.core.config import settings
+from backend.main import app
 
 
 def test_app_initialization():
@@ -65,9 +71,6 @@ def test_auth_endpoints():
             # /auth/me エンドポイントのテスト
             token = data["access_token"]
             headers = {"Authorization": f"Bearer {token}"}
-
-            # httpOnlyクッキーからのトークン取得もテスト
-            cookies = response.cookies
 
             me_response = client.get("/auth/me", headers=headers)
             if me_response.status_code == 200:

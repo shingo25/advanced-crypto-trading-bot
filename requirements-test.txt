@@ -15,7 +15,7 @@ age==0.5.1
 
 # Config & Utilities
 python-dotenv==1.0.0
-pydantic==2.5.3
+pydantic[email]==2.5.3
 pydantic-settings==2.1.0
 PyYAML==6.0.1
 orjson==3.9.10
@@ -36,6 +36,11 @@ polars==0.20.2
 
 # Trading & Market Data
 ccxt==4.2.25
+
+# Technical Analysis (Phase 3)
+pandas-ta==0.3.14b
+talib-binary==0.4.19
+
 # freqtrade==2024.1  # CI除外：重すぎる
 # ta==0.11.0        # ta-libの軽量版は含める
 # ta-lib==0.4.28    # CI除外：コンパイルが重い

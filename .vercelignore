@@ -1,0 +1,105 @@
+# Vercelデプロイ時の除外ファイル
+# サイズ削減のため不要なファイルを除外
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Test files
+tests/
+*_test.py
+test_*.py
+pytest.ini
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+
+# Development files
+.env.local
+.env.development
+.env.test
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
+.pre-commit-config.yaml
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Heavy dependencies (already in layer)
+pandas/
+numpy/
+scipy/
+matplotlib/
+seaborn/
+
+# Data files
+*.csv
+*.json
+!package.json
+!vercel.json
+!tsconfig.json
+*.xlsx
+*.db
+*.sqlite
+
+# Notebooks
+*.ipynb
+.ipynb_checkpoints/
+
+# MacOS
+.DS_Store
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Frontend build (except output)
+frontend/node_modules/
+frontend/.next/
+!frontend/out/
+
+# Backend heavy files
+backend/strategies/__pycache__/
+backend/data/
+backend/logs/
+backend/notebooks/
+
+# Requirements variants
+requirements-dev.txt
+requirements-full.txt
+requirements-vercel.txt
+
+# Keep only production requirements
+!requirements.txt
+!requirements-ci.txt

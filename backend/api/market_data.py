@@ -3,14 +3,16 @@ Market Data API endpoints
 マーケットデータ（価格情報など）のAPIエンドポイント
 """
 
+import asyncio
 import logging
 from datetime import datetime, timezone
-from typing import List, Optional, Dict, Any
+from typing import Any, Dict, List, Optional
+
+import cachetools
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
+
 from backend.core.supabase_db import get_supabase_client
-import cachetools
-import asyncio
 
 logger = logging.getLogger(__name__)
 
@@ -37,9 +39,7 @@ class OHLCVParams(BaseModel):
 
     exchange: str = Field(default="binance", description="取引所名")
     symbol: str = Field(..., description="シンボル（例: BTCUSDT）")
-    timeframe: str = Field(
-        default="1h", description="時間足（例: 1m, 5m, 15m, 1h, 4h, 1d）"
-    )
+    timeframe: str = Field(default="1h", description="時間足（例: 1m, 5m, 15m, 1h, 4h, 1d）")
     limit: int = Field(default=100, le=1000, description="取得件数（最大1000件）")
     start_time: Optional[datetime] = Field(default=None, description="開始時刻")
     end_time: Optional[datetime] = Field(default=None, description="終了時刻")
@@ -79,9 +79,7 @@ class MarketDataCache:
         limit: int,
     ) -> Optional[List[Dict[str, Any]]]:
         """キャッシュからデータを取得"""
-        cache_key = self._generate_cache_key(
-            exchange, symbol, timeframe, start_time, end_time, limit
-        )
+        cache_key = self._generate_cache_key(exchange, symbol, timeframe, start_time, end_time, limit)
         async with self._lock:
             return self.cache.get(cache_key)
 
@@ -96,9 +94,7 @@ class MarketDataCache:
         data: List[Dict[str, Any]],
     ):
         """キャッシュにデータを保存"""
-        cache_key = self._generate_cache_key(
-            exchange, symbol, timeframe, start_time, end_time, limit
-        )
+        cache_key = self._generate_cache_key(exchange, symbol, timeframe, start_time, end_time, limit)
         async with self._lock:
             self.cache[cache_key] = data
 
@@ -118,9 +114,7 @@ async def get_ohlcv_from_db(
     """Supabaseからデータを取得"""
 
     # キャッシュから取得を試行
-    cached_data = await market_data_cache.get(
-        exchange, symbol, timeframe, start_time, end_time, limit
-    )
+    cached_data = await market_data_cache.get(exchange, symbol, timeframe, start_time, end_time, limit)
     if cached_data is not None:
         logger.info(f"Cache hit for {exchange}:{symbol}:{timeframe}")
         return cached_data
@@ -167,13 +161,9 @@ async def get_ohlcv_from_db(
             )
 
         # キャッシュに保存
-        await market_data_cache.set(
-            exchange, symbol, timeframe, start_time, end_time, limit, ohlcv_data
-        )
+        await market_data_cache.set(exchange, symbol, timeframe, start_time, end_time, limit, ohlcv_data)
 
-        logger.info(
-            f"Retrieved {len(ohlcv_data)} OHLCV records from database for {exchange}:{symbol}:{timeframe}"
-        )
+        logger.info(f"Retrieved {len(ohlcv_data)} OHLCV records from database for {exchange}:{symbol}:{timeframe}")
         return ohlcv_data
 
     except Exception as e:
@@ -187,12 +177,8 @@ async def get_ohlcv(
     symbol: str = Query(..., description="シンボル（例: BTCUSDT）"),
     timeframe: str = Query(default="1h", description="時間足"),
     limit: int = Query(default=100, le=1000, description="取得件数"),
-    start_time: Optional[datetime] = Query(
-        default=None, description="開始時刻（ISO 8601形式）"
-    ),
-    end_time: Optional[datetime] = Query(
-        default=None, description="終了時刻（ISO 8601形式）"
-    ),
+    start_time: Optional[datetime] = Query(default=None, description="開始時刻（ISO 8601形式）"),
+    end_time: Optional[datetime] = Query(default=None, description="終了時刻（ISO 8601形式）"),
 ):
     """
     OHLCV価格データを取得
@@ -207,9 +193,7 @@ async def get_ohlcv(
 
     # パラメータバリデーション
     if limit <= 0 or limit > 1000:
-        raise HTTPException(
-            status_code=400, detail="limitは1から1000の範囲で指定してください"
-        )
+        raise HTTPException(status_code=400, detail="limitは1から1000の範囲で指定してください")
 
     # 有効な時間足をチェック
     valid_timeframes = ["1m", "5m", "15m", "30m", "1h", "4h", "1d"]
@@ -238,9 +222,7 @@ async def get_ohlcv(
         for item in ohlcv_data:
             response_data.append(
                 OHLCVResponse(
-                    timestamp=datetime.fromisoformat(
-                        item["timestamp"].replace("Z", "+00:00")
-                    ),
+                    timestamp=datetime.fromisoformat(item["timestamp"].replace("Z", "+00:00")),
                     open=item["open"],
                     high=item["high"],
                     low=item["low"],
@@ -269,12 +251,7 @@ async def get_available_symbols(
         supabase = get_supabase_client()
 
         # ユニークなシンボル一覧を取得
-        response = (
-            supabase.table("price_data")
-            .select("symbol")
-            .eq("exchange", exchange.lower())
-            .execute()
-        )
+        response = supabase.table("price_data").select("symbol").eq("exchange", exchange.lower()).execute()
 
         if not response.data:
             return {"symbols": []}
@@ -302,11 +279,7 @@ async def get_available_timeframes(
         supabase = get_supabase_client()
 
         # ベースクエリ
-        query = (
-            supabase.table("price_data")
-            .select("timeframe")
-            .eq("exchange", exchange.lower())
-        )
+        query = supabase.table("price_data").select("timeframe").eq("exchange", exchange.lower())
 
         # シンボル指定がある場合
         if symbol:
@@ -340,9 +313,7 @@ async def get_available_timeframes(
 @router.get("/latest")
 async def get_latest_prices(
     exchange: str = Query(default="binance", description="取引所名"),
-    symbols: Optional[str] = Query(
-        default=None, description="シンボル（カンマ区切り、未指定で全シンボル）"
-    ),
+    symbols: Optional[str] = Query(default=None, description="シンボル（カンマ区切り、未指定で全シンボル）"),
     timeframe: str = Query(default="1h", description="時間足"),
 ):
     """
@@ -362,9 +333,7 @@ async def get_latest_prices(
 
         # シンボル指定がある場合
         if symbols:
-            symbol_list = [
-                s.strip().replace("/", "").upper() for s in symbols.split(",")
-            ]
+            symbol_list = [s.strip().replace("/", "").upper() for s in symbols.split(",")]
             query = query.in_("symbol", symbol_list)
 
         response = query.execute()
@@ -402,12 +371,7 @@ async def market_data_health():
     try:
         # Supabase接続テスト
         supabase = get_supabase_client()
-        response = (
-            supabase.table("price_data")
-            .select("count", count="exact")
-            .limit(1)
-            .execute()
-        )
+        response = supabase.table("price_data").select("count", count="exact").limit(1).execute()
 
         return {
             "status": "healthy",
