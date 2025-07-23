@@ -25,8 +25,8 @@ SUPABASE_URL = os.getenv("SUPABASE_URL", "")
 SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", "")
 SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
 
-# APIRouterを作成
-auth_router = APIRouter()
+# APIRouterを作成（プレフィックスをここで設定）
+auth_router = APIRouter(prefix="/api/auth", tags=["authentication"])
 
 
 # リクエスト/レスポンスモデル

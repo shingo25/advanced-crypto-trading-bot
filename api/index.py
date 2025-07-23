@@ -38,12 +38,19 @@ app.add_middleware(
 
 # 認証ルーターをインポート（相対インポート）
 try:
-    from auth import auth_router
+    from .auth import auth_router
 
-    app.include_router(auth_router, prefix="/api/auth", tags=["authentication"])
+    app.include_router(auth_router)
     logger.info("認証ルーター統合完了")
-except ImportError as e:
-    logger.warning(f"認証ルーターの読み込みに失敗: {e}")
+except ImportError:
+    # 絶対インポートを試す
+    try:
+        from api.auth import auth_router
+
+        app.include_router(auth_router)
+        logger.info("認証ルーター統合完了")
+    except ImportError as e:
+        logger.warning(f"認証ルーターの読み込みに失敗: {e}")
 
 
 # ヘルスチェック（基本機能）
