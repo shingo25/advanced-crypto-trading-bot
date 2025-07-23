@@ -146,24 +146,22 @@ class LocalDatabase:
             if not kwargs:
                 return self.get_user_by_id(user_id)
 
-            # 更新可能なフィールドを定義
+            # 更新可能なフィールドを定義（SQL injection対策）
             allowed_fields = ["username", "email", "password_hash", "role"]
             update_fields = {k: v for k, v in kwargs.items() if k in allowed_fields}
 
             if not update_fields:
                 return self.get_user_by_id(user_id)
 
-            # 動的にUPDATEクエリを構築
-            set_clause = ", ".join([f"{k} = ?" for k in update_fields.keys()])
+            # 安全なUPDATEクエリを構築（プリペアドステートメント使用）
+            # フィールド名はホワイトリストで検証済み
+            set_clause = ", ".join([f"{field} = ?" for field in update_fields.keys()])
             values = list(update_fields.values())
             values.append(datetime.now())  # updated_at
             values.append(user_id)  # WHERE条件
 
-            query = f"""
-                UPDATE users
-                SET {set_clause}, updated_at = ?
-                WHERE id = ?
-            """
+            # プリペアドステートメントでSQL injection を防止
+            query = f"UPDATE users SET {set_clause}, updated_at = ? WHERE id = ?"
 
             self.connection.execute(query, values)
 

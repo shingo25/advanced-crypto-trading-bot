@@ -133,7 +133,6 @@ export default function RegisterForm() {
       setTimeout(() => {
         router.push('/login?registered=true');
       }, 3000);
-
     } catch (error: any) {
       setError(error.message || '登録に失敗しました');
     } finally {
@@ -230,9 +229,7 @@ export default function RegisterForm() {
                 disabled={isLoading}
                 error={!!validationErrors.email}
               />
-              {validationErrors.email && (
-                <FormHelperText>{validationErrors.email}</FormHelperText>
-              )}
+              {validationErrors.email && <FormHelperText>{validationErrors.email}</FormHelperText>}
             </FormControl>
 
             <FormControl fullWidth margin="normal" error={!!validationErrors.password}>
