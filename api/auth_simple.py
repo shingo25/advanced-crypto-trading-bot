@@ -30,6 +30,12 @@ allowed_origins = ["*"] if os.getenv("ENVIRONMENT") == "development" else [
     "https://advanced-crypto-trading-bot.vercel.app"
 ]
 
+# 本番環境では適切なオリジンを指定
+allowed_origins = ["*"] if os.getenv("ENVIRONMENT") == "development" else [
+    "https://*.vercel.app",
+    "https://advanced-crypto-trading-bot.vercel.app"
+]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
