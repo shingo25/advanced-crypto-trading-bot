@@ -210,8 +210,19 @@ def ensure_demo_user():
 async def login(request: LoginRequest, response: Response):
     """ログイン処理（Supabase Auth使用）"""
     try:
-        # ユーザー名をEmailに変換
-        email = username_to_email(request.username)
+        # まずプロファイルから実際のメールアドレスを取得
+        user_profile = get_user_by_username(request.username)
+        if user_profile:
+            # プロファイルからユーザーIDでSupabaseユーザー情報を取得
+            admin_client = get_supabase_admin_client()
+            supabase_user = admin_client.auth.admin.get_user_by_id(user_profile["id"])
+            email = supabase_user.user.email if supabase_user.user else None
+        else:
+            # プロファイルが見つからない場合は従来の変換方法を使用（demoユーザー用）
+            email = username_to_email(request.username)
+
+        if not email:
+            raise HTTPException(status_code=401, detail="Invalid username or password")
 
         # Supabase認証を試行
         client = get_supabase_client()
@@ -271,11 +282,22 @@ async def register(request: RegisterRequest):
         if existing_user:
             raise HTTPException(status_code=400, detail="Username already exists")
 
-        # Supabaseでユーザーを作成
-        client = get_supabase_client()
-        auth_response = client.auth.sign_up({"email": request.email, "password": request.password})
+        # 管理者権限でSupabaseユーザーを作成
+        admin_client = get_supabase_admin_client()
+        logger.info(f"Attempting to register user: {request.username} with email: {request.email}")
+
+        auth_response = admin_client.auth.admin.create_user(
+            {
+                "email": request.email,
+                "password": request.password,
+                "email_confirm": True,  # メール確認を完了済みとして作成
+                "user_metadata": {"username": request.username},
+            }
+        )
+        logger.info(f"Supabase admin create_user response: user={auth_response.user}")
 
         if not auth_response.user:
+            logger.error(f"Supabase admin create_user failed for {request.email}")
             raise HTTPException(status_code=400, detail="Registration failed")
 
         # プロファイルを作成
@@ -284,8 +306,11 @@ async def register(request: RegisterRequest):
             "username": request.username,
             "created_at": datetime.now(timezone.utc).isoformat(),
         }
+        logger.info(f"Creating profile for user: {profile_data}")
+
         admin_client = get_supabase_admin_client()
-        admin_client.table("profiles").upsert(profile_data).execute()
+        profile_response = admin_client.table("profiles").upsert(profile_data).execute()
+        logger.info(f"Profile creation response: {profile_response.data}")
 
         logger.info(f"新規ユーザー {request.username} が登録されました")
 
@@ -297,7 +322,11 @@ async def register(request: RegisterRequest):
         raise
     except Exception as e:
         logger.error(f"登録エラー: {e}")
-        raise HTTPException(status_code=500, detail="Registration failed")
+        logger.error(f"エラーの詳細: {str(e)}")
+        import traceback
+
+        logger.error(f"スタックトレース: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
 
 
 @auth_router.post("/logout")
