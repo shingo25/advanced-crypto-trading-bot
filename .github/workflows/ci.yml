@@ -82,6 +82,9 @@ jobs:
 
       - name: 🛡️ Security analysis (Bandit)
         run: |
+          # 古いレポートファイルをクリーンアップ
+          rm -f bandit-report.json backend/bandit-report.json frontend/bandit-report.json
+          # Banditスキャンを実行
           bandit -r backend/ -f json -o bandit-report.json
           bandit -r backend/
 

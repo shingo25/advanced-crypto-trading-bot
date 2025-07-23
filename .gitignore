@@ -57,3 +57,7 @@ logs/
 coverage/
 .coverage.*
 .vercel
+
+# Security scan reports
+bandit-report.json
+**/bandit-report.json

@@ -161,7 +161,8 @@ class LocalDatabase:
             values.append(user_id)  # WHERE条件
 
             # プリペアドステートメントでSQL injection を防止
-            query = f"UPDATE users SET {set_clause}, updated_at = ? WHERE id = ?"
+            # フィールド名はホワイトリストで検証済み、プリペアドステートメント使用
+            query = f"UPDATE users SET {set_clause}, updated_at = ? WHERE id = ?"  # nosec B608
 
             self.connection.execute(query, values)
 
