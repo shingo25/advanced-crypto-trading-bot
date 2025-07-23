@@ -21,22 +21,6 @@
   ],
   "rewrites": [
     {
-      "source": "/api/auth/(.*)",
-      "destination": "/api/auth_simple.py"
-    },
-    {
-      "source": "/api/portfolio/(.*)",
-      "destination": "/api/portfolio.py"
-    },
-    {
-      "source": "/strategies/(.*)",
-      "destination": "/api/strategies.py"
-    },
-    {
-      "source": "/api/market-data/(.*)",
-      "destination": "/api/market-data.py"
-    },
-    {
       "source": "/api/(.*)",
       "destination": "/api/index.py"
     },
