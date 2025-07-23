@@ -1,4 +1,5 @@
 # Stage 1: Builder stage for compiling TA-Lib
+# MULTI-STAGE BUILD VERSION: v2.0 - libta-lib-dev issue fixed
 FROM python:3.9-slim as builder
 
 # TA-Libのビルドに必要なツールをインストール

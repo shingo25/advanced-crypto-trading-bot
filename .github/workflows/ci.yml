@@ -176,13 +176,22 @@ jobs:
           echo "ENVIRONMENT=development" >> .env
           echo "ENABLE_PRICE_STREAMING=false" >> .env
 
+      - name: 🧹 Clean Docker environment
+        run: |
+          echo "🧹 Cleaning Docker environment completely..."
+          docker compose down --volumes --remove-orphans || echo "No containers to stop"
+          docker system prune -af --volumes || echo "Docker prune completed"
+          docker builder prune -af || echo "Builder prune completed"
+
       - name: 🏗️ Build Docker images
         run: |
           # CI環境用のビルド引数を設定
           echo "📦 Verifying requirements files..."
           ls -la requirements*.txt
-          echo "🐳 Building with Docker Compose..."
-          DOCKER_BUILDKIT=1 docker compose build --no-cache
+          echo "📋 Verifying Dockerfile.backend content..."
+          head -20 Dockerfile.backend
+          echo "🐳 Building with Docker Compose (completely fresh)..."
+          DOCKER_BUILDKIT=1 docker compose build --no-cache --pull
 
       - name: 🧪 Test Docker containers
         continue-on-error: true
