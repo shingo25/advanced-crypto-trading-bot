@@ -395,12 +395,18 @@ async def auth_health_check():
         }
 
 
-# アプリケーション起動時にデモユーザーを確保
-try:
-    if SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY:
-        ensure_demo_user()
-        logger.info("デモユーザーの初期化完了")
-    else:
-        logger.warning("Supabase設定が不完全なため、デモユーザーの初期化をスキップ")
-except Exception as e:
-    logger.error(f"デモユーザー初期化エラー: {e}")
+# Vercel環境では遅延初期化を使用
+def init_demo_user_if_needed():
+    """必要に応じてデモユーザーを初期化（遅延実行）"""
+    try:
+        if SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY:
+            ensure_demo_user()
+            logger.info("デモユーザーの初期化完了")
+        else:
+            logger.warning("Supabase設定が不完全なため、デモユーザーの初期化をスキップ")
+    except Exception as e:
+        logger.error(f"デモユーザー初期化エラー: {e}")
+
+
+# モジュールレベルでの即座実行を削除
+# Vercel環境でのクラッシュを防ぐため、必要時のみ実行

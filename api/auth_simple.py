@@ -3,19 +3,17 @@ Vercel Serverless Function - Simple Authentication API
 DuckDBに依存しない軽量認証システム
 """
 
-import os
 import hashlib
-import hmac
-import json
+import os
 import uuid
 from datetime import datetime, timedelta
 from typing import Dict, Optional
 
-from fastapi import FastAPI, HTTPException, Request, Response, Depends
+import jwt
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel
-import jwt
 
 # 環境変数から設定を取得
 JWT_SECRET = os.getenv("JWT_SECRET_KEY", "dev-jwt-secret-key-for-advanced-crypto-trading-bot-development-32-chars")
@@ -25,10 +23,11 @@ JWT_EXPIRATION = int(os.getenv("JWT_EXPIRATION", "86400"))  # 24時間
 app = FastAPI(title="Crypto Bot Simple Auth API", version="2.0.0")
 
 # 本番環境では適切なオリジンを指定
-allowed_origins = ["*"] if os.getenv("ENVIRONMENT") == "development" else [
-    "https://*.vercel.app",
-    "https://advanced-crypto-trading-bot.vercel.app"
-]
+allowed_origins = (
+    ["*"]
+    if os.getenv("ENVIRONMENT") == "development"
+    else ["https://*.vercel.app", "https://advanced-crypto-trading-bot.vercel.app"]
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -40,20 +39,24 @@ app.add_middleware(
 
 security = HTTPBearer()
 
+
 # リクエスト/レスポンスモデル
 class LoginRequest(BaseModel):
     username: str
     password: str
+
 
 class RegisterRequest(BaseModel):
     username: str
     email: str
     password: str
 
+
 class AuthResponse(BaseModel):
     success: bool
     message: str
     user: Optional[Dict] = None
+
 
 # メモリベースの簡易ユーザーストレージ（実際にはRedisやSupabaseを使用）
 # デモ用のハードコードされたユーザー
@@ -62,22 +65,25 @@ DEMO_USERS = {
         "id": "demo-user-id",
         "username": "demo",
         "email": "demo@example.com",
-        "password_hash": hashlib.pbkdf2_hmac('sha256', 'demo'.encode(), b'salt', 100000).hex(),
+        "password_hash": hashlib.pbkdf2_hmac("sha256", "demo".encode(), b"salt", 100000).hex(),
         "role": "viewer",
-        "created_at": datetime.now().isoformat()
+        "created_at": datetime.now().isoformat(),
     }
 }
 
 # 動的ユーザー登録用ストレージ（実際の実装ではデータベースを使用）
 REGISTERED_USERS = {}
 
+
 def hash_password(password: str) -> str:
     """パスワードをハッシュ化"""
-    return hashlib.pbkdf2_hmac('sha256', password.encode(), b'salt', 100000).hex()
+    return hashlib.pbkdf2_hmac("sha256", password.encode(), b"salt", 100000).hex()
+
 
 def verify_password(password: str, hashed: str) -> bool:
     """パスワードを検証"""
     return hash_password(password) == hashed
+
 
 def get_user(username: str) -> Optional[Dict]:
     """ユーザーを取得"""
@@ -87,6 +93,7 @@ def get_user(username: str) -> Optional[Dict]:
         return REGISTERED_USERS[username]
     return None
 
+
 def create_access_token(user_data: Dict) -> str:
     """JWTアクセストークンを作成"""
     payload = {
@@ -94,9 +101,10 @@ def create_access_token(user_data: Dict) -> str:
         "user_id": user_data["id"],
         "role": user_data["role"],
         "exp": datetime.utcnow() + timedelta(seconds=JWT_EXPIRATION),
-        "iat": datetime.utcnow()
+        "iat": datetime.utcnow(),
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
 
 @app.post("/api/auth/login", response_model=AuthResponse)
 async def login(request: LoginRequest, response: Response):
@@ -106,10 +114,10 @@ async def login(request: LoginRequest, response: Response):
         user = get_user(request.username)
         if not user or not verify_password(request.password, user["password_hash"]):
             raise HTTPException(status_code=401, detail="Invalid username or password")
-        
+
         # JWTトークン生成
         access_token = create_access_token(user)
-        
+
         # httpOnlyクッキーに設定（環境に応じてsecure設定を調整）
         is_production = os.getenv("ENVIRONMENT") == "production"
         response.set_cookie(
@@ -118,24 +126,20 @@ async def login(request: LoginRequest, response: Response):
             httponly=True,
             secure=is_production,  # 本番環境のみHTTPS必須
             samesite="lax",
-            max_age=JWT_EXPIRATION
+            max_age=JWT_EXPIRATION,
         )
-        
+
         return AuthResponse(
             success=True,
             message="Login successful",
-            user={
-                "id": user["id"],
-                "username": user["username"],
-                "email": user["email"],
-                "role": user["role"]
-            }
+            user={"id": user["id"], "username": user["username"], "email": user["email"], "role": user["role"]},
         )
-    
+
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Login failed: {str(e)}")
+
 
 @app.post("/api/auth/register", response_model=AuthResponse)
 async def register(request: RegisterRequest):
@@ -144,7 +148,7 @@ async def register(request: RegisterRequest):
         # 重複チェック
         if get_user(request.username):
             raise HTTPException(status_code=400, detail="Username already exists")
-        
+
         # 新規ユーザー作成
         user_id = str(uuid.uuid4())
         new_user = {
@@ -153,12 +157,12 @@ async def register(request: RegisterRequest):
             "email": request.email,
             "password_hash": hash_password(request.password),
             "role": "viewer",
-            "created_at": datetime.now().isoformat()
+            "created_at": datetime.now().isoformat(),
         }
-        
+
         # メモリストレージに保存（本番では永続化データベースを使用）
         REGISTERED_USERS[request.username] = new_user
-        
+
         return AuthResponse(
             success=True,
             message="User registered successfully",
@@ -166,20 +170,22 @@ async def register(request: RegisterRequest):
                 "id": new_user["id"],
                 "username": new_user["username"],
                 "email": new_user["email"],
-                "role": new_user["role"]
-            }
+                "role": new_user["role"],
+            },
         )
-    
+
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
+
 
 @app.post("/api/auth/logout")
 async def logout(response: Response):
     """ログアウト処理"""
     response.delete_cookie(key="access_token")
     return {"success": True, "message": "Logged out successfully"}
+
 
 @app.get("/api/auth/me")
 async def get_current_user(request: Request):
@@ -189,28 +195,24 @@ async def get_current_user(request: Request):
         token = request.cookies.get("access_token")
         if not token:
             raise HTTPException(status_code=401, detail="Not authenticated")
-        
+
         # JWTトークンをデコード
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         username = payload.get("sub")
-        
+
         user = get_user(username)
         if not user:
             raise HTTPException(status_code=401, detail="User not found")
-        
-        return {
-            "id": user["id"],
-            "username": user["username"],
-            "email": user["email"],
-            "role": user["role"]
-        }
-    
+
+        return {"id": user["id"], "username": user["username"], "email": user["email"], "role": user["role"]}
+
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
     except jwt.JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/api/auth/health")
 async def health_check():
@@ -221,14 +223,9 @@ async def health_check():
         "version": "2.0.0",
         "environment": os.getenv("ENVIRONMENT", "unknown"),
         "demo_user_available": "demo" in DEMO_USERS,
-        "endpoints": [
-            "/api/auth/login",
-            "/api/auth/register", 
-            "/api/auth/logout",
-            "/api/auth/me",
-            "/api/auth/health"
-        ]
+        "endpoints": ["/api/auth/login", "/api/auth/register", "/api/auth/logout", "/api/auth/me", "/api/auth/health"],
     }
+
 
 # Vercel handler
 handler = app

@@ -36,21 +36,21 @@ app.add_middleware(
     allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
 )
 
-# 認証ルーターをインポート（相対インポート）
+# 認証ルーターをインポート - Vercel対応
 try:
-    from .auth import auth_router
+    # Vercel環境では絶対インポートを使用
+    import os
+    import sys
+
+    sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+    from auth import auth_router
 
     app.include_router(auth_router)
     logger.info("認証ルーター統合完了")
-except ImportError:
-    # 絶対インポートを試す
-    try:
-        from api.auth import auth_router
-
-        app.include_router(auth_router)
-        logger.info("認証ルーター統合完了")
-    except ImportError as e:
-        logger.warning(f"認証ルーターの読み込みに失敗: {e}")
+except ImportError as e:
+    logger.error(f"認証ルーターの読み込みに失敗: {e}")
+    # Vercel環境では認証ルーターなしでも起動を継続
 
 
 # ヘルスチェック（基本機能）
@@ -69,6 +69,14 @@ async def root():
 async def health_check():
     """詳細ヘルスチェック"""
     try:
+        # デモユーザーの遅延初期化（Vercel対応）
+        try:
+            from auth import init_demo_user_if_needed
+
+            init_demo_user_if_needed()
+        except Exception as init_error:
+            logger.warning(f"デモユーザー初期化をスキップ: {init_error}")
+
         # 環境変数チェック
         jwt_secret = os.getenv("JWT_SECRET_KEY", "")
         supabase_url = os.getenv("SUPABASE_URL", "")
