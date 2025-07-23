@@ -17,7 +17,7 @@ from backend.api import (
     strategies,
 )
 from backend.core.config import settings
-from backend.core.database import init_db
+from backend.core.local_database import init_local_db
 from backend.core.logging import setup_logging
 from backend.streaming import price_stream_manager
 
@@ -44,8 +44,12 @@ async def lifespan(app: FastAPI):
     # データベース初期化（CI環境以外で実行）
     if not is_ci_environment:
         try:
-            init_db()
-            logger.info("Database initialized successfully")
+            # Phase3: ローカルDuckDBを使用
+            init_local_db()
+            logger.info("Local database initialized successfully")
+
+            # レガシーサポート（必要に応じて）
+            # init_db()
         except Exception as e:
             logger.error(f"Database initialization failed: {e}")
             # データベース初期化失敗でもアプリケーションは起動させる

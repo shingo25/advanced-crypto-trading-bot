@@ -7,8 +7,8 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from backend.core.config import settings
-from backend.core.database import Database, get_db, get_user_by_id, get_user_by_username
-from backend.core.supabase_db import get_supabase_connection
+from backend.core.database import Database, get_db
+from backend.core.local_database import get_local_db
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
@@ -90,8 +90,9 @@ async def get_current_user(
     except JWTError:
         raise credentials_exception
 
-    # データベースでユーザーの存在を確認
-    user = get_user_by_username(username)
+    # ローカルデータベースでユーザーの存在を確認
+    local_db = get_local_db()
+    user = local_db.get_user_by_username(username)
     if user is None:
         raise credentials_exception
 
@@ -108,39 +109,14 @@ async def require_admin(
 
 
 async def authenticate_user(username: str, password: str) -> Optional[Dict[str, Any]]:
-    """ユーザー認証（Supabase Auth使用）"""
+    """ユーザー認証（ローカルDuckDB使用）"""
     try:
-        connection = get_supabase_connection()
-        client = connection.client
+        # ローカルデータベースからユーザーを取得
+        local_db = get_local_db()
+        user = local_db.get_user_by_username(username)
 
-        # ユーザー名からメールアドレスを構築
-        # 注意: 実際の実装では、ユーザー名とメールの対応付けをDBに保存することを推奨
-        email = f"{username}@example.com"
-
-        # Supabase Authで認証
-        response = client.auth.sign_in_with_password({"email": email, "password": password})
-
-        if response.user:
-            user_id = response.user.id
-            user_metadata = response.user.user_metadata or {}
-
-            # profilesテーブルからユーザー情報を取得
-            user_profile = get_user_by_id(user_id)
-
-            if user_profile:
-                # サインアウト（セッションをクリア）
-                client.auth.sign_out()
-                return user_profile
-            else:
-                # プロファイルが見つからない場合、基本情報を返す
-                client.auth.sign_out()
-                return {
-                    "id": user_id,
-                    "username": user_metadata.get("username", username),
-                    "role": user_metadata.get("role", "viewer"),
-                    "password_hash": "",  # 互換性のため
-                    "created_at": response.user.created_at,
-                }
+        if user and verify_password(password, user["password_hash"]):
+            return user
         else:
             return None
 

@@ -3,13 +3,15 @@ from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 from backend.core.config import settings
+from backend.core.local_database import get_local_db
 from backend.core.security import (
     authenticate_user,
     create_access_token,
     get_current_user,
+    get_password_hash,
 )
 from backend.models.user import UserResponse
 
@@ -25,6 +27,17 @@ class Token(BaseModel):
 class LoginRequest(BaseModel):
     username: str
     password: str
+
+
+class RegisterRequest(BaseModel):
+    username: str
+    email: EmailStr
+    password: str
+
+
+class RegisterResponse(BaseModel):
+    message: str
+    user: UserResponse
 
 
 @router.post("/login", response_model=Token)
@@ -98,3 +111,50 @@ async def refresh_token(response: Response, current_user: dict = Depends(get_cur
 
     logger.info(f"Token refreshed for user: {current_user['username']}")
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.post("/register", response_model=RegisterResponse)
+async def register(request: RegisterRequest):
+    """新規ユーザー登録"""
+    local_db = get_local_db()
+
+    # ユーザー名の重複チェック
+    existing_user = local_db.get_user_by_username(request.username)
+    if existing_user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username already exists")
+
+    # パスワード強度チェック
+    if len(request.password) < 8:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Password must be at least 8 characters long"
+        )
+
+    # 大文字、小文字、数字を含むかチェック
+    import re
+
+    if not re.match(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$", request.password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Password must contain uppercase, lowercase and number"
+        )
+
+    try:
+        # パスワードをハッシュ化
+        password_hash = get_password_hash(request.password)
+
+        # ユーザーを作成
+        new_user = local_db.create_user(
+            username=request.username, password_hash=password_hash, email=request.email, role="viewer"
+        )
+
+        logger.info(f"New user registered: {request.username}")
+
+        # レスポンス用のユーザー情報
+        user_response = UserResponse(
+            id=new_user["id"], username=new_user["username"], role=new_user["role"], created_at=new_user["created_at"]
+        )
+
+        return RegisterResponse(message="User registered successfully", user=user_response)
+
+    except Exception as e:
+        logger.error(f"Failed to register user {request.username}: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create user")
