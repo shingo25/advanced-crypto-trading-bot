@@ -22,14 +22,20 @@ JWT_SECRET = os.getenv("JWT_SECRET_KEY", "dev-jwt-secret-key-for-advanced-crypto
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION = int(os.getenv("JWT_EXPIRATION", "86400"))  # 24時間
 
-app = FastAPI(title="Crypto Bot Simple Auth API", version="1.0.0")
+app = FastAPI(title="Crypto Bot Simple Auth API", version="2.0.0")
+
+# 本番環境では適切なオリジンを指定
+allowed_origins = ["*"] if os.getenv("ENVIRONMENT") == "development" else [
+    "https://*.vercel.app",
+    "https://advanced-crypto-trading-bot.vercel.app"
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 security = HTTPBearer()
@@ -92,7 +98,7 @@ def create_access_token(user_data: Dict) -> str:
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
-@app.post("/login", response_model=AuthResponse)
+@app.post("/api/auth/login", response_model=AuthResponse)
 async def login(request: LoginRequest, response: Response):
     """ログイン処理"""
     try:
@@ -104,12 +110,13 @@ async def login(request: LoginRequest, response: Response):
         # JWTトークン生成
         access_token = create_access_token(user)
         
-        # httpOnlyクッキーに設定
+        # httpOnlyクッキーに設定（環境に応じてsecure設定を調整）
+        is_production = os.getenv("ENVIRONMENT") == "production"
         response.set_cookie(
             key="access_token",
             value=access_token,
             httponly=True,
-            secure=True,
+            secure=is_production,  # 本番環境のみHTTPS必須
             samesite="lax",
             max_age=JWT_EXPIRATION
         )
@@ -130,7 +137,7 @@ async def login(request: LoginRequest, response: Response):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Login failed: {str(e)}")
 
-@app.post("/register", response_model=AuthResponse)
+@app.post("/api/auth/register", response_model=AuthResponse)
 async def register(request: RegisterRequest):
     """ユーザー登録処理"""
     try:
@@ -168,13 +175,13 @@ async def register(request: RegisterRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
 
-@app.post("/logout")
+@app.post("/api/auth/logout")
 async def logout(response: Response):
     """ログアウト処理"""
     response.delete_cookie(key="access_token")
     return {"success": True, "message": "Logged out successfully"}
 
-@app.get("/me")
+@app.get("/api/auth/me")
 async def get_current_user(request: Request):
     """現在のユーザー情報を取得"""
     try:
@@ -205,13 +212,22 @@ async def get_current_user(request: Request):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/health")
+@app.get("/api/auth/health")
 async def health_check():
     """ヘルスチェック"""
     return {
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
-        "version": "1.0.0"
+        "version": "2.0.0",
+        "environment": os.getenv("ENVIRONMENT", "unknown"),
+        "demo_user_available": "demo" in DEMO_USERS,
+        "endpoints": [
+            "/api/auth/login",
+            "/api/auth/register", 
+            "/api/auth/logout",
+            "/api/auth/me",
+            "/api/auth/health"
+        ]
     }
 
 # Vercel handler
