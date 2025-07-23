@@ -51,9 +51,12 @@ cp .env.example .env
 # .envファイルを編集してSupabase情報を設定
 
 # 3. バックエンド起動
-python -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-uvicorn backend.main:app --reload
+
+## ローカル開発（フル機能）
+python start_backend.py
+
+## または軽量認証テスト
+python test_auth_simple.py  # ポート8001で起動
 
 # 4. フロントエンド起動（新しいターミナル）
 cd frontend && npm install && npm run dev
