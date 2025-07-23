@@ -22,7 +22,7 @@
   "rewrites": [
     {
       "source": "/api/auth/(.*)",
-      "destination": "/api/auth_simple.py"
+      "destination": "/api/auth_supabase.py"
     },
     {
       "source": "/api/portfolio/(.*)",
@@ -72,7 +72,10 @@
     "ENABLE_PRICE_STREAMING": "false",
     "JWT_SECRET_KEY": "prod-jwt-secret-key-vercel-crypto-trading-bot-32-chars-long",
     "JWT_ALGORITHM": "HS256",
-    "JWT_EXPIRATION": "86400"
+    "JWT_EXPIRATION": "86400",
+    "SUPABASE_URL": "@supabase-url",
+    "SUPABASE_ANON_KEY": "@supabase-anon-key",
+    "SUPABASE_SERVICE_ROLE_KEY": "@supabase-service-role-key"
   },
   "github": {
     "silent": false

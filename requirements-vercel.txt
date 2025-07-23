@@ -16,7 +16,7 @@ pydantic[email]==2.5.3
 pydantic-settings==2.1.0
 orjson==3.9.10
 
-# Database & Supabase
+# Database & Supabase  
 supabase==2.4.2
 asyncpg==0.29.0
 
