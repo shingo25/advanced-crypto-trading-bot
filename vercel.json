@@ -56,10 +56,7 @@
     "ENABLE_PRICE_STREAMING": "false",
     "JWT_SECRET_KEY": "prod-jwt-secret-key-vercel-crypto-trading-bot-32-chars-long",
     "JWT_ALGORITHM": "HS256",
-    "JWT_EXPIRATION": "86400",
-    "SUPABASE_URL": "@supabase-url",
-    "SUPABASE_ANON_KEY": "@supabase-anon-key",
-    "SUPABASE_SERVICE_ROLE_KEY": "@supabase-service-role-key"
+    "JWT_EXPIRATION": "86400"
   },
   "github": {
     "silent": false
