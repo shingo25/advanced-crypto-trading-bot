@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "public": true,
   "buildCommand": "./scripts/vercel-build.sh",
   "outputDirectory": "frontend/out",
   "framework": null,
