@@ -1,19 +1,44 @@
-# Phase3 対応バックエンドDockerfile
+# Stage 1: Builder stage for compiling TA-Lib
+FROM python:3.9-slim as builder
+
+# TA-Libのビルドに必要なツールをインストール
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# TA-Libをソースからビルド
+WORKDIR /tmp
+RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
+    tar -xzf ta-lib-0.4.0-src.tar.gz && \
+    cd ta-lib/ && \
+    ./configure --prefix=/usr/local && \
+    make && \
+    make install
+
+# Stage 2: Final application stage
 FROM python:3.9-slim
+
+# Python環境変数設定
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
 
 # 作業ディレクトリを設定
 WORKDIR /app
 
-# システムの依存関係をインストール
-# 最適化: libta-lib-devを使ってビルド時間短縮、レイヤーキャッシュ効率化
+# builderステージからコンパイル済みTA-Libライブラリをコピー
+COPY --from=builder /usr/local/lib/libta_lib.so* /usr/local/lib/
+COPY --from=builder /usr/local/include/ta-lib /usr/local/include/ta-lib
+
+# ライブラリパスを設定
+RUN ldconfig
+
+# アプリケーション実行に必要な依存関係のみインストール
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libta-lib-dev \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Python依存関係をコピーしてインストール
-# 確実に存在するファイルのみを使用する安全なアプローチ
 COPY requirements-ci.txt requirements-backend.txt ./
 RUN pip install --no-cache-dir -r requirements-ci.txt && \
     pip install --no-cache-dir -r requirements-backend.txt
@@ -22,10 +47,12 @@ RUN pip install --no-cache-dir -r requirements-ci.txt && \
 COPY backend/ ./backend/
 COPY config/ ./config/
 
+# 非rootユーザーを作成してセキュリティ向上
+RUN useradd -m appuser && chown -R appuser:appuser /app
+USER appuser
+
 # ポート8000を公開
 EXPOSE 8000
-
-# ヘルスチェックはdocker-compose.ymlで定義（重複回避）
 
 # アプリケーションを起動
 CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
