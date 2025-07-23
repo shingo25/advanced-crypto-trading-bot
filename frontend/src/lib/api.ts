@@ -21,8 +21,9 @@ import {
 } from '@/lib/mockData';
 
 // API設定
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
-  (typeof window !== 'undefined' && window.location.origin) || 
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (typeof window !== 'undefined' && window.location.origin) ||
   'http://localhost:8000';
 
 // Axiosインスタンス作成
