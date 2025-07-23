@@ -1,31 +1,18 @@
 """
-Vercel Serverless Function - Main API Entry Point
-軽量版のメインAPIエンドポイント
+Vercel Hello World Test - 最小限のFastAPI
 """
 
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="Crypto Bot API", version="1.0.0")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Vercel用にシンプル化
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
+app = FastAPI()
 
 @app.get("/")
-async def root():
-    return {"message": "Crypto Bot API is running", "version": "1.0.0"}
+async def hello():
+    return {"message": "Hello World from Vercel!", "status": "success"}
 
-
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy", "service": "crypto-bot-api"}
-
+@app.get("/test")
+async def test():
+    return {"test": "working", "version": "hello-world"}
 
 # Vercel handler
 handler = app
