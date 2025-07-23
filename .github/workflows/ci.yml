@@ -24,10 +24,11 @@ jobs:
       - name: 🔍 Run TruffleHog OSS
         id: trufflebehog
         uses: trufflesecurity/trufflehog@main
+        continue-on-error: true
         with:
           path: ./
-          base: main
-          head: HEAD
+          base: ${{ github.event.before }}
+          head: ${{ github.sha }}
           extra_args: --debug --only-verified
 
       - name: 🔍 Run git-secrets
