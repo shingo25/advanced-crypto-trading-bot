@@ -3,8 +3,9 @@ from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, field_validator
 
+# EmailStr の代替：カスタムバリデーション実装済み（CI/CD安定化）
 from backend.core.config import settings
 from backend.core.local_database import get_local_db
 from backend.core.security import (
@@ -31,8 +32,20 @@ class LoginRequest(BaseModel):
 
 class RegisterRequest(BaseModel):
     username: str
-    email: EmailStr
+    email: str
     password: str
+
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, v: str) -> str:
+        """カスタムEmailバリデーション（CI/CD安定化のため）"""
+        import re
+
+        # RFC 5322準拠の簡略版パターン
+        pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+        if not re.match(pattern, v):
+            raise ValueError("有効なメールアドレスを入力してください")
+        return v.lower().strip()
 
 
 class RegisterResponse(BaseModel):
