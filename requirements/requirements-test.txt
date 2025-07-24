@@ -2,8 +2,8 @@
 # requirements.txtから重いパッケージ（ta-lib, freqtrade）のみ除外
 
 # Core Framework
-fastapi==0.109.1
-uvicorn[standard]==0.25.0
+fastapi==0.116.1
+uvicorn[standard]==0.35.0
 gunicorn==21.2.0
 python-multipart==0.0.18
 
@@ -26,16 +26,16 @@ cachetools==5.3.2
 sqlalchemy==2.0.25
 supabase==2.4.2
 asyncpg==0.29.0
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.10
 
 # Data Processing
 pandas==2.1.4
-numpy==1.26.3
-pyarrow==14.0.2
-polars==0.20.2
+numpy==1.26.4
+pyarrow==21.0.0
+polars==1.31.0
 
 # Trading & Market Data
-ccxt==4.2.25
+ccxt==4.4.96
 
 # Technical Analysis (Phase 3)
 pandas-ta==0.3.14b
@@ -46,7 +46,7 @@ talib-binary==0.4.19
 # ta-lib==0.4.28    # CI除外：コンパイルが重い
 
 # Async & Networking
-httpx==0.26.0
+httpx==0.28.1
 aiohttp==3.12.14
 websockets==12.0
 tenacity==8.2.3
