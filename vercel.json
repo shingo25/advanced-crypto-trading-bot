@@ -53,5 +53,8 @@
   },
   "github": {
     "silent": false
+  },
+  "security": {
+    "passwordProtection": false
   }
 }
