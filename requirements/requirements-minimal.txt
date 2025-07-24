@@ -1,6 +1,6 @@
 # Core Framework
-fastapi==0.109.1
-uvicorn[standard]==0.25.0
+fastapi==0.116.1
+uvicorn[standard]==0.35.0
 gunicorn==21.2.0
 python-multipart==0.0.18
 
@@ -21,19 +21,19 @@ click==8.1.7
 sqlalchemy==2.0.25
 supabase==2.4.2
 asyncpg==0.29.0
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.10
 
 # Data Processing (essential only)
 pandas==2.1.4
-numpy==1.26.3
+numpy==1.26.4
 
 # Trading & Market Data (basic only)
-ccxt==4.2.25
+ccxt==4.4.96
 ta==0.11.0
 # ta-lib excluded for CI/CD - use in production only
 
 # Async & Networking
-httpx==0.26.0
+httpx==0.28.1
 websockets==12.0
 tenacity==8.2.3
 

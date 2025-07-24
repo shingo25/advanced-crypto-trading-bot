@@ -1,9 +1,9 @@
 # Vercel Serverless Functions用最小限依存関係
 # 軽量化のため重いライブラリは除外
 
-# Core Framework  
-fastapi==0.115.6
-uvicorn==0.25.0
+# Core Framework
+fastapi==0.116.1
+uvicorn==0.35.0
 python-multipart==0.0.18
 
 # Auth & Security
@@ -22,7 +22,7 @@ supabase==2.4.2
 asyncpg==0.29.0
 
 # Async & Networking
-httpx==0.26.0
+httpx==0.28.1
 aiohttp==3.12.14
 
 # Logging
