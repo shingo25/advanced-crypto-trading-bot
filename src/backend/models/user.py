@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel
 
-from backend.core.supabase_db import SupabaseTable, get_supabase_connection
+from src.backend.core.supabase_db import SupabaseTable, get_supabase_connection
 
 logger = logging.getLogger(__name__)
 

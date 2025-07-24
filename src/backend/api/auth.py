@@ -6,15 +6,15 @@ from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel, field_validator
 
 # EmailStr の代替：カスタムバリデーション実装済み（CI/CD安定化）
-from backend.core.config import settings
-from backend.core.local_database import get_local_db
-from backend.core.security import (
+from src.backend.core.config import settings
+from src.backend.core.local_database import get_local_db
+from src.backend.core.security import (
     authenticate_user,
     create_access_token,
     get_current_user,
     get_password_hash,
 )
-from backend.models.user import UserResponse
+from src.backend.models.user import UserResponse
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

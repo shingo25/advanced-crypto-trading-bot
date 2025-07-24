@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional
 
 from supabase import Client, create_client
 
-from backend.core.config import settings
+from src.backend.core.config import settings
 
 logger = logging.getLogger(__name__)
 

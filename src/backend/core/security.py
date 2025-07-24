@@ -6,9 +6,9 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-from backend.core.config import settings
-from backend.core.database import Database, get_db
-from backend.core.local_database import get_local_db
+from src.backend.core.config import settings
+from src.backend.core.database import Database, get_db
+from src.backend.core.local_database import get_local_db
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)

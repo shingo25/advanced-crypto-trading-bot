@@ -7,8 +7,8 @@ import os
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from backend.core.security import authenticate_user, create_access_token
-from backend.core.config import settings
+from src.backend.core.security import authenticate_user, create_access_token
+from src.backend.core.config import settings
 from dotenv import load_dotenv
 import asyncio
 

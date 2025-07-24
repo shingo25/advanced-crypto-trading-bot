@@ -6,9 +6,9 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
 
-from backend.backtesting.engine import BacktestEngine
-from backend.core.security import get_current_user, require_admin
-from backend.strategies.loader import StrategyLoader
+from src.backend.backtesting.engine import BacktestEngine
+from src.backend.core.security import get_current_user, require_admin
+from src.backend.strategies.loader import StrategyLoader
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

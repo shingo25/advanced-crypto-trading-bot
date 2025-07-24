@@ -1,7 +1,7 @@
 import logging
 from typing import Dict, Type
 
-from backend.core.config import settings
+from src.backend.core.config import settings
 
 from .base import AbstractExchangeAdapter
 from .binance import BinanceAdapter

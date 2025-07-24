@@ -7,9 +7,9 @@ import os
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from backend.core.security import authenticate_user
-from backend.models.trading import get_strategies_model
-from backend.core.config import settings
+from src.backend.core.security import authenticate_user
+from src.backend.models.trading import get_strategies_model
+from src.backend.core.config import settings
 from dotenv import load_dotenv
 import asyncio
 import uuid

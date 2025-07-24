@@ -13,7 +13,7 @@ from unittest.mock import patch
 
 import pytest
 
-from backend.core.messaging import (
+from src.backend.core.messaging import (
     AlertChannels,
     AlertMessage,
     AlertMessageBroker,
@@ -21,7 +21,7 @@ from backend.core.messaging import (
     AlertSubscriber,
     MessagePriority,
 )
-from backend.models.alerts import (
+from src.backend.models.alerts import (
     AlertCategory,
     AlertLevel,
     AlertType,
@@ -30,17 +30,17 @@ from backend.models.alerts import (
     create_risk_alert,
     create_system_alert,
 )
-from backend.monitoring.alert_manager import (
+from src.backend.monitoring.alert_manager import (
     AlertThrottleManager,
     IntegratedAlertManager,
 )
-from backend.notifications.channels.base import (
+from src.backend.notifications.channels.base import (
     NotificationChannel,
     NotificationConfig,
     NotificationResult,
     NotificationStatus,
 )
-from backend.notifications.worker import NotificationRule, NotificationWorker
+from src.backend.notifications.worker import NotificationRule, NotificationWorker
 
 
 class MockRedisManager:

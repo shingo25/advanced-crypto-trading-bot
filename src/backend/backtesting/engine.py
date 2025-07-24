@@ -12,10 +12,10 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 import pandas as pd
 
-from backend.core.supabase_db import get_supabase_client
-from backend.fee_models.base import TradeType
-from backend.fee_models.exchanges import FeeModelFactory
-from backend.risk.position_sizing import RiskManager
+from src.backend.core.supabase_db import get_supabase_client
+from src.backend.fee_models.base import TradeType
+from src.backend.fee_models.exchanges import FeeModelFactory
+from src.backend.risk.position_sizing import RiskManager
 
 logger = logging.getLogger(__name__)
 

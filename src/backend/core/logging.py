@@ -4,7 +4,7 @@ from pathlib import Path
 
 from rich.logging import RichHandler
 
-from backend.core.config import settings
+from src.backend.core.config import settings
 
 
 def setup_logging():

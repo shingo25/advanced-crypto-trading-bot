@@ -15,8 +15,8 @@ from dotenv import load_dotenv
 from fastapi.testclient import TestClient
 
 # プロジェクト内モジュールをインポート
-from backend.core.config import settings
-from backend.main import app
+from src.backend.core.config import settings
+from src.backend.main import app
 
 
 def test_app_initialization():

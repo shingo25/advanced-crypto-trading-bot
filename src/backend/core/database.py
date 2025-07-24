@@ -6,9 +6,9 @@ import logging
 import uuid
 from typing import Any, Dict, List, Optional, Union
 
-from backend.core.config import settings
-from backend.core.supabase_db import get_supabase_connection
-from backend.models.user import get_profiles_model
+from src.backend.core.config import settings
+from src.backend.core.supabase_db import get_supabase_connection
+from src.backend.models.user import get_profiles_model
 
 logger = logging.getLogger(__name__)
 

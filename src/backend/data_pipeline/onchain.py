@@ -7,8 +7,8 @@ from typing import Any, Dict, List, Optional
 
 import httpx
 
-from backend.core.config import settings
-from backend.core.database import get_db
+from src.backend.core.config import settings
+from src.backend.core.database import get_db
 
 logger = logging.getLogger(__name__)
 

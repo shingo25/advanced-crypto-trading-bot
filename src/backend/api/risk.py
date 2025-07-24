@@ -12,8 +12,8 @@ from typing import Any, Dict, Literal, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from backend.core.security import get_current_user
-from backend.risk.advanced_risk_manager import AdvancedRiskManager
+from src.backend.core.security import get_current_user
+from src.backend.risk.advanced_risk_manager import AdvancedRiskManager
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

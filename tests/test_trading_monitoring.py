@@ -6,8 +6,8 @@ import sys
 import os
 import logging
 
-# テスト用のパスを追加
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+# テスト用のパスを追加（pytest.iniで設定済みのため削除）
+# sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 # ログ設定
 logging.basicConfig(level=logging.INFO)

@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # TODO: Update these modules to use Supabase SDK
-from backend.api import (
+from src.backend.api import (
     alerts,
     auth,
     backtest,  # ✓ Supabase SDK implemented
@@ -16,17 +16,17 @@ from backend.api import (
     risk,
     strategies,
 )
-from backend.core.config import settings
-from backend.core.local_database import init_local_db
-from backend.core.logging import setup_logging
-from backend.streaming import price_stream_manager
+from src.backend.core.config import settings
+from src.backend.core.local_database import init_local_db
+from src.backend.core.logging import setup_logging
+from src.backend.streaming import price_stream_manager
 
 # Streaming system
-from backend.streaming import router as streaming_router
+from src.backend.streaming import router as streaming_router
 
 # from backend.api import config, trades
 # WebSocket system
-from backend.websocket import router as websocket_router
+from src.backend.websocket import router as websocket_router
 
 setup_logging()
 logger = logging.getLogger(__name__)

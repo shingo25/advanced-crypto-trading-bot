@@ -16,8 +16,8 @@ from fastapi import (
     WebSocketDisconnect,
 )
 
-from backend.core.security import get_current_user
-from backend.websocket.manager import (
+from src.backend.core.security import get_current_user
+from src.backend.websocket.manager import (
     ChannelType,
     MessageType,
     WebSocketMessage,

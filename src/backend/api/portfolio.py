@@ -12,15 +12,15 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
-from backend.core.security import get_current_user
-from backend.portfolio.strategy_portfolio_manager import (
+from src.backend.core.security import get_current_user
+from src.backend.portfolio.strategy_portfolio_manager import (
     AdvancedPortfolioManager,
     StrategyStatus,
 )
-from backend.strategies.base import BaseStrategy
-from backend.strategies.implementations.bollinger_strategy import BollingerBandsStrategy
-from backend.strategies.implementations.macd_strategy import MACDStrategy
-from backend.strategies.implementations.rsi_strategy import RSIStrategy
+from src.backend.strategies.base import BaseStrategy
+from src.backend.strategies.implementations.bollinger_strategy import BollingerBandsStrategy
+from src.backend.strategies.implementations.macd_strategy import MACDStrategy
+from src.backend.strategies.implementations.rsi_strategy import RSIStrategy
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

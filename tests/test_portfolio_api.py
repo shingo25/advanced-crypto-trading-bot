@@ -9,9 +9,9 @@ import pytest
 import pytest_asyncio
 from httpx import AsyncClient
 
-from backend.core.security import get_current_user
-from backend.main import app
-from backend.portfolio.strategy_portfolio_manager import AdvancedPortfolioManager
+from src.backend.core.security import get_current_user
+from src.backend.main import app
+from src.backend.portfolio.strategy_portfolio_manager import AdvancedPortfolioManager
 
 
 class TestPortfolioAPI:

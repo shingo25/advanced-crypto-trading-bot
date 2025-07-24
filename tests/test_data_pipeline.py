@@ -5,9 +5,9 @@ from unittest.mock import Mock, AsyncMock, patch
 from datetime import datetime, timezone
 from decimal import Decimal
 
-from backend.data_pipeline.collector import DataCollector
-from backend.exchanges.base import OHLCV, TimeFrame
-from backend.models.price_data import PriceData, PriceDataSchema
+from src.backend.data_pipeline.collector import DataCollector
+from src.backend.exchanges.base import OHLCV, TimeFrame
+from src.backend.models.price_data import PriceData, PriceDataSchema
 
 
 class TestDataCollector:

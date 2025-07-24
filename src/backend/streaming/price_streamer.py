@@ -13,7 +13,7 @@ from typing import Dict, List, Set
 import aiohttp
 import websockets
 
-from backend.websocket.manager import (
+from src.backend.websocket.manager import (
     ChannelType,
     MessageType,
     WebSocketMessage,

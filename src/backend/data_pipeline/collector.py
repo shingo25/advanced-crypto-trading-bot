@@ -7,10 +7,10 @@ from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
-from backend.core.database import get_db
-from backend.core.supabase_db import get_supabase_client
-from backend.exchanges.base import OHLCV, AbstractExchangeAdapter, TimeFrame
-from backend.exchanges.factory import ExchangeFactory
+from src.backend.core.database import get_db
+from src.backend.core.supabase_db import get_supabase_client
+from src.backend.exchanges.base import OHLCV, AbstractExchangeAdapter, TimeFrame
+from src.backend.exchanges.factory import ExchangeFactory
 
 logger = logging.getLogger(__name__)
 

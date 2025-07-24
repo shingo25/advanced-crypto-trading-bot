@@ -7,8 +7,8 @@ import os
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from backend.core.database import init_db, get_user_by_username
-from backend.core.security import authenticate_user, get_password_hash
+from src.backend.core.database import init_db, get_user_by_username
+from src.backend.core.security import authenticate_user, get_password_hash
 from dotenv import load_dotenv
 
 
