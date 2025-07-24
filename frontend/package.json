@@ -10,8 +10,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "format": "npx prettier --write .",
-    "format:check": "npx prettier --check .",
+    "format": "npx prettier --write . --ignore-path ../.gitignore",
+    "format:check": "npx prettier --check . --ignore-path ../.gitignore",
+    "format:staged": "npx prettier --write",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -35,7 +36,15 @@
     "zustand": "^5.0.6"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,json,css,scss,md}": "prettier --write"
+    "*.{js,jsx,ts,tsx,json,css,scss,md}": [
+      "prettier --write",
+      "git add"
+    ],
+    "src/**/*.{js,jsx,ts,tsx}": [
+      "prettier --write",
+      "eslint --fix",
+      "git add"
+    ]
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
