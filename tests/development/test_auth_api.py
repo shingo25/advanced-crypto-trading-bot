@@ -70,7 +70,7 @@ def test_password_hashing():
         print(f"   📊 ハッシュ化後: {hashed[:50]}...")
 
         # 検証テスト
-        from backend.core.security import verify_password
+        from src.backend.core.security import verify_password
 
         is_valid = verify_password(test_password, hashed)
 

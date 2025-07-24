@@ -3,16 +3,11 @@ Vercel Serverless Function - Trading Strategies API
 取引戦略専用の軽量API
 """
 
-import os
-import sys
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # 戦略機能のみ
-from backend.api.strategies import router as strategies_router
+from src.backend.api.strategies import router as strategies_router
 
 app = FastAPI(title="Crypto Bot Strategies API", version="1.0.0")
 

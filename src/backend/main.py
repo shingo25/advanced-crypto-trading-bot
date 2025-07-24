@@ -24,7 +24,7 @@ from src.backend.streaming import price_stream_manager
 # Streaming system
 from src.backend.streaming import router as streaming_router
 
-# from backend.api import config, trades
+# from src.backend.api import config, trades
 # WebSocket system
 from src.backend.websocket import router as websocket_router
 
@@ -142,7 +142,7 @@ async def readiness_check():
     if not is_ci_environment:
         # データベース接続チェック（基本的なテスト）
         try:
-            from backend.core.database import _get_database_instance
+            from src.backend.core.database import _get_database_instance
 
             db_instance = _get_database_instance()
             # 簡単な接続テスト

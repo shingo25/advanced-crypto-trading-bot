@@ -656,7 +656,7 @@ class TestNotificationWorker:
             ),
         ]
 
-        from backend.notifications.worker import NotificationRuleEngine
+        from src.backend.notifications.worker import NotificationRuleEngine
 
         rule_engine = NotificationRuleEngine(rules)
 

@@ -5,13 +5,13 @@
 import sys
 import os
 
-# テスト用のパスを追加
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+# テスト用のパスを追加（pytest.iniで設定済みのため削除）
+# sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
 def debug_position_management():
     """ポジション管理のデバッグ"""
-    from backend.trading.engine import TradingEngine, OrderType, OrderSide
+    from src.backend.trading.engine import TradingEngine, OrderType, OrderSide
 
     # エンジンを作成
     engine = TradingEngine()

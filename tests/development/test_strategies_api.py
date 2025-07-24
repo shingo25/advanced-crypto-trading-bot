@@ -120,13 +120,13 @@ async def test_api_simulation():
         current_user = user
 
         # strategies.pyの関数を直接呼び出してテスト
-        from backend.api.strategies import (
+        from src.backend.api.strategies import (
             get_strategies,
             create_strategy,
             get_strategy,
             update_strategy,
         )
-        from backend.api.strategies import StrategyCreate, StrategyUpdate
+        from src.backend.api.strategies import StrategyCreate, StrategyUpdate
 
         # 1. 戦略一覧取得のシミュレーション
         print("   📋 GET /strategies/ のシミュレーション...")

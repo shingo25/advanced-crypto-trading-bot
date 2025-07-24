@@ -75,7 +75,7 @@ def test_ema_strategy_creation():
     print("Testing EMA strategy creation...")
 
     try:
-        from backend.strategies.implementations.ema_strategy import EMAStrategy
+        from src.backend.strategies.implementations.ema_strategy import EMAStrategy
 
         # 戦略を作成
         strategy = EMAStrategy(
@@ -195,7 +195,7 @@ def test_backtest_integration(strategy, data):
     print("Testing backtest integration...")
 
     try:
-        from backend.backtesting.engine import BacktestEngine
+        from src.backend.backtesting.engine import BacktestEngine
 
         # バックテストエンジンを初期化
         engine = BacktestEngine(
@@ -340,8 +340,8 @@ def test_strategy_validation():
     print("Testing strategy validation...")
 
     try:
-        from backend.strategies.base import StrategyValidator
-        from backend.strategies.implementations.ema_strategy import EMAStrategy
+        from src.backend.strategies.base import StrategyValidator
+        from src.backend.strategies.implementations.ema_strategy import EMAStrategy
 
         # 戦略を作成
         strategy = EMAStrategy()

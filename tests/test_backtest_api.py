@@ -25,7 +25,7 @@ def test_backtest_api_import():
         print("🔍 Testing backtest API import...")
 
         # backend.api.backtest をインポート
-        from backend.api import backtest
+        from src.backend.api import backtest
 
         print("✅ backend.api.backtest imported successfully")
 
@@ -67,7 +67,7 @@ def test_main_app_import():
         print("\n🔍 Testing main application import...")
 
         # main.py をインポート
-        from backend.main import app
+        from src.backend.main import app
 
         print("✅ backend.main.app imported successfully")
 

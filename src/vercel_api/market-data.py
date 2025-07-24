@@ -3,16 +3,11 @@ Vercel Serverless Function - Market Data API
 マーケットデータ専用の軽量API
 """
 
-import os
-import sys
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # マーケットデータ機能のみ
-from backend.api.market_data import router as market_data_router
+from src.backend.api.market_data import router as market_data_router
 
 app = FastAPI(title="Crypto Bot Market Data API", version="1.0.0")
 

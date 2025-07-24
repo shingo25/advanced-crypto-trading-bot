@@ -64,39 +64,23 @@ def get_token_from_request(request: Request, token: Optional[str] = Depends(oaut
 
 
 async def get_current_user(
-    request: Request,
-    db: Database = Depends(get_db),
-    token: Optional[str] = Depends(oauth2_scheme),
+    request: Request = None,
+    db: Database = None,
+    token: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """現在のユーザーを取得し、データベースで検証"""
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-
-    # BearerトークンかhttpOnlyクッキーから取得
-    if not token:
-        token = request.cookies.get("access_token")
-
-    if not token:
-        raise credentials_exception
-
-    try:
-        payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-    except JWTError:
-        raise credentials_exception
-
-    # ローカルデータベースでユーザーの存在を確認
-    local_db = get_local_db()
-    user = local_db.get_user_by_username(username)
-    if user is None:
-        raise credentials_exception
-
-    return user
+    """現在のユーザーを取得（個人用途ボット - 認証無効化）
+    
+    個人用途のため認証機能を無効化し、固定ユーザーを返す
+    """
+    # 個人用途ボット用の固定ユーザー情報
+    return {
+        "id": "personal-user",
+        "username": "personal-bot-user", 
+        "email": "user@personal-bot.local",
+        "role": "admin",
+        "is_active": True,
+        "created_at": "2024-01-01T00:00:00Z"
+    }
 
 
 async def require_admin(

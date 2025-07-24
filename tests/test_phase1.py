@@ -190,7 +190,7 @@ class TestIntegration:
 
     def test_database_table_creation(self):
         """データベーステーブルの作成テスト"""
-        from backend.core.database import get_db
+        from src.backend.core.database import get_db
 
         # テーブルの存在確認
         tables = [

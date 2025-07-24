@@ -31,7 +31,7 @@ def test_order_creation():
     print("Testing order creation...")
 
     try:
-        from backend.trading.engine import TradingEngine, OrderType, OrderSide
+        from src.backend.trading.engine import TradingEngine, OrderType, OrderSide
 
         # エンジンを作成
         engine = TradingEngine()
@@ -66,7 +66,7 @@ def test_position_management():
     print("Testing position management...")
 
     try:
-        from backend.trading.engine import TradingEngine, OrderType, OrderSide
+        from src.backend.trading.engine import TradingEngine, OrderType, OrderSide
 
         # エンジンを作成
         engine = TradingEngine()
@@ -117,7 +117,7 @@ def test_order_cancellation():
     print("Testing order cancellation...")
 
     try:
-        from backend.trading.engine import (
+        from src.backend.trading.engine import (
             TradingEngine,
             OrderType,
             OrderSide,
@@ -158,7 +158,7 @@ def test_trading_statistics():
     print("Testing trading statistics...")
 
     try:
-        from backend.trading.engine import TradingEngine, OrderType, OrderSide
+        from src.backend.trading.engine import TradingEngine, OrderType, OrderSide
 
         # エンジンを作成
         engine = TradingEngine()
@@ -206,7 +206,7 @@ def test_alert_creation():
     print("Testing alert creation...")
 
     try:
-        from backend.monitoring.alerts import AlertManager, AlertLevel, AlertType
+        from src.backend.monitoring.alerts import AlertManager, AlertLevel, AlertType
 
         # アラートマネージャーを作成
         alert_manager = AlertManager()
@@ -241,7 +241,7 @@ def test_alert_rules():
     print("Testing alert rules...")
 
     try:
-        from backend.monitoring.alerts import AlertManager
+        from src.backend.monitoring.alerts import AlertManager
 
         # アラートマネージャーを作成
         alert_manager = AlertManager()
@@ -269,7 +269,7 @@ def test_alert_acknowledgment():
     print("Testing alert acknowledgment...")
 
     try:
-        from backend.monitoring.alerts import AlertManager, AlertLevel, AlertType
+        from src.backend.monitoring.alerts import AlertManager, AlertLevel, AlertType
 
         # アラートマネージャーを作成
         alert_manager = AlertManager()
@@ -301,7 +301,7 @@ def test_performance_monitor():
     print("Testing performance monitor...")
 
     try:
-        from backend.monitoring.alerts import AlertManager, PerformanceMonitor
+        from src.backend.monitoring.alerts import AlertManager, PerformanceMonitor
 
         # アラートマネージャーとパフォーマンス監視を作成
         alert_manager = AlertManager()
@@ -337,7 +337,7 @@ def test_alert_statistics():
     print("Testing alert statistics...")
 
     try:
-        from backend.monitoring.alerts import AlertManager, AlertLevel, AlertType
+        from src.backend.monitoring.alerts import AlertManager, AlertLevel, AlertType
 
         # アラートマネージャーを作成
         alert_manager = AlertManager()

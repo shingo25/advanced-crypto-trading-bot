@@ -31,7 +31,7 @@ def test_portfolio_creation():
     print("Testing portfolio creation...")
 
     try:
-        from backend.portfolio.manager import PortfolioManager
+        from src.backend.portfolio.manager import PortfolioManager
 
         # マネージャーを作成
         manager = PortfolioManager()
@@ -61,7 +61,7 @@ def test_asset_management():
     print("Testing asset management...")
 
     try:
-        from backend.portfolio.manager import PortfolioManager, Asset, AssetType
+        from src.backend.portfolio.manager import PortfolioManager, Asset, AssetType
 
         # マネージャーとポートフォリオを作成
         manager = PortfolioManager()
@@ -108,7 +108,7 @@ def test_portfolio_weights():
     print("Testing portfolio weights calculation...")
 
     try:
-        from backend.portfolio.manager import PortfolioManager, Asset, AssetType
+        from src.backend.portfolio.manager import PortfolioManager, Asset, AssetType
 
         # マネージャーとポートフォリオを作成
         manager = PortfolioManager()
@@ -169,7 +169,7 @@ def test_rebalance_suggestions():
     print("Testing rebalance suggestions...")
 
     try:
-        from backend.portfolio.manager import PortfolioManager, Asset, AssetType
+        from src.backend.portfolio.manager import PortfolioManager, Asset, AssetType
 
         # マネージャーとポートフォリオを作成
         manager = PortfolioManager()
@@ -231,7 +231,7 @@ def test_risk_assessment():
     print("Testing risk assessment...")
 
     try:
-        from backend.portfolio.manager import PortfolioManager, Asset, AssetType
+        from src.backend.portfolio.manager import PortfolioManager, Asset, AssetType
 
         # マネージャーとポートフォリオを作成
         manager = PortfolioManager()
@@ -286,7 +286,7 @@ def test_portfolio_optimization():
     print("Testing portfolio optimization...")
 
     try:
-        from backend.portfolio.optimizer import (
+        from src.backend.portfolio.optimizer import (
             PortfolioOptimizer,
             OptimizationObjective,
         )
@@ -334,7 +334,7 @@ def test_portfolio_summary():
     print("Testing portfolio summary...")
 
     try:
-        from backend.portfolio.manager import PortfolioManager, Asset, AssetType
+        from src.backend.portfolio.manager import PortfolioManager, Asset, AssetType
 
         # マネージャーとポートフォリオを作成
         manager = PortfolioManager()

@@ -217,18 +217,18 @@ def init_local_db():
         # デモユーザーが存在しない場合は作成
         demo_user = db.get_user_by_username("demo")
         if not demo_user:
-            from backend.core.security import get_password_hash
+            from src.backend.core.security import get_password_hash
 
             password_hash = get_password_hash("demo")
             db.create_user(username="demo", password_hash=password_hash, email="demo@example.com", role="viewer")
             logger.info("Demo user created successfully")
 
         # 管理者ユーザーをチェック
-        from backend.core.config import settings
+        from src.backend.core.config import settings
 
         admin_user = db.get_user_by_username(settings.ADMIN_USERNAME)
         if not admin_user:
-            from backend.core.security import get_password_hash
+            from src.backend.core.security import get_password_hash
 
             password_hash = get_password_hash(settings.ADMIN_PASSWORD)
             db.create_user(

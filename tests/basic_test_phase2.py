@@ -203,9 +203,9 @@ def test_integration_with_risk_management():
 
     # リスク管理の統合を確認
     risk_integration_checks = [
-        "from backend.risk.position_sizing import RiskManager",
-        "from backend.fee_models.base import FeeModel",
-        "from backend.fee_models.exchanges import FeeModelFactory",
+        "from src.backend.risk.position_sizing import RiskManager",
+        "from src.backend.fee_models.base import FeeModel",
+        "from src.backend.fee_models.exchanges import FeeModelFactory",
         "self.risk_manager = RiskManager",
         "self.fee_model = FeeModelFactory.create",
     ]

@@ -33,7 +33,7 @@ def test_strategy_creation():
     print("Testing strategy creation...")
 
     try:
-        from backend.strategies.implementations.ema_strategy import EMAStrategy
+        from src.backend.strategies.implementations.ema_strategy import EMAStrategy
 
         # 戦略を作成
         strategy = EMAStrategy(
@@ -68,7 +68,7 @@ def test_strategy_validation():
     print("Testing strategy validation...")
 
     try:
-        from backend.strategies.implementations.ema_strategy import EMAStrategy
+        from src.backend.strategies.implementations.ema_strategy import EMAStrategy
 
         # 戦略を作成
         strategy = EMAStrategy()
@@ -89,7 +89,7 @@ def test_base_strategy_methods():
     print("Testing base strategy methods...")
 
     try:
-        from backend.strategies.implementations.ema_strategy import EMAStrategy
+        from src.backend.strategies.implementations.ema_strategy import EMAStrategy
 
         # 戦略を作成
         strategy = EMAStrategy()
@@ -117,7 +117,7 @@ def test_position_management():
     print("Testing position management...")
 
     try:
-        from backend.strategies.implementations.ema_strategy import EMAStrategy
+        from src.backend.strategies.implementations.ema_strategy import EMAStrategy
 
         # 戦略を作成
         strategy = EMAStrategy()
@@ -151,7 +151,7 @@ def test_performance_stats():
     print("Testing performance statistics...")
 
     try:
-        from backend.strategies.implementations.ema_strategy import EMAStrategy
+        from src.backend.strategies.implementations.ema_strategy import EMAStrategy
 
         # 戦略を作成
         strategy = EMAStrategy()
@@ -176,7 +176,7 @@ def test_strategy_reset():
     print("Testing strategy reset...")
 
     try:
-        from backend.strategies.implementations.ema_strategy import EMAStrategy
+        from src.backend.strategies.implementations.ema_strategy import EMAStrategy
 
         # 戦略を作成
         strategy = EMAStrategy()
@@ -210,7 +210,7 @@ def test_strategy_parameters():
     print("Testing strategy parameters...")
 
     try:
-        from backend.strategies.implementations.ema_strategy import EMAStrategy
+        from src.backend.strategies.implementations.ema_strategy import EMAStrategy
 
         # カスタムパラメータで戦略を作成
         custom_params = {

@@ -26,7 +26,7 @@ async def test_price_streamer_import():
     try:
         print("🔍 Testing price streamer import...")
 
-        from backend.streaming.price_streamer import PriceData
+        from src.backend.streaming.price_streamer import PriceData
 
         print("✅ Price streamer imported successfully")
 
@@ -62,7 +62,7 @@ async def test_price_manager_lifecycle():
     try:
         print("\n🔍 Testing price manager lifecycle...")
 
-        from backend.streaming.price_streamer import PriceStreamManager
+        from src.backend.streaming.price_streamer import PriceStreamManager
 
         # テスト用マネージャーを作成
         test_manager = PriceStreamManager()
@@ -88,8 +88,8 @@ async def test_message_broadcasting():
     try:
         print("\n🔍 Testing message broadcasting...")
 
-        from backend.streaming.price_streamer import PriceData, TradeData
-        from backend.websocket.manager import WebSocketMessage, MessageType, ChannelType
+        from src.backend.streaming.price_streamer import PriceData, TradeData
+        from src.backend.websocket.manager import WebSocketMessage, MessageType, ChannelType
 
         # 価格データメッセージ
         sample_price = PriceData(
@@ -147,7 +147,7 @@ async def test_streaming_routes_import():
     try:
         print("\n🔍 Testing streaming routes import...")
 
-        from backend.streaming.routes import router
+        from src.backend.streaming.routes import router
 
         print("✅ Streaming routes imported successfully")
 
@@ -177,7 +177,7 @@ async def test_main_app_streaming_integration():
     try:
         print("\n🔍 Testing main app streaming integration...")
 
-        from backend.main import app
+        from src.backend.main import app
 
         print("✅ Main app with streaming integration imported")
 
@@ -206,7 +206,7 @@ async def test_binance_streamer_config():
     try:
         print("\n🔍 Testing Binance streamer configuration...")
 
-        from backend.streaming.price_streamer import BinanceWebSocketStreamer
+        from src.backend.streaming.price_streamer import BinanceWebSocketStreamer
 
         # テスト用ストリーマー
         streamer = BinanceWebSocketStreamer()
@@ -236,8 +236,8 @@ async def test_websocket_integration():
         print("\n🔍 Testing WebSocket integration...")
 
         # WebSocketマネージャーが利用可能か確認
-        from backend.websocket.manager import websocket_manager
-        from backend.streaming.price_streamer import price_stream_manager
+        from src.backend.websocket.manager import websocket_manager
+        from src.backend.streaming.price_streamer import price_stream_manager
 
         print("✅ WebSocket manager available")
         print("✅ Price stream manager available")
