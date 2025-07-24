@@ -40,12 +40,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Python依存関係をコピーしてインストール
-COPY requirements-ci.txt requirements-backend.txt ./
-RUN pip install --no-cache-dir -r requirements-ci.txt && \
-    pip install --no-cache-dir -r requirements-backend.txt
+COPY requirements/requirements-ci.txt requirements/requirements-backend.txt ./
+RUN pip install --no-cache-dir -r requirements/requirements-ci.txt && \
+    pip install --no-cache-dir -r requirements/requirements-backend.txt
 
 # アプリケーションコードをコピー
-COPY backend/ ./backend/
+COPY src/backend/ ./backend/
 COPY config/ ./config/
 
 # 非rootユーザーを作成してセキュリティ向上

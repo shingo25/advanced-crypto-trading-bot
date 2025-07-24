@@ -2,7 +2,7 @@
 # 除外するファイル・ディレクトリ
 extend-exclude = [
     "tests/development/test_backend_deployment.py",
-    "test_backtest_functionality.py"
+    "tests/test_backtest_functionality.py"
 ]
 
 # ライン長制限
