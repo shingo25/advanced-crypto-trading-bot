@@ -26,7 +26,7 @@ import {
   Assessment as AssessmentIcon,
   History as HistoryIcon,
 } from '@mui/icons-material';
-import { useAuthStore } from '@/store/auth';
+// import { useAuthStore } from '@/store/auth'; // 個人利用版では不要
 import BacktestResultsList from '@/components/backtest/BacktestResultsList';
 import BacktestVisualization from '@/components/backtest/BacktestVisualization';
 
@@ -53,7 +53,7 @@ function TabPanel(props: TabPanelProps) {
 }
 
 export default function BacktestPage() {
-  const { user } = useAuthStore();
+  // const { user } = useAuthStore(); // 個人利用版では不要
   const [activeTab, setActiveTab] = useState(0);
   const [newBacktestDialog, setNewBacktestDialog] = useState(false);
   const [compareDialog, setCompareDialog] = useState(false);
