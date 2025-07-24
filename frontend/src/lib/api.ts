@@ -51,7 +51,12 @@ apiClient.interceptors.response.use(
 export const authApi = {
   async login(username: string, password: string): Promise<AuthResponse> {
     // 個人利用版では常に成功
-    return { user: { id: 'local-user', username: 'local', email: 'local@example.com' }, token: 'mock-token' } as AuthResponse;
+    return {
+      access_token: 'mock-access-token',
+      token_type: 'Bearer',
+      expires_in: 3600,
+      user: { id: 'local-user', username: 'local', email: 'local@example.com' }
+    } as AuthResponse;
   },
   async logout(): Promise<void> {
     // 何もしない

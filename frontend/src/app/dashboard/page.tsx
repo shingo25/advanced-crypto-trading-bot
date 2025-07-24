@@ -21,7 +21,7 @@ export default function DashboardPage() {
       <Box>
         <DashboardSummary />
         <Grid container spacing={3} sx={{ mt: 1 }}>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <PerformanceChart />
           </Grid>
         </Grid>
