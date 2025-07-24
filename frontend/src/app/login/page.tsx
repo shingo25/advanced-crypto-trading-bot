@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 export default function LoginPage() {
   useEffect(() => {
     // Static Export環境でも確実に動作するリダイレクト
-    window.location.href = '/dashboard';
+    window.location.href = '/dashboard/';
   }, []);
 
   return (
@@ -16,7 +16,7 @@ export default function LoginPage() {
         <p className="text-gray-600 mb-4">認証機能は無効化されました</p>
         <p className="text-sm text-gray-500">個人利用版のため認証は不要です</p>
         <div className="mt-4">
-          <a href="/dashboard" className="text-blue-500 hover:underline">
+          <a href="/dashboard/" className="text-blue-500 hover:underline">
             自動リダイレクトされない場合はこちら
           </a>
         </div>
