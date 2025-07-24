@@ -1,11 +1,10 @@
 """
-統合Crypto Bot API - Vercel対応メインアプリケーション
-すべての認証・API機能を統合したFastAPIアプリケーション
+個人用Crypto Bot API - Vercel対応シンプル版
+認証機能なしの個人利用向けアプリケーション
 """
 
 import logging
 import os
-import sys
 from datetime import datetime, timezone
 
 from fastapi import FastAPI
@@ -17,104 +16,104 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # FastAPIアプリケーション作成
-app = FastAPI(title="Crypto Bot API", version="4.0.0", description="統合Crypto Bot API - 認証・取引・データ管理")
+app = FastAPI(title="Personal Crypto Bot API", version="5.0.0", description="個人用Crypto Bot API - シンプル版")
 
-# CORS設定 - Vercel環境対応
-allowed_origins = (
-    ["*"]
-    if os.getenv("ENVIRONMENT") == "development"
-    else [
-        "https://*.vercel.app",
-        "https://advanced-crypto-trading-bot.vercel.app",
-        "https://crypto-bot-frontend.vercel.app",
-        "https://crypto-bot.vercel.app",
-    ]
-)
 
+# CORS設定 - 全オリジン許可（個人利用のため）
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
+    allow_headers=["Content-Type", "X-Requested-With"],
 )
 
-# 認証ルーターをインポート - Vercel対応
-try:
-    # Vercel環境では絶対インポートを使用
-    sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-    from auth import auth_router
-
-    app.include_router(auth_router)
-    logger.info("認証ルーター統合完了")
-except ImportError as e:
-    logger.error(f"認証ルーターの読み込みに失敗: {e}")
-    # Vercel環境では認証ルーターなしでも起動を継続
-
-
-# ヘルスチェック（基本機能）
+# ベーシックエンドポイント
 @app.get("/api")
 async def root():
     """ルートエンドポイント"""
     return {
-        "message": "Crypto Bot API v4.0.0 - 統合認証システム",
+        "message": "Personal Crypto Bot API v5.0.0 - シンプル版",
         "status": "healthy",
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "features": ["Supabase認証", "デモユーザー(demo/demo)", "新規アカウント作成", "JWT認証"],
+        "description": "個人用暗号通貨トレーディングボットAPI",
+        "features": ["価格取得", "取引履歴", "ポートフォリオ管理", "バックテスト"],
+        "version": "5.0.0"
     }
 
 
 @app.get("/api/health")
 async def health_check():
-    """詳細ヘルスチェック"""
-    try:
-        # デモユーザーの遅延初期化（Vercel対応）
-        try:
-            from auth import init_demo_user_if_needed
+    """シンプルヘルスチェック"""
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "version": "5.0.0",
+        "environment": os.getenv("ENVIRONMENT", "production"),
+        "uptime": "ready"
+    }
 
-            init_demo_user_if_needed()
-        except Exception as init_error:
-            logger.warning(f"デモユーザー初期化をスキップ: {init_error}")
 
-        # 環境変数チェック
-        jwt_secret = os.getenv("JWT_SECRET_KEY", "")
-        supabase_url = os.getenv("SUPABASE_URL", "")
-        supabase_key = os.getenv("SUPABASE_ANON_KEY", "")
+# 暗号通貨価格取得API（モック）
+@app.get("/api/prices")
+async def get_crypto_prices():
+    """暗号通貨価格取得（モックデータ）"""
+    return {
+        "prices": {
+            "BTC": {"price": 43250.50, "change_24h": 2.45},
+            "ETH": {"price": 2680.75, "change_24h": -1.23},
+            "ADA": {"price": 0.58, "change_24h": 3.67},
+            "DOT": {"price": 7.42, "change_24h": -0.89}
+        },
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "source": "mock_data"
+    }
 
-        health_status = {
-            "status": "healthy",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "version": "4.0.0",
-            "environment": os.getenv("ENVIRONMENT", "unknown"),
-            "configuration": {
-                "jwt_configured": bool(jwt_secret),
-                "supabase_url_configured": bool(supabase_url),
-                "supabase_key_configured": bool(supabase_key),
+
+# ポートフォリオ情報API（モック）
+@app.get("/api/portfolio")
+async def get_portfolio():
+    """ポートフォリオ情報取得（モックデータ）"""
+    return {
+        "total_value": 25847.30,
+        "holdings": [
+            {"symbol": "BTC", "amount": 0.5, "value": 21625.25},
+            {"symbol": "ETH", "amount": 1.2, "value": 3216.90},
+            {"symbol": "ADA", "amount": 1000, "value": 580.00},
+            {"symbol": "DOT", "amount": 60, "value": 445.20}
+        ],
+        "change_24h": 1.34,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
+
+# 取引履歴API（モック）
+@app.get("/api/trades")
+async def get_trades():
+    """取引履歴取得（モックデータ）"""
+    return {
+        "trades": [
+            {
+                "id": 1,
+                "symbol": "BTC",
+                "type": "buy",
+                "amount": 0.1,
+                "price": 42500.00,
+                "timestamp": "2025-07-23T10:30:00Z"
             },
-            "endpoints": ["/api/auth/login", "/api/auth/register", "/api/auth/logout", "/api/auth/me", "/api/health"],
-        }
-
-        # 設定不備の警告
-        if not all([jwt_secret, supabase_url, supabase_key]):
-            health_status["warnings"] = []
-            if not jwt_secret:
-                health_status["warnings"].append("JWT_SECRET_KEY not configured")
-            if not supabase_url:
-                health_status["warnings"].append("SUPABASE_URL not configured")
-            if not supabase_key:
-                health_status["warnings"].append("SUPABASE_ANON_KEY not configured")
-
-        return health_status
-
-    except Exception as e:
-        logger.error(f"ヘルスチェックエラー: {e}")
-        return {
-            "status": "unhealthy",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "version": "4.0.0",
-            "error": str(e),
-        }
+            {
+                "id": 2,
+                "symbol": "ETH",
+                "type": "sell",
+                "amount": 0.5,
+                "price": 2700.00,
+                "timestamp": "2025-07-23T14:15:00Z"
+            }
+        ],
+        "total_trades": 2,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
 
 
 # Vercel handler - Mangumを使用
