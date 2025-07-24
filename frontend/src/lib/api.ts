@@ -30,92 +30,45 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // httpOnlyクッキーを送信するために必要
+  withCredentials: false, // 個人利用版では認証不要
 });
 
-// 認証状態管理（httpOnlyクッキー使用のため、トークンは直接管理しない）
-let isAuthenticated = false;
+// 個人利用版では認証機能を無効化
+export const setAuthenticatedState = (authenticated: boolean) => {};
+export const getAuthenticatedState = (): boolean => true; // 常に認証済み
+export const clearAuthenticatedState = () => {};
 
-export const setAuthenticatedState = (authenticated: boolean) => {
-  isAuthenticated = authenticated;
-};
-
-export const getAuthenticatedState = (): boolean => {
-  return isAuthenticated;
-};
-
-export const clearAuthenticatedState = () => {
-  isAuthenticated = false;
-};
-
-// レスポンスインターセプター
+// 個人利用版では認証エラー処理を無効化
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      clearAuthenticatedState();
-      // リダイレクト処理は呼び出し元で行う
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login';
-      }
-    }
+    // 401エラーでもリダイレクトしない（個人利用版）
     return Promise.reject(error);
   }
 );
 
-// 認証API
+// 個人利用版では認証APIを無効化（互換性のため空の実装を提供）
 export const authApi = {
   async login(username: string, password: string): Promise<AuthResponse> {
-    try {
-      const response = await apiClient.post('/api/auth/login', {
-        username,
-        password,
-      });
-
-      setAuthenticatedState(true);
-      return response.data;
-    } catch (error) {
-      clearAuthenticatedState();
-      throw error;
-    }
+    // 個人利用版では常に成功
+    return {
+      access_token: 'mock-access-token',
+      token_type: 'Bearer',
+      expires_in: 3600,
+      user: { id: 'local-user', username: 'local', email: 'local@example.com' },
+    } as AuthResponse;
   },
-
   async logout(): Promise<void> {
-    try {
-      await apiClient.post('/api/auth/logout');
-    } catch (error) {
-      console.warn('Logout request failed:', error);
-    } finally {
-      clearAuthenticatedState();
-    }
+    // 何もしない
   },
-
   async getProfile(): Promise<any> {
-    const response = await apiClient.get('/api/auth/me');
-    return response.data;
+    return { id: 'local-user', username: 'local', email: 'local@example.com' };
   },
-
   async refreshToken(): Promise<void> {
-    try {
-      await apiClient.post('/api/auth/refresh');
-      setAuthenticatedState(true);
-    } catch (error) {
-      clearAuthenticatedState();
-      throw error;
-    }
+    // 何もしない
   },
-
   async register(username: string, email: string, password: string): Promise<any> {
-    try {
-      const response = await apiClient.post('/api/auth/register', {
-        username,
-        email,
-        password,
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    return { user: { id: 'local-user', username: username, email: email } };
   },
 };
 

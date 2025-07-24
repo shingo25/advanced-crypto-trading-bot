@@ -1,31 +1,56 @@
-# Phase3 対応フロントエンドDockerfile
-FROM node:20-alpine
+# ==========================================
+# マルチステージビルド対応 Frontend Dockerfile
+# ==========================================
 
-# curlをインストール（ヘルスチェック用）
-RUN apk add --no-cache curl
-
-# 作業ディレクトリを設定
+# Stage 1: 依存関係のインストール
+FROM node:20-alpine AS deps
 WORKDIR /app
 
 # package.jsonとpackage-lock.jsonをコピー
 COPY frontend/package*.json ./
 
-# 依存関係をインストール（dev依存関係も含める - ビルドに必要）
+# 全依存関係をインストール（開発依存含む）
 RUN npm ci
 
-# アプリケーションコードをコピー
+# ==========================================
+# Stage 2: ビルド
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+# 依存関係をコピー
+COPY --from=deps /app/node_modules ./node_modules
+COPY frontend/package*.json ./
+
+# ソースコードをコピー
 COPY frontend/ ./
 
 # Next.jsアプリケーションをビルド
 RUN npm run build
 
-# 本番用依存関係のみ再インストール（ビルド後は不要な依存関係を削除）
-RUN npm ci --only=production && npm cache clean --force
+# ==========================================
+# Stage 3: 本番実行環境
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+# 本番環境変数を設定
+ENV NODE_ENV=production
+
+# curlをインストール（ヘルスチェック用）
+RUN apk add --no-cache curl
+
+# package.jsonのみコピー（scripts実行用）
+COPY frontend/package*.json ./
+
+# 本番用依存関係のみインストール（huskyエラー回避）
+RUN npm ci --only=production --ignore-scripts && npm cache clean --force
+
+# ビルド成果物をコピー
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/out ./out
+COPY --from=builder /app/public ./public
 
 # ポート3000を公開
 EXPOSE 3000
 
-# ヘルスチェックはdocker-compose.ymlで定義（設定の一元化）
-
-# アプリケーションを起動
+# Next.jsサーバーを起動
 CMD ["npm", "start"]

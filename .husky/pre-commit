@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit checks..."
+
+# Frontend用のlint-stagedを実行
+echo "📝 Formatting staged files with Prettier..."
+cd frontend && npx lint-staged
+
+if [ $? -eq 0 ]; then
+  echo "✅ Pre-commit checks passed!"
+else
+  echo "❌ Pre-commit checks failed!"
+  exit 1
+fi

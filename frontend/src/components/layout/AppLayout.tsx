@@ -14,9 +14,6 @@ import {
   ListItemText,
   Toolbar,
   Typography,
-  Avatar,
-  Menu,
-  MenuItem,
   Badge,
   Divider,
 } from '@mui/material';
@@ -27,10 +24,7 @@ import {
   AccountBalanceWallet,
   Settings,
   Notifications,
-  AccountCircle,
-  Logout,
 } from '@mui/icons-material';
-import { useAuthStore } from '@/store/auth';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -48,26 +42,10 @@ const menuItems = [
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const router = useRouter();
-  const { user, logout } = useAuthStore();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
-  };
-
-  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleLogout = () => {
-    logout();
-    router.push('/login');
-    handleMenuClose();
   };
 
   const handleNavigation = (path: string) => {
@@ -124,25 +102,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            暗号通貨取引ボット
+            暗号通貨取引ボット（個人利用版）
           </Typography>
-          <IconButton color="inherit" onClick={handleMenuClick}>
-            <Avatar sx={{ width: 32, height: 32 }}>{user?.username.charAt(0).toUpperCase()}</Avatar>
-          </IconButton>
-          <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-            <MenuItem onClick={handleMenuClose}>
-              <ListItemIcon>
-                <AccountCircle fontSize="small" />
-              </ListItemIcon>
-              プロフィール
-            </MenuItem>
-            <MenuItem onClick={handleLogout}>
-              <ListItemIcon>
-                <Logout fontSize="small" />
-              </ListItemIcon>
-              ログアウト
-            </MenuItem>
-          </Menu>
         </Toolbar>
       </AppBar>
       <Box component="nav" sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}>
