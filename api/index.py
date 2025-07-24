@@ -3,6 +3,7 @@
 """
 
 from fastapi import FastAPI
+from mangum import Mangum
 
 app = FastAPI()
 
@@ -14,5 +15,5 @@ def read_root():
 def health():
     return {"status": "healthy", "service": "crypto-bot-api"}
 
-# Vercel handler
-handler = app
+# Vercel handler - Mangumを使用してASGI → AWS Lambda互換に変換
+handler = Mangum(app)

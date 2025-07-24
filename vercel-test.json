@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/simple.py",
+      "use": "@vercel/python",
+      "config": {
+        "runtime": "python3.11"
+      }
+    },
+    {
+      "src": "api/minimal.py",
+      "use": "@vercel/python",
+      "config": {
+        "runtime": "python3.11"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/simple",
+      "dest": "/api/simple.py"
+    },
+    {
+      "src": "/api/minimal",
+      "dest": "/api/minimal.py"
+    }
+  ]
+}
