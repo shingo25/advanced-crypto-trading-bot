@@ -48,7 +48,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
     setMobileOpen(!mobileOpen);
   };
 
-
   const handleNavigation = (path: string) => {
     router.push(path);
     setMobileOpen(false);

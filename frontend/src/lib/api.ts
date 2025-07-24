@@ -55,7 +55,7 @@ export const authApi = {
       access_token: 'mock-access-token',
       token_type: 'Bearer',
       expires_in: 3600,
-      user: { id: 'local-user', username: 'local', email: 'local@example.com' }
+      user: { id: 'local-user', username: 'local', email: 'local@example.com' },
     } as AuthResponse;
   },
   async logout(): Promise<void> {
