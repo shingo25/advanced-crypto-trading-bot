@@ -32,6 +32,12 @@ class Settings(BaseSettings):
     BINANCE_SECRET: str = ""
     BYBIT_API_KEY: str = ""
     BYBIT_SECRET: str = ""
+    BITGET_API_KEY: str = ""
+    BITGET_SECRET: str = ""
+    HYPERLIQUID_ADDRESS: str = ""  # Ethereum address
+    HYPERLIQUID_PRIVATE_KEY: str = ""  # Private key with 0x prefix
+    BACKPACK_API_KEY: str = ""
+    BACKPACK_SECRET: str = ""
     GLASSNODE_KEY: str = ""
     CRYPTOQUANT_KEY: str = ""
 

@@ -6,6 +6,9 @@ from src.backend.core.config import settings
 from .base import AbstractExchangeAdapter
 from .binance import BinanceAdapter
 from .bybit import BybitAdapter
+from .bitget import BitgetAdapter
+from .hyperliquid import HyperliquidAdapter
+from .backpack import BackpackAdapter
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +19,9 @@ class ExchangeFactory:
     _adapters: Dict[str, Type[AbstractExchangeAdapter]] = {
         "binance": BinanceAdapter,
         "bybit": BybitAdapter,
+        "bitget": BitgetAdapter,
+        "hyperliquid": HyperliquidAdapter,
+        "backpack": BackpackAdapter,
     }
 
     @classmethod
@@ -35,6 +41,15 @@ class ExchangeFactory:
         elif exchange_name == "bybit":
             api_key = settings.BYBIT_API_KEY
             secret = settings.BYBIT_SECRET
+        elif exchange_name == "bitget":
+            api_key = settings.BITGET_API_KEY
+            secret = settings.BITGET_SECRET
+        elif exchange_name == "hyperliquid":
+            api_key = settings.HYPERLIQUID_ADDRESS  # HyperliquidではaddressをAPIキーとして使用
+            secret = settings.HYPERLIQUID_PRIVATE_KEY
+        elif exchange_name == "backpack":
+            api_key = settings.BACKPACK_API_KEY
+            secret = settings.BACKPACK_SECRET
         else:
             raise ValueError(f"No credentials configured for {exchange_name}")
 
