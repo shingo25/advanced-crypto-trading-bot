@@ -7,7 +7,6 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from src.backend.core.config import settings
-from src.backend.core.database import Database
 from src.backend.core.local_database import get_local_db
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -65,7 +64,6 @@ def get_token_from_request(request: Request, token: Optional[str] = Depends(oaut
 
 async def get_current_user(
     request: Request = None,
-    db: Database = None,
     token: Optional[str] = None,
 ) -> Dict[str, Any]:
     """現在のユーザーを取得（個人用途ボット - 認証無効化）
