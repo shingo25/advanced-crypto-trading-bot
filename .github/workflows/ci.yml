@@ -202,9 +202,14 @@ jobs:
         run: |
           # CI環境用のビルド引数を設定
           echo "📦 Verifying requirements files..."
-          ls -la requirements*.txt
+          ls -la requirements/requirements*.txt
+          echo "📦 Full requirements directory structure:"
+          find requirements/ -name "*.txt" -type f
           echo "📋 Verifying Dockerfile.backend content..."
           head -20 Dockerfile.backend
+          echo "📦 Current working directory and contents:"
+          pwd
+          ls -la
           echo "🐳 Building with Docker Compose (completely fresh)..."
           DOCKER_BUILDKIT=1 docker compose build --no-cache --pull
 

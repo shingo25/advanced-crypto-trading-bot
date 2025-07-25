@@ -44,7 +44,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements/requirements-ci.txt requirements/requirements-backend.txt ./
 # 統合インストールで依存関係競合を回避
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements/requirements-ci.txt -r requirements/requirements-backend.txt
+    pip install --no-cache-dir -r requirements-ci.txt -r requirements-backend.txt
 
 # アプリケーションコードをコピー
 COPY src/backend/ ./backend/
