@@ -104,11 +104,12 @@ jobs:
           # Safety一時的に無効化（Pydantic 2.x非互換）
           # pip-auditを代替として使用
           pip install pip-audit
-          pip-audit --requirement requirements-ci.txt --exit-zero || echo "⚠️ Vulnerabilities detected - tracking as technical debt"
+          pip-audit --requirement requirements/requirements-ci.txt --exit-zero || echo "⚠️ Vulnerabilities detected - tracking as technical debt"
 
       - name: 🧪 Run unit tests
         run: |
-          python -m pytest tests/ -v --cov=backend --cov-report=xml --cov-report=term-missing
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
+          python -m pytest tests/ -v --cov=src.backend --cov-report=xml --cov-report=term-missing
 
       - name: 📊 Upload coverage to Codecov
         uses: codecov/codecov-action@v4
