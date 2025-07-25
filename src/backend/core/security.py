@@ -7,7 +7,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from src.backend.core.config import settings
-from src.backend.core.database import Database, get_db
+from src.backend.core.database import Database
 from src.backend.core.local_database import get_local_db
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -69,17 +69,17 @@ async def get_current_user(
     token: Optional[str] = None,
 ) -> Dict[str, Any]:
     """現在のユーザーを取得（個人用途ボット - 認証無効化）
-    
+
     個人用途のため認証機能を無効化し、固定ユーザーを返す
     """
     # 個人用途ボット用の固定ユーザー情報
     return {
         "id": "personal-user",
-        "username": "personal-bot-user", 
+        "username": "personal-bot-user",
         "email": "user@personal-bot.local",
         "role": "admin",
         "is_active": True,
-        "created_at": "2024-01-01T00:00:00Z"
+        "created_at": "2024-01-01T00:00:00Z",
     }
 
 
