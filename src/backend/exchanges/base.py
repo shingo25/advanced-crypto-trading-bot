@@ -2,9 +2,16 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 
 import pandas as pd
+
+# 循環import回避のための遅延import
+try:
+    from src.backend.core.abstract_adapter import AbstractTradingAdapter
+except ImportError:
+    # abstract_adapter.pyがまだ存在しない場合のフォールバック
+    AbstractTradingAdapter = None
 
 
 class TimeFrame(Enum):
@@ -85,7 +92,7 @@ class APIError(ExchangeError):
     pass
 
 
-class AbstractExchangeAdapter(ABC):
+class AbstractExchangeAdapter(AbstractTradingAdapter if AbstractTradingAdapter else ABC):
     """取引所アダプタの抽象基底クラス"""
 
     def __init__(self, api_key: str, secret: str, sandbox: bool = False):
@@ -126,9 +133,67 @@ class AbstractExchangeAdapter(ABC):
         pass
 
     @abstractmethod
-    async def get_balance(self) -> Dict[str, float]:
+    async def get_balance(self) -> Dict[str, Any]:
         """残高を取得"""
         pass
+    
+    # AbstractTradingAdapterインターフェースの実装（委譲）
+    async def get_ticker(self, symbol: str) -> Dict[str, Any]:
+        """価格データを取得（fetch_tickerの委譲）"""
+        ticker = await self.fetch_ticker(symbol)
+        return {
+            "symbol": ticker.symbol,
+            "price": ticker.last,
+            "bid": ticker.bid,
+            "ask": ticker.ask,
+            "volume": ticker.volume,
+            "timestamp": ticker.timestamp.isoformat()
+        }
+    
+    async def get_order_book(self, symbol: str, limit: int = 20) -> Dict[str, Any]:
+        """板情報を取得（デフォルト実装）"""
+        # デフォルトでは空の板情報を返す（各取引所で実装をオーバーライド）
+        return {
+            "bids": [],
+            "asks": [],
+            "timestamp": datetime.now().isoformat()
+        }
+    
+    # 基本的な注文操作（各取引所で実装）
+    async def place_order(self, order) -> Dict[str, Any]:
+        """注文を発注（各取引所で実装）"""
+        raise NotImplementedError("place_order must be implemented by each exchange")
+    
+    async def cancel_order(self, order_id: str) -> Dict[str, Any]:
+        """注文をキャンセル（各取引所で実装）"""
+        raise NotImplementedError("cancel_order must be implemented by each exchange")
+    
+    async def get_order(self, order_id: str) -> Dict[str, Any]:
+        """注文状況を取得（各取引所で実装）"""
+        raise NotImplementedError("get_order must be implemented by each exchange")
+    
+    async def get_open_orders(self, symbol: Optional[str] = None) -> List[Dict[str, Any]]:
+        """未決済注文を取得（各取引所で実装）"""
+        raise NotImplementedError("get_open_orders must be implemented by each exchange")
+    
+    async def connect(self) -> bool:
+        """取引所に接続（デフォルト実装）"""
+        return await self.health_check()
+    
+    async def disconnect(self):
+        """取引所から切断（デフォルト実装）"""
+        # 基本的には何もしない（各取引所で必要に応じてオーバーライド）
+        pass
+    
+    def is_connected(self) -> bool:
+        """接続状態を確認（デフォルト実装）"""
+        # 基本的にはTrueを返す（各取引所で必要に応じてオーバーライド）
+        return True
+    
+    @property
+    def exchange_name(self) -> str:
+        """取引所名を返す"""
+        return self.name
 
     def to_dataframe(self, ohlcv_list: List[OHLCV]) -> pd.DataFrame:
         """OHLCV リストを DataFrame に変換"""

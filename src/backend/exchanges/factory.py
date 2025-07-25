@@ -1,8 +1,10 @@
 import logging
-from typing import Dict, Type, Optional
+from typing import Dict, Type, Optional, List
 from uuid import UUID
 
+from src.backend.core import config
 from src.backend.core.config import settings
+from src.backend.core.abstract_adapter import AbstractAdapterFactory, AbstractTradingAdapter
 
 from .base import AbstractExchangeAdapter
 from .binance import BinanceAdapter
@@ -15,7 +17,7 @@ from .paper_trading_adapter import PaperTradingAdapter
 logger = logging.getLogger(__name__)
 
 
-class ExchangeFactory:
+class ExchangeFactory(AbstractAdapterFactory):
     """取引所アダプタのファクトリークラス（Paper Trading対応）"""
 
     _adapters: Dict[str, Type[AbstractExchangeAdapter]] = {
@@ -29,15 +31,15 @@ class ExchangeFactory:
     # Paper Trading特別扱い（セキュリティのため）
     _paper_trading_adapter = PaperTradingAdapter
 
-    @classmethod
     def create_adapter(
-        cls, 
+        self, 
         exchange_name: str, 
         sandbox: bool = False,
         trading_mode: str = "live",
         user_id: Optional[str] = None,
-        paper_config: Optional[Dict] = None
-    ) -> AbstractExchangeAdapter:
+        paper_config: Optional[Dict] = None,
+        **kwargs
+    ) -> AbstractTradingAdapter:
         """
         指定された取引所のアダプタを作成
         
@@ -55,38 +57,37 @@ class ExchangeFactory:
         if trading_mode == "paper":
             if not user_id:
                 raise ValueError("Paper trading requires user_id")
-            return cls._create_paper_trading_adapter(exchange_name, user_id, paper_config or {})
+            return self._create_paper_trading_adapter(exchange_name, user_id, paper_config or {})
         
         # Live Trading モード（既存ロジック）
         if trading_mode != "live":
             raise ValueError(f"Invalid trading mode: {trading_mode}. Must be 'live' or 'paper'")
             
-        return cls._create_live_adapter(exchange_name, sandbox)
+        return self._create_live_adapter(exchange_name, sandbox)
 
-    @classmethod
-    def _create_live_adapter(cls, exchange_name: str, sandbox: bool) -> AbstractExchangeAdapter:
+    def _create_live_adapter(self, exchange_name: str, sandbox: bool) -> AbstractExchangeAdapter:
         """Live Trading用アダプタを作成（既存ロジック）"""
-        if exchange_name not in cls._adapters:
+        if exchange_name not in self._adapters:
             raise ValueError(f"Unsupported exchange: {exchange_name}")
 
-        adapter_class = cls._adapters[exchange_name]
+        adapter_class = self._adapters[exchange_name]
 
         # 設定から API キーを取得
         if exchange_name == "binance":
-            api_key = settings.BINANCE_API_KEY
-            secret = settings.BINANCE_SECRET
+            api_key = config.settings.BINANCE_API_KEY
+            secret = config.settings.BINANCE_SECRET
         elif exchange_name == "bybit":
-            api_key = settings.BYBIT_API_KEY
-            secret = settings.BYBIT_SECRET
+            api_key = config.settings.BYBIT_API_KEY
+            secret = config.settings.BYBIT_SECRET
         elif exchange_name == "bitget":
-            api_key = settings.BITGET_API_KEY
-            secret = settings.BITGET_SECRET
+            api_key = config.settings.BITGET_API_KEY
+            secret = config.settings.BITGET_SECRET
         elif exchange_name == "hyperliquid":
-            api_key = settings.HYPERLIQUID_ADDRESS  # HyperliquidではaddressをAPIキーとして使用
-            secret = settings.HYPERLIQUID_PRIVATE_KEY
+            api_key = config.settings.HYPERLIQUID_ADDRESS  # HyperliquidではaddressをAPIキーとして使用
+            secret = config.settings.HYPERLIQUID_PRIVATE_KEY
         elif exchange_name == "backpack":
-            api_key = settings.BACKPACK_API_KEY
-            secret = settings.BACKPACK_SECRET
+            api_key = config.settings.BACKPACK_API_KEY
+            secret = config.settings.BACKPACK_SECRET
         else:
             raise ValueError(f"No credentials configured for {exchange_name}")
 
@@ -98,9 +99,8 @@ class ExchangeFactory:
 
         return adapter
     
-    @classmethod
     def _create_paper_trading_adapter(
-        cls, 
+        self, 
         real_exchange: str, 
         user_id: str, 
         paper_config: Dict
@@ -114,7 +114,7 @@ class ExchangeFactory:
             paper_config: Paper Trading設定
         """
         # セキュリティ: 実際のAPIキーは使用しない
-        if real_exchange not in cls._adapters:
+        if real_exchange not in self._adapters:
             logger.warning(f"Unsupported real exchange for paper trading: {real_exchange}, using binance as default")
             real_exchange = "binance"
         
@@ -131,28 +131,26 @@ class ExchangeFactory:
             "mock_api_keys": True,
         }
         
-        adapter = cls._paper_trading_adapter(safe_config)
+        adapter = self._paper_trading_adapter(safe_config)
         logger.info(f"Created paper trading adapter for user {user_id} (real_exchange: {real_exchange})")
         
         return adapter
 
-    @classmethod
-    def get_supported_exchanges(cls, include_paper_trading: bool = False) -> list:
+    def get_supported_exchanges(self, include_paper_trading: bool = False) -> List[str]:
         """
         サポートされている取引所一覧を返す
         
         Args:
             include_paper_trading: Paper Tradingを含むかどうか
         """
-        exchanges = list(cls._adapters.keys())
+        exchanges = list(self._adapters.keys())
         if include_paper_trading:
             exchanges.append("paper_trading")
         return exchanges
 
-    @classmethod
-    def register_adapter(cls, name: str, adapter_class: Type[AbstractExchangeAdapter]):
+    def register_adapter(self, name: str, adapter_class: Type[AbstractExchangeAdapter]):
         """新しいアダプタを登録"""
-        cls._adapters[name.lower()] = adapter_class
+        self._adapters[name.lower()] = adapter_class
         logger.info(f"Registered new exchange adapter: {name}")
 
 
@@ -163,11 +161,14 @@ def create_default_adapter(sandbox: bool = False, trading_mode: str = "live") ->
     if trading_mode == "paper":
         raise ValueError("Paper trading requires explicit user_id and config")
     
+    # ファクトリーインスタンスを作成
+    factory = ExchangeFactory()
+    
     # 設定から最初に利用可能な取引所を選択
     if settings.BINANCE_API_KEY and settings.BINANCE_SECRET:
-        return ExchangeFactory.create_adapter("binance", sandbox, trading_mode)
+        return factory.create_adapter("binance", sandbox, trading_mode)
     elif settings.BYBIT_API_KEY and settings.BYBIT_SECRET:
-        return ExchangeFactory.create_adapter("bybit", sandbox, trading_mode)
+        return factory.create_adapter("bybit", sandbox, trading_mode)
     else:
         raise ValueError("No exchange credentials configured")
 
@@ -182,7 +183,10 @@ def create_adapter_from_config(config: dict) -> AbstractExchangeAdapter:
     user_id = config.get("user_id")
     paper_config = config.get("paper_config", {})
 
-    return ExchangeFactory.create_adapter(
+    # ファクトリーインスタンスを作成
+    factory = ExchangeFactory()
+    
+    return factory.create_adapter(
         exchange_name=exchange_name,
         sandbox=sandbox,
         trading_mode=trading_mode,
@@ -204,7 +208,10 @@ def create_paper_trading_adapter(
         real_exchange: 実際の取引所名（価格データ用）
         paper_config: Paper Trading設定
     """
-    return ExchangeFactory.create_adapter(
+    # ファクトリーインスタンスを作成
+    factory = ExchangeFactory()
+    
+    return factory.create_adapter(
         exchange_name=real_exchange,
         trading_mode="paper",
         user_id=user_id,

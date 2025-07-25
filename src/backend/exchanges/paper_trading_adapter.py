@@ -10,6 +10,7 @@ from decimal import Decimal
 from typing import Dict, List, Optional, Any, Tuple
 from uuid import UUID, uuid4
 
+from src.backend.core.abstract_adapter import AbstractTradingAdapter
 from .base import AbstractExchangeAdapter
 from .binance import BinanceAdapter
 from ..trading.orders.models import Order, OrderType, OrderSide, OrderStatus
@@ -20,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 
-class PaperTradingAdapter(AbstractExchangeAdapter):
+class PaperTradingAdapter(AbstractTradingAdapter):
     """
     Paper Trading Adapter
     リアルタイム価格を使用した模擬取引システム
@@ -37,7 +38,7 @@ class PaperTradingAdapter(AbstractExchangeAdapter):
                 - fee_rates: 手数料率設定
         """
         self.config = config
-        self.exchange_name = "paper_trading"
+        self._exchange_name = "paper_trading"
         self.user_id = config.get("user_id", "default_user")
         
         # データベースサービス初期化
@@ -444,6 +445,11 @@ class PaperTradingAdapter(AbstractExchangeAdapter):
     def is_connected(self) -> bool:
         """接続状態（Paper Tradingでは常にTrue）"""
         return True
+    
+    @property
+    def exchange_name(self) -> str:
+        """取引所名（Paper Trading固定）"""
+        return self._exchange_name
     
     # 追加のヘルパーメソッド
     def get_wallet_summary(self) -> Dict[str, Any]:

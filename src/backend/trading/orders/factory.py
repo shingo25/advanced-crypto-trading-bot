@@ -4,9 +4,9 @@
 """
 
 import logging
-from typing import Dict, Type
+from typing import Dict, Type, Optional
 
-from src.backend.exchanges.factory import ExchangeFactory
+from src.backend.core.abstract_adapter import AbstractAdapterFactory
 from src.backend.trading.orders.commands import (
     CancelOrderCommand,
     CreateOrderCommand,
@@ -73,7 +73,8 @@ class OrderFactory:
 class OrderCommandFactory:
     """注文コマンドの生成を担当するファクトリー"""
     
-    def __init__(self, security_config: Dict = None):
+    def __init__(self, adapter_factory: AbstractAdapterFactory, security_config: Dict = None):
+        self._adapter_factory = adapter_factory
         self._exchange_adapters: Dict[str, object] = {}
         self._validators: Dict[str, OrderValidator] = {}
         self._security_manager: SecurityManager = None
@@ -88,7 +89,7 @@ class OrderCommandFactory:
         
         if cache_key not in self._exchange_adapters:
             try:
-                adapter = ExchangeFactory.create_adapter(exchange, sandbox=sandbox)
+                adapter = self._adapter_factory.create_adapter(exchange, sandbox=sandbox)
                 self._exchange_adapters[cache_key] = adapter
                 logger.info(f"Created exchange adapter for {exchange} (sandbox={sandbox})")
             except Exception as e:
