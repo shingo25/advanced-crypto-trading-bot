@@ -122,9 +122,14 @@ async def get_risk_summary(current_user: dict = Depends(get_current_user)):
         )
 
         # リスクメトリクス計算
-        risk_metrics = risk_manager.calculate_risk_metrics(
-            returns=[0.01, -0.02, 0.015, -0.005, 0.008],  # ダミーデータ
-            benchmark_returns=[0.005, -0.01, 0.01, -0.002, 0.004],  # ダミーデータ
+        portfolio_returns = [0.01, -0.02, 0.015, -0.005, 0.008]  # ダミーデータ
+        strategy_returns = {"default": portfolio_returns}  # ダミーデータ
+        portfolio_positions = {"BTC": 0.5, "ETH": 0.3, "ADA": 0.2}  # ダミーデータ
+        
+        risk_metrics = risk_manager.calculate_portfolio_risk_metrics(
+            portfolio_returns=portfolio_returns,
+            strategy_returns=strategy_returns,
+            portfolio_positions=portfolio_positions
         )
 
         return RiskSummaryResponse(
