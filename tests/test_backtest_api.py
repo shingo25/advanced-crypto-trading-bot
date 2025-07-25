@@ -24,10 +24,10 @@ def test_backtest_api_import():
     try:
         print("🔍 Testing backtest API import...")
 
-        # backend.api.backtest をインポート
+        # src.backend.api.backtest をインポート
         from src.backend.api import backtest
 
-        print("✅ backend.api.backtest imported successfully")
+        print("✅ src.backend.api.backtest imported successfully")
 
         # ルーターが存在することを確認
         assert hasattr(backtest, "router"), "Router not found in backtest module"
@@ -69,7 +69,7 @@ def test_main_app_import():
         # main.py をインポート
         from src.backend.main import app
 
-        print("✅ backend.main.app imported successfully")
+        print("✅ src.backend.main.app imported successfully")
 
         # バックテストルーターが含まれているか確認
         backtest_routes = []

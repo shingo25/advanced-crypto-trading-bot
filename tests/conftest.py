@@ -136,11 +136,11 @@ def mock_supabase_connection(monkeypatch):
         return mock_connection.client
 
     # monkeypatchで関数を置き換え
-    monkeypatch.setattr("backend.core.supabase_db.get_supabase_connection", mock_get_supabase_connection)
-    monkeypatch.setattr("backend.core.supabase_db.get_supabase_client", mock_get_supabase_client)
+    monkeypatch.setattr("src.backend.core.supabase_db.get_supabase_connection", mock_get_supabase_connection)
+    monkeypatch.setattr("src.backend.core.supabase_db.get_supabase_client", mock_get_supabase_client)
 
     # SupabaseConnectionクラス自体もモック化
-    monkeypatch.setattr("backend.core.supabase_db.SupabaseConnection", MockSupabaseConnection)
+    monkeypatch.setattr("src.backend.core.supabase_db.SupabaseConnection", MockSupabaseConnection)
 
     return mock_connection
 

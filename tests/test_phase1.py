@@ -48,7 +48,7 @@ class TestExchangeAdapters:
         with pytest.raises(ValueError):
             ExchangeFactory.create_adapter("invalid_exchange")
 
-    @patch("backend.exchanges.binance.ccxt.binance")
+    @patch("src.backend.exchanges.binance.ccxt.binance")
     def test_binance_adapter_initialization(self, mock_binance):
         """BinanceAdapterの初期化テスト"""
         mock_exchange = Mock()
@@ -61,7 +61,7 @@ class TestExchangeAdapters:
         assert adapter.name == "binance"
         assert adapter.exchange == mock_exchange
 
-    @patch("backend.exchanges.bybit.ccxt.bybit")
+    @patch("src.backend.exchanges.bybit.ccxt.bybit")
     def test_bybit_adapter_initialization(self, mock_bybit):
         """BybitAdapterの初期化テスト"""
         mock_exchange = Mock()

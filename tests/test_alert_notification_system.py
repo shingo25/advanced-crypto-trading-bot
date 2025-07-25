@@ -253,7 +253,7 @@ class TestAlertMessaging:
     @pytest.mark.asyncio
     async def test_alert_publisher(self, mock_redis, sample_alert):
         """AlertPublisherのテスト"""
-        with patch("backend.core.messaging.get_redis_manager", return_value=mock_redis):
+        with patch("src.backend.core.messaging.get_redis_manager", return_value=mock_redis):
             publisher = AlertPublisher()
 
             success = await publisher.publish_alert(sample_alert, MessagePriority.HIGH)
@@ -274,7 +274,7 @@ class TestAlertMessaging:
         def alert_callback(alert: UnifiedAlert):
             received_alerts.append(alert)
 
-        with patch("backend.core.messaging.get_redis_manager", return_value=mock_redis):
+        with patch("src.backend.core.messaging.get_redis_manager", return_value=mock_redis):
             subscriber = AlertSubscriber()
 
             # 購読開始
@@ -303,7 +303,7 @@ class TestAlertMessaging:
         def alert_callback(alert: UnifiedAlert):
             received_alerts.append(alert)
 
-        with patch("backend.core.messaging.get_redis_manager", return_value=mock_redis):
+        with patch("src.backend.core.messaging.get_redis_manager", return_value=mock_redis):
             broker = AlertMessageBroker()
             await broker.start()
 
@@ -469,7 +469,7 @@ class TestIntegratedAlertManager:
     async def test_alert_manager_initialization(self, mock_redis):
         """アラートマネージャー初期化テスト"""
         with patch(
-            "backend.monitoring.alert_manager.get_redis_manager",
+            "src.backend.monitoring.alert_manager.get_redis_manager",
             return_value=mock_redis,
         ):
             manager = IntegratedAlertManager()
@@ -484,10 +484,10 @@ class TestIntegratedAlertManager:
     async def test_alert_manager_send_alert(self, mock_redis, sample_alert):
         """アラート送信テスト"""
         with patch(
-            "backend.monitoring.alert_manager.get_redis_manager",
+            "src.backend.monitoring.alert_manager.get_redis_manager",
             return_value=mock_redis,
         ):
-            with patch("backend.core.messaging.get_redis_manager", return_value=mock_redis):
+            with patch("src.backend.core.messaging.get_redis_manager", return_value=mock_redis):
                 manager = IntegratedAlertManager()
                 await manager.initialize()
 
@@ -508,10 +508,10 @@ class TestIntegratedAlertManager:
     async def test_alert_manager_throttling(self, mock_redis, sample_alert):
         """スロットリングテスト"""
         with patch(
-            "backend.monitoring.alert_manager.get_redis_manager",
+            "src.backend.monitoring.alert_manager.get_redis_manager",
             return_value=mock_redis,
         ):
-            with patch("backend.core.messaging.get_redis_manager", return_value=mock_redis):
+            with patch("src.backend.core.messaging.get_redis_manager", return_value=mock_redis):
                 manager = IntegratedAlertManager()
                 await manager.initialize()
 
@@ -535,10 +535,10 @@ class TestIntegratedAlertManager:
     async def test_alert_manager_legacy_compatibility(self, mock_redis):
         """既存システム互換性テスト"""
         with patch(
-            "backend.monitoring.alert_manager.get_redis_manager",
+            "src.backend.monitoring.alert_manager.get_redis_manager",
             return_value=mock_redis,
         ):
-            with patch("backend.core.messaging.get_redis_manager", return_value=mock_redis):
+            with patch("src.backend.core.messaging.get_redis_manager", return_value=mock_redis):
                 manager = IntegratedAlertManager()
                 await manager.initialize()
 
@@ -566,10 +566,10 @@ class TestIntegratedAlertManager:
     async def test_alert_manager_health_check(self, mock_redis):
         """ヘルスチェックテスト"""
         with patch(
-            "backend.monitoring.alert_manager.get_redis_manager",
+            "src.backend.monitoring.alert_manager.get_redis_manager",
             return_value=mock_redis,
         ):
-            with patch("backend.core.messaging.get_redis_manager", return_value=mock_redis):
+            with patch("src.backend.core.messaging.get_redis_manager", return_value=mock_redis):
                 manager = IntegratedAlertManager()
                 await manager.initialize()
 
@@ -605,7 +605,7 @@ class TestNotificationWorker:
             ],
         }
 
-        with patch("backend.notifications.worker.get_redis_manager", return_value=mock_redis):
+        with patch("src.backend.notifications.worker.get_redis_manager", return_value=mock_redis):
             with patch.object(NotificationWorker, "_load_config"):
                 worker = NotificationWorker()
                 worker.config = test_config
@@ -690,7 +690,7 @@ class TestNotificationWorker:
     @pytest.mark.asyncio
     async def test_notification_worker_health_check(self, mock_redis):
         """ワーカーヘルスチェックテスト"""
-        with patch("backend.notifications.worker.get_redis_manager", return_value=mock_redis):
+        with patch("src.backend.notifications.worker.get_redis_manager", return_value=mock_redis):
             worker = NotificationWorker()
 
             # モックチャネルを追加
@@ -719,10 +719,10 @@ class TestAlertNotificationSystemIntegration:
                 return await super()._send_notification(alert, formatted_message)
 
         with patch(
-            "backend.monitoring.alert_manager.get_redis_manager",
+            "src.backend.monitoring.alert_manager.get_redis_manager",
             return_value=mock_redis,
         ):
-            with patch("backend.core.messaging.get_redis_manager", return_value=mock_redis):
+            with patch("src.backend.core.messaging.get_redis_manager", return_value=mock_redis):
                 # AlertManagerを初期化
                 alert_manager = IntegratedAlertManager()
                 await alert_manager.initialize()
@@ -759,10 +759,10 @@ class TestAlertNotificationSystemIntegration:
     async def test_alert_system_performance(self, mock_redis):
         """アラートシステムパフォーマンステスト"""
         with patch(
-            "backend.monitoring.alert_manager.get_redis_manager",
+            "src.backend.monitoring.alert_manager.get_redis_manager",
             return_value=mock_redis,
         ):
-            with patch("backend.core.messaging.get_redis_manager", return_value=mock_redis):
+            with patch("src.backend.core.messaging.get_redis_manager", return_value=mock_redis):
                 alert_manager = IntegratedAlertManager()
                 await alert_manager.initialize()
 
@@ -805,10 +805,10 @@ class TestAlertNotificationSystemIntegration:
     async def test_system_resilience(self, mock_redis):
         """システム障害耐性テスト"""
         with patch(
-            "backend.monitoring.alert_manager.get_redis_manager",
+            "src.backend.monitoring.alert_manager.get_redis_manager",
             return_value=mock_redis,
         ):
-            with patch("backend.core.messaging.get_redis_manager", return_value=mock_redis):
+            with patch("src.backend.core.messaging.get_redis_manager", return_value=mock_redis):
                 alert_manager = IntegratedAlertManager()
                 await alert_manager.initialize()
 
