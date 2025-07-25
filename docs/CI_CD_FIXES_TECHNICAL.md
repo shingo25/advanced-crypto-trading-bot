@@ -95,7 +95,7 @@ cryptography>=42.0.5
 age==0.5.1
 
 # Config & Utilities
-python-dotenv==1.0.0
+python-dotenv==1.1.1
 pydantic==2.5.3
 pydantic-settings==2.1.0    # ✅ 追加
 PyYAML==6.0.1
