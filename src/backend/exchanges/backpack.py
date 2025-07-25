@@ -112,9 +112,14 @@ class BackpackAdapter(AbstractExchangeAdapter):
         
         try:
             if method.upper() == "POST":
-                async with session.post(url, data=body if auth else json=data, headers=headers) as response:
-                    response.raise_for_status()
-                    result = await response.json()
+                if auth:
+                    async with session.post(url, data=body, headers=headers) as response:
+                        response.raise_for_status()
+                        result = await response.json()
+                else:
+                    async with session.post(url, json=data, headers=headers) as response:
+                        response.raise_for_status()
+                        result = await response.json()
             else:
                 async with session.get(url, params=data if not auth else None, headers=headers) as response:
                     response.raise_for_status()
