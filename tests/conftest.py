@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 os.environ["ENVIRONMENT"] = "test"
 os.environ["SUPABASE_URL"] = "https://test.supabase.co"
 os.environ["SUPABASE_KEY"] = "test_key"
-os.environ["JWT_SECRET"] = "test_secret_key_for_jwt"
+os.environ["JWT_SECRET"] = "test_secret_key_for_jwt_testing_environment_32_characters_long"
 os.environ["REDIS_URL"] = "redis://localhost:6379/0"
 
 
