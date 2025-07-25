@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/websocket/routes.py
+# hypothesis_version: 6.136.4
+
+[403, 404, 500, ',', '/broadcast', '/connections', '/health', '/send', '/ws', '/ws/prices', '/ws/trades', 'ALL', 'active_channels', 'admin', 'analyst', 'authenticated', 'channels', 'connections', 'data', 'error', 'healthy', 'message', 'role', 'service', 'status', 'subscribed_symbols', 'success', 'timestamp', 'total_connections', 'websocket', 'クライアントID（オプション）', 'クライアントが見つかりません', 'メッセージが配信されました', '価格データストリームに接続しました', '取引データストリームに接続しました', '権限が不足しています', '管理者権限が必要です']

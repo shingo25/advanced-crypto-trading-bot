@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/strategies/implementations/macd_strategy.py
+# hypothesis_version: 6.136.4
+
+[0.0, 0.03, 0.06, 0.3, 0.4, 0.6, 0.8, 1.0, 100, '15m', '1d', '1h', '4h', 'BTCUSDT', 'Histogram', 'MACD Line', 'MACD Strategy', 'Medium', 'Momentum', 'Signal Line', 'Trend Following', 'Volume SMA', 'buy', 'category', 'close', 'columns', 'confirmation_bars', 'description', 'diff', 'enter_long', 'enter_short', 'exit_long', 'exit_short', 'fast_period', 'get', 'histogram', 'histogram_change', 'iloc', 'indicators', 'macd', 'macd_above_signal', 'macd_cross_above', 'macd_cross_below', 'macd_line', 'name', 'parameters', 'price_sma', 'required_data_length', 'risk_level', 'rolling', 'sell', 'signal', 'signal_line', 'signal_period', 'slow_period', 'stop_loss_pct', 'take_profit_pct', 'timeframes', 'timestamp', 'type', 'volume', 'volume_sma', 'volume_threshold']

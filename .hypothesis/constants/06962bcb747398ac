@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/models/trading.py
+# hypothesis_version: 6.136.4
+
+[100, '*', 'amount', 'average_entry_price', 'backtest_results', 'created_at', 'description', 'end_period', 'exchange_id', 'fee', 'is_active', 'last_updated', 'name', 'order_id', 'parameters', 'positions', 'price', 'results_data', 'side', 'start_period', 'strategies', 'strategy_id', 'symbol', 'timestamp', 'trades', 'type', 'user_id']

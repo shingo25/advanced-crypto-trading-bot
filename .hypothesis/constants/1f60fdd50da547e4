@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/api/backtest.py
+# hypothesis_version: 6.136.4
+
+[0.0005, 0.001, 0.95, 10000.0, 404, 500, '/results', '/run', '/validate-data', '1h', 'BTC/USDT', 'Strategy not found', 'binance', 'queued', 'username']

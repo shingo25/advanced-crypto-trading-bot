@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/strategies/implementations/ema_strategy.py
+# hypothesis_version: 6.136.4
+
+[0.0, 0.02, 0.06, 0.8, 1.0, '-inf', '1h', 'BTCUSDT', 'EMA Dead Cross', 'EMA Golden Cross', 'EMA Strategy', 'Stop Loss', 'Take Profit', 'allow_short', 'bearish', 'bullish', 'close', 'cross_above', 'cross_below', 'dead', 'downtrend', 'ema_fast', 'ema_slow', 'ema_slow_slope', 'enter_long', 'enter_short', 'entry_price', 'exit_long', 'exit_short', 'golden', 'iloc', 'insufficient_data', 'is_long', 'is_short', 'position', 'price', 'recent_cross', 'required_data_length', 'sharpe_ratio', 'status', 'stop_loss', 'stop_loss_pct', 'take_profit', 'take_profit_pct', 'timestamp', 'total_return', 'trend_confirmation', 'trend_direction', 'trend_strength', 'uptrend', 'volume', 'volume_filter', 'volume_sma', 'volume_threshold', 'win_rate']

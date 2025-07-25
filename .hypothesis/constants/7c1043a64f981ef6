@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/strategies/base.py
+# hypothesis_version: 6.136.4
+
+[0.0, 0.5, 1.0, 100.0, 100, 1000, '1h', 'BTCUSDT', 'Symbol is required', 'close', 'diff', 'enter_long', 'enter_short', 'entry_price', 'entry_time', 'ewm', 'exit_long', 'exit_short', 'high', 'histogram', 'is_long', 'is_short', 'long', 'losing_trades', 'low', 'lower', 'macd', 'max_history_length', 'open', 'required_data_length', 'rolling', 'short', 'signal', 'sma', 'tail', 'timestamp', 'total_signals', 'total_trades', 'unrealized_pnl', 'upper', 'volume', 'win_rate', 'winning_trades']

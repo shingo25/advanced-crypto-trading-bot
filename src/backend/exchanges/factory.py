@@ -35,7 +35,7 @@ class ExchangeFactory(AbstractAdapterFactory):
         self, 
         exchange_name: str, 
         sandbox: bool = False,
-        trading_mode: str = "live",
+        trading_mode: str = "paper",
         user_id: Optional[str] = None,
         paper_config: Optional[Dict] = None,
         **kwargs
@@ -56,12 +56,21 @@ class ExchangeFactory(AbstractAdapterFactory):
         # セキュリティ: Paper Tradingモードの厳格な検証
         if trading_mode == "paper":
             if not user_id:
-                raise ValueError("Paper trading requires user_id")
+                # デフォルトユーザーID（有効なUUID）を使用
+                import uuid
+                user_id = str(uuid.uuid4())
             return self._create_paper_trading_adapter(exchange_name, user_id, paper_config or {})
         
-        # Live Trading モード（既存ロジック）
+        # Live Trading モード（セキュリティチェック）
         if trading_mode != "live":
             raise ValueError(f"Invalid trading mode: {trading_mode}. Must be 'live' or 'paper'")
+        
+        # 非本番環境でのライブトレーディング禁止
+        if settings.ENVIRONMENT.lower() in ["development", "dev", "staging", "test"]:
+            raise ValueError(
+                f"Live trading is not allowed in {settings.ENVIRONMENT} environment. "
+                f"Use 'paper' mode for non-production environments."
+            )
             
         return self._create_live_adapter(exchange_name, sandbox)
 

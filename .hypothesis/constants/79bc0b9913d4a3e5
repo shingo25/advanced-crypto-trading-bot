@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/api/strategies.py
+# hypothesis_version: 6.136.4
+
+[0.0, 400, 403, 404, 500, '/', '/active', '/{strategy_id}', 'Access denied', 'Strategy not found', 'activated', 'created_at', 'deactivated', 'description', 'health', 'health_message', 'healthy', 'id', 'is_active', 'last_execution', 'name', 'parameters', 'performance_summary', 'strategy_id', 'total_return', 'total_trades', 'user_id', 'warning', 'win_rate']

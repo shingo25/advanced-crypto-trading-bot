@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/core/messaging.py
+# hypothesis_version: 6.136.4
+
+['+00:00', 'AlertMessage', 'Z', 'acknowledged', 'active_subscriptions', 'alert', 'alert_id', 'alerts', 'alerts:acknowledged', 'alerts:critical', 'alerts:execution', 'alerts:high_priority', 'alerts:market', 'alerts:performance', 'alerts:resolved', 'alerts:risk', 'alerts:stats', 'alerts:system', 'broker', 'created_at', 'data', 'failed', 'failed_count', 'last_published', 'last_received', 'message_id', 'notifications:failed', 'notifications:sent', 'priority', 'processed_count', 'published_count', 'publisher_stats', 'received_count', 'redis', 'resolved', 'routing_key', 'started', 'status', 'subscribed_channels', 'subscriber_stats', 'success', 'system:health', 'timestamp']
