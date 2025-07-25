@@ -4,15 +4,15 @@ import pytest
 import numpy as np
 from datetime import datetime, timedelta
 
-from backend.portfolio.strategy_portfolio_manager import (
+from src.backend.portfolio.strategy_portfolio_manager import (
     AdvancedPortfolioManager,
     StrategyStatus,
     PerformanceMetrics,
     TradeRecord,
 )
-from backend.strategies.base import BaseStrategy, Signal
-from backend.strategies.implementations.rsi_strategy import RSIStrategy
-from backend.strategies.implementations.macd_strategy import MACDStrategy
+from src.backend.strategies.base import BaseStrategy, Signal
+from src.backend.strategies.implementations.rsi_strategy import RSIStrategy
+from src.backend.strategies.implementations.macd_strategy import MACDStrategy
 
 
 class MockStrategy(BaseStrategy):

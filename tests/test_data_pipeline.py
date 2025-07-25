@@ -5,9 +5,9 @@ from unittest.mock import Mock, AsyncMock, patch
 from datetime import datetime, timezone
 from decimal import Decimal
 
-from backend.data_pipeline.collector import DataCollector
-from backend.exchanges.base import OHLCV, TimeFrame
-from backend.models.price_data import PriceData, PriceDataSchema
+from src.backend.data_pipeline.collector import DataCollector
+from src.backend.exchanges.base import OHLCV, TimeFrame
+from src.backend.models.price_data import PriceData, PriceDataSchema
 
 
 class TestDataCollector:
@@ -87,7 +87,7 @@ class TestDataCollector:
             await collector.collect_ohlcv("BTC/USDT", TimeFrame.HOUR_1)
 
     @pytest.mark.asyncio
-    @patch("backend.data_pipeline.collector.get_supabase_client")
+    @patch("src.backend.data_pipeline.collector.get_supabase_client")
     async def test_save_ohlcv_to_supabase_success(
         self, mock_supabase, collector, sample_ohlcv_data
     ):
@@ -122,7 +122,7 @@ class TestDataCollector:
         assert records[0]["close_price"] == 45200.0
 
     @pytest.mark.asyncio
-    @patch("backend.data_pipeline.collector.get_supabase_client")
+    @patch("src.backend.data_pipeline.collector.get_supabase_client")
     async def test_save_ohlcv_to_supabase_failure(
         self, mock_supabase, collector, sample_ohlcv_data
     ):
@@ -224,7 +224,7 @@ async def test_integration_data_flow():
     collector.adapter = mock_adapter
 
     # Supabaseクライアントをモック
-    with patch("backend.data_pipeline.collector.get_supabase_client") as mock_supabase:
+    with patch("src.backend.data_pipeline.collector.get_supabase_client") as mock_supabase:
         mock_client = Mock()
         mock_table = Mock()
         mock_upsert = Mock()

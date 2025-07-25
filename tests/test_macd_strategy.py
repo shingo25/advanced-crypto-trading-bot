@@ -5,8 +5,8 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 
-from backend.strategies.implementations.macd_strategy import MACDStrategy
-from backend.strategies.base import Signal, TechnicalIndicators
+from src.backend.strategies.implementations.macd_strategy import MACDStrategy
+from src.backend.strategies.base import Signal, TechnicalIndicators
 
 
 class TestMACDStrategy:

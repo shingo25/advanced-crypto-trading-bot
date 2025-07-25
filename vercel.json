@@ -9,7 +9,7 @@
       "use": "@vercel/next"
     },
     {
-      "src": "api/index.py",
+      "src": "src/vercel_api/index.py",
       "use": "@vercel/python"
     }
   ],

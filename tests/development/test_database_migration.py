@@ -7,7 +7,7 @@ import os
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from backend.core.database import (
+from src.backend.core.database import (
     init_db,
     get_db,
     get_user_by_username,

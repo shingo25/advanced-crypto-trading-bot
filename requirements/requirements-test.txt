@@ -1,0 +1,62 @@
+# CI/CDテスト用依存関係
+# requirements.txtから重いパッケージ（ta-lib, freqtrade）のみ除外
+
+# Core Framework
+fastapi==0.116.1
+uvicorn[standard]==0.35.0
+gunicorn==21.2.0
+python-multipart==0.0.18
+
+# Auth & Security
+python-jose[cryptography]==3.5.0
+passlib[bcrypt]==1.7.4
+cryptography>=42.0.5
+age==0.5.1
+
+# Config & Utilities
+python-dotenv==1.1.1
+pydantic[email]==2.11.7
+pydantic-settings==2.6.1
+PyYAML==6.0.1
+orjson==3.9.15
+click==8.1.7
+cachetools==5.3.2
+
+# Database & Supabase
+sqlalchemy==2.0.41
+supabase==2.17.0
+asyncpg==0.30.0
+psycopg2-binary==2.9.10
+
+# Data Processing
+pandas==2.1.4
+numpy==1.26.4
+pyarrow==21.0.0
+polars==1.31.0
+
+# Trading & Market Data
+ccxt==4.4.96
+
+# Technical Analysis (Phase 3)
+pandas-ta==0.3.14b
+talib-binary==0.4.19
+
+# freqtrade==2024.1  # CI除外：重すぎる
+# ta==0.11.0        # ta-libの軽量版は含める
+# ta-lib==0.4.28    # CI除外：コンパイルが重い
+
+# Async & Networking
+httpx==0.28.1
+aiohttp==3.12.14
+websockets==15.0.1
+tenacity==8.2.3
+
+# Monitoring & Logging
+prometheus-client==0.19.0
+rich==13.7.0
+loguru==0.7.2
+
+# Background Jobs
+rq==1.15.1
+redis==5.0.1
+schedule==1.2.0

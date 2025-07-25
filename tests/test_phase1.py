@@ -3,12 +3,12 @@ from unittest.mock import Mock, patch, AsyncMock
 from datetime import datetime, timezone
 import sys
 import os
-from backend.exchanges.base import TimeFrame, OHLCV
-from backend.exchanges.binance import BinanceAdapter
-from backend.exchanges.bybit import BybitAdapter
-from backend.exchanges.factory import ExchangeFactory
-from backend.data_pipeline.collector import DataCollector
-from backend.data_pipeline.onchain import OnChainDataCollector
+from src.backend.exchanges.base import TimeFrame, OHLCV
+from src.backend.exchanges.binance import BinanceAdapter
+from src.backend.exchanges.bybit import BybitAdapter
+from src.backend.exchanges.factory import ExchangeFactory
+from src.backend.data_pipeline.collector import DataCollector
+from src.backend.data_pipeline.onchain import OnChainDataCollector
 
 # テスト用のパスを追加
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -48,7 +48,7 @@ class TestExchangeAdapters:
         with pytest.raises(ValueError):
             ExchangeFactory.create_adapter("invalid_exchange")
 
-    @patch("backend.exchanges.binance.ccxt.binance")
+    @patch("src.backend.exchanges.binance.ccxt.binance")
     def test_binance_adapter_initialization(self, mock_binance):
         """BinanceAdapterの初期化テスト"""
         mock_exchange = Mock()
@@ -61,7 +61,7 @@ class TestExchangeAdapters:
         assert adapter.name == "binance"
         assert adapter.exchange == mock_exchange
 
-    @patch("backend.exchanges.bybit.ccxt.bybit")
+    @patch("src.backend.exchanges.bybit.ccxt.bybit")
     def test_bybit_adapter_initialization(self, mock_bybit):
         """BybitAdapterの初期化テスト"""
         mock_exchange = Mock()
@@ -190,7 +190,7 @@ class TestIntegration:
 
     def test_database_table_creation(self):
         """データベーステーブルの作成テスト"""
-        from backend.core.database import get_db
+        from src.backend.core.database import get_db
 
         # テーブルの存在確認
         tables = [

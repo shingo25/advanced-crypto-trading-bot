@@ -9,10 +9,10 @@ from datetime import datetime, timezone
 # テスト用のパスを追加
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from backend.exchanges.base import TimeFrame, OHLCV
-from backend.exchanges.factory import ExchangeFactory
-from backend.data_pipeline.collector import DataCollector
-from backend.data_pipeline.onchain import OnChainDataCollector
+from src.backend.exchanges.base import TimeFrame, OHLCV
+from src.backend.exchanges.factory import ExchangeFactory
+from src.backend.data_pipeline.collector import DataCollector
+from src.backend.data_pipeline.onchain import OnChainDataCollector
 
 
 def test_timeframe_enum():
@@ -94,12 +94,12 @@ def test_imports():
     print("Testing imports...")
 
     try:
-        from backend.exchanges.base import AbstractExchangeAdapter
-        from backend.exchanges.binance import BinanceAdapter
-        from backend.exchanges.bybit import BybitAdapter
-        from backend.exchanges.factory import ExchangeFactory
-        from backend.data_pipeline.collector import DataCollector
-        from backend.data_pipeline.onchain import OnChainDataCollector
+        from src.backend.exchanges.base import AbstractExchangeAdapter
+        from src.backend.exchanges.binance import BinanceAdapter
+        from src.backend.exchanges.bybit import BybitAdapter
+        from src.backend.exchanges.factory import ExchangeFactory
+        from src.backend.data_pipeline.collector import DataCollector
+        from src.backend.data_pipeline.onchain import OnChainDataCollector
 
         print("✓ All required imports successful")
     except ImportError as e:

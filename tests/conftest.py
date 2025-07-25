@@ -136,11 +136,11 @@ def mock_supabase_connection(monkeypatch):
         return mock_connection.client
 
     # monkeypatchで関数を置き換え
-    monkeypatch.setattr("backend.core.supabase_db.get_supabase_connection", mock_get_supabase_connection)
-    monkeypatch.setattr("backend.core.supabase_db.get_supabase_client", mock_get_supabase_client)
+    monkeypatch.setattr("src.backend.core.supabase_db.get_supabase_connection", mock_get_supabase_connection)
+    monkeypatch.setattr("src.backend.core.supabase_db.get_supabase_client", mock_get_supabase_client)
 
     # SupabaseConnectionクラス自体もモック化
-    monkeypatch.setattr("backend.core.supabase_db.SupabaseConnection", MockSupabaseConnection)
+    monkeypatch.setattr("src.backend.core.supabase_db.SupabaseConnection", MockSupabaseConnection)
 
     return mock_connection
 
@@ -211,9 +211,9 @@ def mock_redis(monkeypatch):
 
     # Mock Redis in alert system
     try:
-        import backend.notifications.alert_manager
+        import src.backend.notifications.alert_manager
 
-        monkeypatch.setattr(backend.notifications.alert_manager, "redis_client", mock_redis_client)
+        monkeypatch.setattr(src.backend.notifications.alert_manager, "redis_client", mock_redis_client)
     except ImportError:
         pass
 
@@ -229,7 +229,7 @@ def test_user():
 @pytest.fixture
 def auth_headers(test_user):
     """Authorization headers with valid JWT token"""
-    from backend.api.auth import create_access_token
+    from src.backend.api.auth import create_access_token
 
     token = create_access_token(data={"sub": test_user["id"]}, expires_delta=timedelta(minutes=30))
     return {"Authorization": f"Bearer {token}"}
@@ -244,14 +244,14 @@ def mock_auth_dependency(monkeypatch, test_user):
 
     # Mock in multiple places to ensure coverage
     try:
-        from backend.api import auth
+        from src.backend.api import auth
 
         monkeypatch.setattr(auth, "get_current_user", mock_get_current_user)
     except ImportError:
         pass
 
     try:
-        from backend.core import security
+        from src.backend.core import security
 
         monkeypatch.setattr(security, "get_current_user", mock_get_current_user)
     except ImportError:

@@ -61,3 +61,4 @@ coverage/
 # Security scan reports
 bandit-report.json
 **/bandit-report.json
+__pycache__

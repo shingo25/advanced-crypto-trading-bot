@@ -4,7 +4,7 @@ import pytest
 import numpy as np
 from datetime import datetime
 
-from backend.risk.advanced_risk_manager import (
+from src.backend.risk.advanced_risk_manager import (
     AdvancedRiskManager,
     RiskLevel,
     AlertType,

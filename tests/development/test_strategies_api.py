@@ -7,9 +7,9 @@ import os
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from backend.core.security import authenticate_user
-from backend.models.trading import get_strategies_model
-from backend.core.config import settings
+from src.backend.core.security import authenticate_user
+from src.backend.models.trading import get_strategies_model
+from src.backend.core.config import settings
 from dotenv import load_dotenv
 import asyncio
 import uuid
@@ -120,13 +120,13 @@ async def test_api_simulation():
         current_user = user
 
         # strategies.pyの関数を直接呼び出してテスト
-        from backend.api.strategies import (
+        from src.backend.api.strategies import (
             get_strategies,
             create_strategy,
             get_strategy,
             update_strategy,
         )
-        from backend.api.strategies import StrategyCreate, StrategyUpdate
+        from src.backend.api.strategies import StrategyCreate, StrategyUpdate
 
         # 1. 戦略一覧取得のシミュレーション
         print("   📋 GET /strategies/ のシミュレーション...")

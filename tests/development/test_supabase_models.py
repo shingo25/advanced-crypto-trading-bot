@@ -7,12 +7,12 @@ import os
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from backend.models.user import get_profiles_model
-from backend.models.trading import (
+from src.backend.models.user import get_profiles_model
+from src.backend.models.trading import (
     get_strategies_model,
     get_trades_model,
 )
-from backend.core.supabase_db import get_supabase_connection
+from src.backend.core.supabase_db import get_supabase_connection
 import uuid
 from dotenv import load_dotenv
 

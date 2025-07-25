@@ -32,7 +32,7 @@ def test_strategy_creation():
     print("Testing strategy creation...")
 
     try:
-        from backend.strategies.implementations.simple_ema_strategy import (
+        from src.backend.strategies.implementations.simple_ema_strategy import (
             SimpleEMAStrategy,
         )
 
@@ -69,7 +69,7 @@ def test_strategy_validation():
     print("Testing strategy validation...")
 
     try:
-        from backend.strategies.implementations.simple_ema_strategy import (
+        from src.backend.strategies.implementations.simple_ema_strategy import (
             SimpleEMAStrategy,
         )
 
@@ -94,7 +94,7 @@ def test_ema_calculation():
     print("Testing EMA calculation...")
 
     try:
-        from backend.strategies.implementations.simple_ema_strategy import (
+        from src.backend.strategies.implementations.simple_ema_strategy import (
             SimpleEMAStrategy,
         )
 
@@ -134,7 +134,7 @@ def test_signal_generation():
     print("Testing signal generation...")
 
     try:
-        from backend.strategies.implementations.simple_ema_strategy import (
+        from src.backend.strategies.implementations.simple_ema_strategy import (
             SimpleEMAStrategy,
         )
 
@@ -180,7 +180,7 @@ def test_position_management():
     print("Testing position management...")
 
     try:
-        from backend.strategies.implementations.simple_ema_strategy import (
+        from src.backend.strategies.implementations.simple_ema_strategy import (
             SimpleEMAStrategy,
         )
 
@@ -216,7 +216,7 @@ def test_analysis_output():
     print("Testing analysis output...")
 
     try:
-        from backend.strategies.implementations.simple_ema_strategy import (
+        from src.backend.strategies.implementations.simple_ema_strategy import (
             SimpleEMAStrategy,
         )
 
@@ -260,7 +260,7 @@ def test_strategy_reset():
     print("Testing strategy reset...")
 
     try:
-        from backend.strategies.implementations.simple_ema_strategy import (
+        from src.backend.strategies.implementations.simple_ema_strategy import (
             SimpleEMAStrategy,
         )
 

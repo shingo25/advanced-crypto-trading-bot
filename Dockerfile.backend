@@ -1,5 +1,6 @@
 # Stage 1: Builder stage for compiling TA-Lib
-# MULTI-STAGE BUILD VERSION: v2.0 - libta-lib-dev issue fixed
+# MULTI-STAGE BUILD VERSION: v2.1 - Dependency conflict fixes
+# Build with: docker build --no-cache -f Dockerfile.backend -t crypto-bot-backend .
 FROM python:3.9-slim as builder
 
 # TA-Libのビルドに必要なツールをインストール
@@ -40,12 +41,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Python依存関係をコピーしてインストール
-COPY requirements-ci.txt requirements-backend.txt ./
-RUN pip install --no-cache-dir -r requirements-ci.txt && \
-    pip install --no-cache-dir -r requirements-backend.txt
+COPY requirements/requirements-ci.txt requirements/requirements-backend.txt ./
+# 統合インストールで依存関係競合を回避
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements-ci.txt -r requirements-backend.txt
 
 # アプリケーションコードをコピー
-COPY backend/ ./backend/
+COPY src/backend/ ./backend/
 COPY config/ ./config/
 
 # 非rootユーザーを作成してセキュリティ向上

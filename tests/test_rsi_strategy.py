@@ -5,8 +5,8 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 
-from backend.strategies.implementations.rsi_strategy import RSIStrategy
-from backend.strategies.base import Signal, TechnicalIndicators
+from src.backend.strategies.implementations.rsi_strategy import RSIStrategy
+from src.backend.strategies.base import Signal, TechnicalIndicators
 
 
 class TestRSIStrategy:
