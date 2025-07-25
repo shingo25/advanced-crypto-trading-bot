@@ -75,4 +75,4 @@ aiosmtplib==3.0.1  # Alert notification tests
 
 # Additional dependencies for E2E and integration tests
 # starlette version is managed by FastAPI dependency
-typing-extensions==4.9.0  # Required for Pydantic compatibility
+typing-extensions==4.14.1  # Required for Pydantic compatibility
