@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/database/paper_wallet_service.py
+# hypothesis_version: 6.136.4
+
+[0.0, 100, '0', 'assets_count', 'available', 'balances', 'beginner', 'deposit', 'fee', 'first_transaction', 'last_transaction', 'lock', 'locked', 'statistics', 'timestamp', 'total', 'total_transactions', 'trade_buy', 'trade_sell', 'unlock', 'user_id']

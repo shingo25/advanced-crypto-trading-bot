@@ -80,6 +80,18 @@ class MockSupabaseQuery:
         self._limit_value = count
         return self
 
+    def order(self, column: str, desc: bool = False):
+        """ORDER BY操作のモック"""
+        self._order_column = column
+        self._order_desc = desc
+        return self
+
+    def range(self, start: int, end: int):
+        """RANGE操作のモック（ページネーション）"""
+        self._range_start = start
+        self._range_end = end
+        return self
+
     def execute(self):
         """クエリ実行のモック"""
         # テーブル名に応じたモックデータを返す
@@ -100,6 +112,15 @@ class MockSupabaseResponse:
     def __init__(self, data: List[Dict[str, Any]], count: Optional[int] = None):
         self.data = data
         self.count = count if count is not None else len(data)
+
+    def execute(self):
+        """Supabaseレスポンスの再実行（チェーンメソッド対応）"""
+        return self
+
+    def order(self, column: str, desc: bool = False):
+        """レスポンス後のソート（チェーンメソッド対応）"""
+        # 実際にはデータのソートを実装することも可能
+        return self
 
 
 class MockSupabaseConnection:

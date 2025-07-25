@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/trading/engine.py
+# hypothesis_version: 6.136.4
+
+[0.0, 0.1, 1.0, 5.0, 1000.0, 10000.0, 50000.0, 300, 'active_orders', 'amount', 'binance', 'buy', 'cancelled', 'config', 'created_at', 'current_price', 'daily_pnl', 'enable_dry_run', 'engine', 'entry_price', 'filled', 'filled_amount', 'filled_orders', 'filled_price', 'id', 'is_running', 'last_update', 'limit', 'market', 'max_daily_loss', 'max_drawdown', 'max_position_size', 'open_positions', 'order_timeout', 'order_type', 'orders', 'partially_filled', 'pending', 'positions', 'price', 'realized_pnl', 'rejected', 'risk', 'risk_limits', 'risk_violations', 'sell', 'side', 'start_time', 'stats', 'status', 'stop_loss', 'strategy_name', 'success', 'symbol', 'take_profit', 'temp', 'timestamp', 'total_pnl', 'total_volume', 'unrealized_pnl', 'updated_at', 'uptime']
