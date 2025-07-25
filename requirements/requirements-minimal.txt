@@ -14,7 +14,7 @@ python-dotenv==1.0.0
 pydantic[email]==2.5.3
 pydantic-settings==2.1.0
 PyYAML==6.0.1
-orjson==3.9.10
+orjson==3.9.15
 click==8.1.7
 
 # Database & Supabase
