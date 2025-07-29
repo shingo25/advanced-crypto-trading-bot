@@ -39,14 +39,16 @@ class TestExchangeAdapters:
 
     def test_exchange_factory_supported_exchanges(self):
         """ExchangeFactoryのサポート取引所テスト"""
-        supported = ExchangeFactory.get_supported_exchanges()
+        factory = ExchangeFactory()
+        supported = factory.get_supported_exchanges()
         assert "binance" in supported
         assert "bybit" in supported
 
     def test_exchange_factory_invalid_exchange(self):
         """無効な取引所名のテスト"""
+        factory = ExchangeFactory()
         with pytest.raises(ValueError):
-            ExchangeFactory.create_adapter("invalid_exchange")
+            factory.create_adapter("invalid_exchange")
 
     @patch("src.backend.exchanges.binance.ccxt.binance")
     def test_binance_adapter_initialization(self, mock_binance):

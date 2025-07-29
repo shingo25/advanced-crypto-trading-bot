@@ -40,7 +40,7 @@ class TestConfigSecurity:
             "ENVIRONMENT": "production",
             "ADMIN_PASSWORD": "change_this_password"
         }):
-            with pytest.raises(ValueError, match="Default admin password must be changed in production"):
+            with pytest.raises(ValueError, match="Admin password contains weak patterns and must be changed"):
                 Settings()
     
     def test_development_environment_properties(self):
@@ -54,7 +54,7 @@ class TestConfigSecurity:
         """本番環境プロパティテスト"""
         with patch.dict(os.environ, {
             "ENVIRONMENT": "production",
-            "ADMIN_PASSWORD": "secure_production_password_123!",
+            "ADMIN_PASSWORD": "Secure_Production_Password_2024!",
             "JWT_SECRET": "very_secure_jwt_secret_key_for_production_environment_32chars"
         }):
             settings = Settings()
