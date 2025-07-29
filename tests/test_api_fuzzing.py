@@ -73,24 +73,24 @@ if SCHEMATHESIS_AVAILABLE and schema is not None:
         
         @schema.parametrize()
         def test_no_server_errors(self, case):
-        """
-        5xx系サーバーエラーが発生しないことを検証
-        どんな不正なリクエストでもサーバーがクラッシュしてはいけない
-        """
-        try:
-            response = client.request(
-                method=case.method,
-                url=case.formatted_path,
-                headers=case.headers,
-                params=case.query,
-                json=case.body
-            )
-            
-            # サーバーエラー（5xx）が発生しないことを確認
-            assert response.status_code < 500, f"Server error on {case.method} {case.formatted_path}: {response.text}"
-            
-        except Exception as e:
-            handle_client_side_errors(e, case)
+            """
+            5xx系サーバーエラーが発生しないことを検証
+            どんな不正なリクエストでもサーバーがクラッシュしてはいけない
+            """
+            try:
+                response = client.request(
+                    method=case.method,
+                    url=case.formatted_path,
+                    headers=case.headers,
+                    params=case.query,
+                    json=case.body
+                )
+                
+                # サーバーエラー（5xx）が発生しないことを確認
+                assert response.status_code < 500, f"Server error on {case.method} {case.formatted_path}: {response.text}"
+                
+            except Exception as e:
+                handle_client_side_errors(e, case)
     
     @schema.parametrize()
     def test_proper_error_responses(self, case):
@@ -124,61 +124,61 @@ if SCHEMATHESIS_AVAILABLE and schema is not None:
             handle_client_side_errors(e, case)
 
 
-class TestAPIFuzzingAuthentication:
-    """認証関連のAPIファジングテスト"""
-    
-    @schema.parametrize()
-    def test_protected_endpoints_without_auth(self, case):
-        """
-        認証が必要なエンドポイントで未認証アクセスの検証
-        """
-        try:
-            # 認証ヘッダーなしでリクエスト
-            response = client.request(
-                method=case.method,
-                url=case.formatted_path,
-                headers=case.headers,
-                params=case.query,
-                json=case.body
-            )
-            
-            # サーバーエラーは発生してはいけない
-            assert response.status_code < 500
-            
-            # 認証が必要なエンドポイントでは401または403が返されるべき
-            # （ただし、公開エンドポイントは200/404も許可）
-            if "/auth/" in case.formatted_path and case.formatted_path not in ["/auth/login", "/auth/register"]:
-                assert response.status_code in [401, 403, 404], f"Protected endpoint should require auth: {case.formatted_path}"
+    class TestAPIFuzzingAuthentication:
+        """認証関連のAPIファジングテスト"""
+        
+        @schema.parametrize()
+        def test_protected_endpoints_without_auth(self, case):
+            """
+            認証が必要なエンドポイントで未認証アクセスの検証
+            """
+            try:
+                # 認証ヘッダーなしでリクエスト
+                response = client.request(
+                    method=case.method,
+                    url=case.formatted_path,
+                    headers=case.headers,
+                    params=case.query,
+                    json=case.body
+                )
                 
-        except Exception as e:
-            handle_client_side_errors(e, case)
-    
-    @schema.parametrize()
-    def test_invalid_token_handling(self, case, invalid_auth_token):
-        """
-        無効なトークンでのアクセス検証
-        """
-        try:
-            headers = case.headers or {}
-            headers["Authorization"] = invalid_auth_token
-            
-            response = client.request(
-                method=case.method,
-                url=case.formatted_path,
-                headers=headers,
-                params=case.query,
-                json=case.body
-            )
-            
-            # サーバーエラーは発生してはいけない
-            assert response.status_code < 500
-            
-            # 無効なトークンは適切に拒否されるべき
-            if "/auth/" in case.formatted_path and case.formatted_path not in ["/auth/login", "/auth/register"]:
-                assert response.status_code in [401, 403, 404]
+                # サーバーエラーは発生してはいけない
+                assert response.status_code < 500
                 
-        except Exception as e:
-            handle_client_side_errors(e, case)
+                # 認証が必要なエンドポイントでは401または403が返されるべき
+                # （ただし、公開エンドポイントは200/404も許可）
+                if "/auth/" in case.formatted_path and case.formatted_path not in ["/auth/login", "/auth/register"]:
+                    assert response.status_code in [401, 403, 404], f"Protected endpoint should require auth: {case.formatted_path}"
+                    
+            except Exception as e:
+                handle_client_side_errors(e, case)
+    
+        @schema.parametrize()
+        def test_invalid_token_handling(self, case, invalid_auth_token):
+            """
+            無効なトークンでのアクセス検証
+            """
+            try:
+                headers = case.headers or {}
+                headers["Authorization"] = invalid_auth_token
+                
+                response = client.request(
+                    method=case.method,
+                    url=case.formatted_path,
+                    headers=headers,
+                    params=case.query,
+                    json=case.body
+                )
+                
+                # サーバーエラーは発生してはいけない
+                assert response.status_code < 500
+                
+                # 無効なトークンは適切に拒否されるべき
+                if "/auth/" in case.formatted_path and case.formatted_path not in ["/auth/login", "/auth/register"]:
+                    assert response.status_code in [401, 403, 404]
+                    
+            except Exception as e:
+                handle_client_side_errors(e, case)
 
 
 class TestAPIFuzzingInput:
