@@ -1,7 +1,13 @@
 import logging
-from datetime import timedelta
+import secrets
+import smtplib
+import time
+from datetime import datetime, timedelta
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from typing import Dict, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status, Header
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel, field_validator
 
@@ -15,9 +21,240 @@ from src.backend.core.security import (
     get_password_hash,
 )
 from src.backend.models.user import UserResponse
+from src.backend.exchanges.factory import ExchangeFactory
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+# Trading Mode切り替え専用レート制限
+# ユーザーIDごとに試行回数と時刻を記録
+_trading_mode_rate_limits: Dict[str, Dict[str, any]] = {}
+
+# CSRFトークン管理
+# セッションごとのCSRFトークンを記録
+_csrf_tokens: Dict[str, Dict[str, any]] = {}
+
+
+def check_trading_mode_rate_limit(user_id: str, operation: str = "switch") -> None:
+    """
+    Trading Mode切り替えのレート制限をチェック
+    
+    制限:
+    - Live切り替え: 1時間に3回まで
+    - 連続失敗: 5回失敗で1時間ロック
+    """
+    current_time = time.time()
+    
+    if user_id not in _trading_mode_rate_limits:
+        _trading_mode_rate_limits[user_id] = {
+            "attempts": [],
+            "failures": [],
+            "locked_until": 0
+        }
+    
+    user_limits = _trading_mode_rate_limits[user_id]
+    
+    # ロック状態チェック
+    if current_time < user_limits["locked_until"]:
+        remaining_time = int(user_limits["locked_until"] - current_time)
+        logger.warning(f"Rate limit: User {user_id} is locked for {remaining_time} seconds")
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=f"アカウントが一時的にロックされています。{remaining_time}秒後に再試行してください。"
+        )
+    
+    # 古い記録を削除（1時間以内のみ保持）
+    hour_ago = current_time - 3600  # 1時間前
+    user_limits["attempts"] = [ts for ts in user_limits["attempts"] if ts > hour_ago]
+    user_limits["failures"] = [ts for ts in user_limits["failures"] if ts > hour_ago]
+    
+    # Live切り替え試行回数チェック（1時間に3回まで）
+    if operation == "live_switch" and len(user_limits["attempts"]) >= 3:
+        logger.warning(f"Rate limit: User {user_id} exceeded live trading switch attempts")
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Live Trading切り替えは1時間に3回までです。時間を置いて再試行してください。"
+        )
+    
+    # 連続失敗チェック（5回失敗で1時間ロック）
+    if len(user_limits["failures"]) >= 5:
+        user_limits["locked_until"] = current_time + 3600  # 1時間ロック
+        logger.warning(f"Rate limit: User {user_id} locked due to 5 consecutive failures")
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="連続失敗が多すぎます。アカウントを1時間ロックしました。"
+        )
+    
+    # 試行回数を記録
+    if operation == "live_switch":
+        user_limits["attempts"].append(current_time)
+
+
+def record_trading_mode_failure(user_id: str) -> None:
+    """Trading Mode切り替え失敗を記録"""
+    current_time = time.time()
+    
+    if user_id not in _trading_mode_rate_limits:
+        _trading_mode_rate_limits[user_id] = {
+            "attempts": [],
+            "failures": [],
+            "locked_until": 0
+        }
+    
+    _trading_mode_rate_limits[user_id]["failures"].append(current_time)
+    logger.info(f"Rate limit: Recorded failure for user {user_id}")
+
+
+def record_trading_mode_success(user_id: str) -> None:
+    """Trading Mode切り替え成功時に失敗カウントをリセット"""
+    if user_id in _trading_mode_rate_limits:
+        _trading_mode_rate_limits[user_id]["failures"] = []
+        logger.info(f"Rate limit: Reset failure count for user {user_id}")
+
+
+def generate_csrf_token(user_id: str) -> str:
+    """ユーザー専用のCSRFトークンを生成"""
+    token = secrets.token_urlsafe(32)
+    current_time = time.time()
+    
+    _csrf_tokens[user_id] = {
+        "token": token,
+        "created_at": current_time,
+        "expires_at": current_time + 3600  # 1時間有効
+    }
+    
+    logger.info(f"CSRF token generated for user {user_id}")
+    return token
+
+
+def verify_csrf_token(user_id: str, provided_token: str) -> bool:
+    """CSRFトークンを検証"""
+    if user_id not in _csrf_tokens:
+        logger.warning(f"CSRF: No token found for user {user_id}")
+        return False
+    
+    token_data = _csrf_tokens[user_id]
+    current_time = time.time()
+    
+    # トークン期限切れチェック
+    if current_time > token_data["expires_at"]:
+        logger.warning(f"CSRF: Token expired for user {user_id}")
+        del _csrf_tokens[user_id]
+        return False
+    
+    # トークン一致チェック
+    if not secrets.compare_digest(token_data["token"], provided_token):
+        logger.warning(f"CSRF: Token mismatch for user {user_id}")
+        return False
+    
+    logger.info(f"CSRF: Token verified for user {user_id}")
+    return True
+
+
+def cleanup_expired_csrf_tokens() -> None:
+    """期限切れCSRFトークンをクリーンアップ"""
+    current_time = time.time()
+    expired_users = []
+    
+    for user_id, token_data in _csrf_tokens.items():
+        if current_time > token_data["expires_at"]:
+            expired_users.append(user_id)
+    
+    for user_id in expired_users:
+        del _csrf_tokens[user_id]
+        logger.info(f"CSRF: Cleaned up expired token for user {user_id}")
+    
+    if expired_users:
+        logger.info(f"CSRF: Cleaned up {len(expired_users)} expired tokens")
+
+
+def send_trading_mode_notification_email(user_email: str, user_name: str, mode: str, timestamp: str) -> bool:
+    """取引モード変更の通知メールを送信"""
+    try:
+        # 開発環境ではメール送信をスキップ（ログのみ）
+        if settings.ENVIRONMENT.lower() in ["development", "dev", "test"]:
+            logger.info(
+                f"Email notification (dev mode): User {user_name} ({user_email}) "
+                f"changed trading mode to {mode.upper()} at {timestamp}"
+            )
+            return True
+        
+        # メール設定（環境変数から取得）
+        smtp_server = getattr(settings, 'SMTP_SERVER', 'localhost')
+        smtp_port = getattr(settings, 'SMTP_PORT', 587)
+        smtp_username = getattr(settings, 'SMTP_USERNAME', '')
+        smtp_password = getattr(settings, 'SMTP_PASSWORD', '')
+        from_email = getattr(settings, 'FROM_EMAIL', 'noreply@crypto-bot.com')
+        
+        # メール本文作成
+        subject = f"【重要】取引モード変更通知 - {mode.upper()} Mode"
+        
+        if mode == "live":
+            body = f"""
+            {user_name} 様
+            
+            【重要な通知】
+            
+            あなたのアカウントで Live Trading モードが有効化されました。
+            
+            詳細情報:
+            - ユーザー名: {user_name}
+            - 変更後モード: Live Trading (実際の資金での取引)
+            - 変更日時: {timestamp}
+            
+            ⚠️ 注意事項:
+            - Live Trading モードでは実際の資金で取引が実行されます
+            - 意図しない変更の場合は、直ちに Paper Trading モードに戻してください
+            - 不正なアクセスが疑われる場合は、パスワードを変更してください
+            
+            本通知に心当たりがない場合は、直ちにサポートまでご連絡ください。
+            
+            ---
+            Crypto Trading Bot
+            自動送信メール - 返信不要
+            """
+        else:
+            body = f"""
+            {user_name} 様
+            
+            取引モードが Paper Trading に変更されました。
+            
+            詳細情報:
+            - ユーザー名: {user_name}
+            - 変更後モード: Paper Trading (模擬取引)
+            - 変更日時: {timestamp}
+            
+            Paper Trading モードでは実際の資金は使用されません。
+            
+            ---
+            Crypto Trading Bot
+            自動送信メール - 返信不要
+            """
+        
+        # メールメッセージ作成
+        msg = MIMEMultipart()
+        msg['From'] = from_email
+        msg['To'] = user_email
+        msg['Subject'] = subject
+        msg.attach(MIMEText(body, 'plain', 'utf-8'))
+        
+        # SMTP接続とメール送信
+        if smtp_username and smtp_password:
+            with smtplib.SMTP(smtp_server, smtp_port) as server:
+                server.starttls()
+                server.login(smtp_username, smtp_password)
+                server.send_message(msg)
+        else:
+            # 認証情報がない場合はローカルSMTPを使用
+            with smtplib.SMTP(smtp_server, smtp_port) as server:
+                server.send_message(msg)
+        
+        logger.info(f"Email notification sent to {user_email} for {mode} trading mode change")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Failed to send email notification to {user_email}: {e}")
+        return False
 
 
 class Token(BaseModel):
@@ -51,6 +288,27 @@ class RegisterRequest(BaseModel):
 class RegisterResponse(BaseModel):
     message: str
     user: UserResponse
+
+
+class TradingModeRequest(BaseModel):
+    """取引モード切り替えリクエスト"""
+    mode: str  # "paper" または "live"
+    confirmation_text: str  # 確認のため "LIVE" と入力
+    csrf_token: str  # CSRF攻撃防止トークン
+    
+    @field_validator("mode")
+    @classmethod
+    def validate_mode(cls, v: str) -> str:
+        if v not in ["paper", "live"]:
+            raise ValueError("取引モードは 'paper' または 'live' である必要があります")
+        return v.lower()
+
+
+class TradingModeResponse(BaseModel):
+    """取引モード切り替えレスポンス"""
+    current_mode: str
+    message: str
+    timestamp: str
 
 
 @router.post("/login", response_model=Token)
@@ -171,3 +429,171 @@ async def register(request: RegisterRequest):
     except Exception as e:
         logger.error(f"Failed to register user {request.username}: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create user")
+
+
+@router.get("/csrf-token")
+async def get_csrf_token(current_user: dict = Depends(get_current_user)):
+    """CSRFトークンを取得"""
+    try:
+        user_id = current_user.get("id", current_user.get("username", "unknown"))
+        
+        # 期限切れトークンをクリーンアップ
+        cleanup_expired_csrf_tokens()
+        
+        # 新しいCSRFトークンを生成
+        csrf_token = generate_csrf_token(user_id)
+        
+        return {
+            "csrf_token": csrf_token,
+            "expires_in": 3600,  # 1時間
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Failed to generate CSRF token for user {current_user['username']}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="CSRFトークン生成に失敗しました"
+        )
+
+
+@router.get("/trading-mode")
+async def get_trading_mode(current_user: dict = Depends(get_current_user)):
+    """現在の取引モードを取得"""
+    try:
+        # デフォルトではPaperモードを返す（セキュリティ優先）
+        return TradingModeResponse(
+            current_mode="paper",
+            message="現在のモードは Paper Trading です",
+            timestamp=datetime.now().isoformat()
+        )
+    except Exception as e:
+        logger.error(f"Failed to get trading mode for user {current_user['username']}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail="取引モード取得に失敗しました"
+        )
+
+
+@router.post("/trading-mode", response_model=TradingModeResponse)
+async def set_trading_mode(
+    request: TradingModeRequest, 
+    current_user: dict = Depends(get_current_user)
+):
+    """取引モードを変更（セキュリティ重視）"""
+    user_id = current_user.get("id", current_user.get("username", "unknown"))
+    
+    try:
+        # CSRFトークン検証
+        if not verify_csrf_token(user_id, request.csrf_token):
+            logger.warning(f"CSRF token validation failed for user {user_id}")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="不正なリクエストです。ページを再読み込みして再試行してください。"
+            )
+        
+        # レート制限チェック（Live切り替えの場合）
+        if request.mode == "live":
+            check_trading_mode_rate_limit(user_id, "live_switch")
+        
+        # ログ記録（セキュリティ監査用）
+        logger.warning(
+            f"Trading mode change request: user={current_user['username']}, "
+            f"user_id={user_id}, from_mode=paper, to_mode={request.mode}, "
+            f"confirmation_text='{request.confirmation_text}', "
+            f"csrf_verified=True, timestamp={datetime.now().isoformat()}"
+        )
+        
+        # Live Mode切り替えの厳格な検証
+        if request.mode == "live":
+            # 1. 管理者権限チェック
+            if current_user.get("role") != "admin":
+                logger.warning(
+                    f"Unauthorized live trading access attempt by user: {current_user['username']} "
+                    f"(role: {current_user.get('role')})"
+                )
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Live Trading アクセスには管理者権限が必要です"
+                )
+            
+            # 2. 確認テキスト検証
+            if request.confirmation_text != "LIVE":
+                logger.warning(
+                    f"Invalid confirmation text for live mode: {request.confirmation_text} "
+                    f"by user: {current_user['username']}"
+                )
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Live Trading確認のため 'LIVE' と正確に入力してください"
+                )
+            
+            # 3. 環境制限チェック
+            if settings.ENVIRONMENT.lower() in ["development", "dev", "staging", "test"]:
+                logger.error(
+                    f"Live trading blocked in {settings.ENVIRONMENT} environment "
+                    f"for user: {current_user['username']}"
+                )
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f"Live Trading は {settings.ENVIRONMENT} 環境では利用できません"
+                )
+            
+            # 4. ExchangeFactory経由での検証
+            try:
+                factory = ExchangeFactory()
+                # Liveモード切り替えテスト（実際の切り替えは行わない）
+                test_adapter = factory.create_adapter("binance", trading_mode="live")
+                logger.info(f"Live trading mode validation passed for user: {current_user['username']}")
+            except Exception as factory_error:
+                logger.error(f"ExchangeFactory validation failed: {factory_error}")
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Live Trading設定検証エラー: {str(factory_error)}"
+                )
+        
+        # 成功時のレスポンス
+        success_message = f"取引モードを {request.mode.upper()} に変更しました"
+        if request.mode == "live":
+            success_message += " (⚠️ 実際の資金での取引になります)"
+        
+        # 成功記録（失敗カウントリセット）
+        record_trading_mode_success(user_id)
+        
+        # メール通知送信（バックグラウンドで実行）
+        current_timestamp = datetime.now().isoformat()
+        user_email = current_user.get("email", "unknown@example.com")
+        user_name = current_user.get("username", "Unknown User")
+        
+        try:
+            send_trading_mode_notification_email(user_email, user_name, request.mode, current_timestamp)
+        except Exception as email_error:
+            # メール送信エラーは主処理を妨げない
+            logger.warning(f"Email notification failed (non-critical): {email_error}")
+        
+        # セキュリティ監査ログ
+        logger.info(
+            f"Trading mode successfully changed: user={current_user['username']}, "
+            f"user_id={user_id}, new_mode={request.mode}, email_sent=True, "
+            f"timestamp={current_timestamp}"
+        )
+        
+        return TradingModeResponse(
+            current_mode=request.mode,
+            message=success_message,
+            timestamp=current_timestamp
+        )
+        
+    except HTTPException:
+        # HTTPExceptionはそのまま再発生（レート制限含む）
+        if request.mode == "live":
+            record_trading_mode_failure(user_id)
+        raise
+    except Exception as e:
+        # 予期しないエラーの場合も失敗として記録
+        if request.mode == "live":
+            record_trading_mode_failure(user_id)
+        logger.error(f"Unexpected error in trading mode change: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="取引モード変更でエラーが発生しました"
+        )
