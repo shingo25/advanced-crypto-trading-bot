@@ -15,19 +15,36 @@ jest.mock('@/lib/api', () => ({
 
 const mockApi = api as jest.Mocked<typeof api>;
 
+// 共通のAPIモック設定
+const setupApiMocks = (currentMode: 'paper' | 'live' = 'paper') => {
+  mockApi.get.mockImplementation((url) => {
+    if (url === '/auth/trading-mode') {
+      return Promise.resolve({
+        data: {
+          current_mode: currentMode,
+          message: `現在のモードは ${currentMode === 'live' ? 'Live' : 'Paper'} Trading です`,
+          timestamp: '2024-01-01T00:00:00Z',
+        },
+      });
+    }
+    if (url === '/auth/csrf-token') {
+      return Promise.resolve({
+        data: {
+          csrf_token: 'mock-csrf-token-123',
+        },
+      });
+    }
+    return Promise.reject(new Error('Unknown endpoint'));
+  });
+};
+
 describe('TradingModeSwitch', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('初期レンダリング時にPaperモードが表示される', async () => {
-    mockApi.get.mockResolvedValue({
-      data: {
-        current_mode: 'paper',
-        message: '現在のモードは Paper Trading です',
-        timestamp: '2024-01-01T00:00:00Z',
-      },
-    });
+    setupApiMocks('paper');
 
     render(<TradingModeSwitch />);
 
@@ -44,13 +61,7 @@ describe('TradingModeSwitch', () => {
   });
 
   it('Liveモードが正しく表示される', async () => {
-    mockApi.get.mockResolvedValue({
-      data: {
-        current_mode: 'live',
-        message: '現在のモードは Live Trading です',
-        timestamp: '2024-01-01T00:00:00Z',
-      },
-    });
+    setupApiMocks('live');
 
     render(<TradingModeSwitch />);
 
@@ -62,13 +73,7 @@ describe('TradingModeSwitch', () => {
   });
 
   it('Paper→Liveスイッチで確認ダイアログが表示される', async () => {
-    mockApi.get.mockResolvedValue({
-      data: {
-        current_mode: 'paper',
-        message: '現在のモードは Paper Trading です',
-        timestamp: '2024-01-01T00:00:00Z',
-      },
-    });
+    setupApiMocks('paper');
 
     render(<TradingModeSwitch />);
 
@@ -80,6 +85,11 @@ describe('TradingModeSwitch', () => {
     const switchElement = screen.getByLabelText(/Live Trading/);
     fireEvent.click(switchElement);
 
+    // CSRFトークン取得を待つ
+    await waitFor(() => {
+      expect(mockApi.get).toHaveBeenCalledWith('/auth/csrf-token');
+    });
+
     // 確認ダイアログが表示される
     await waitFor(() => {
       expect(screen.getByText('Live Trading確認')).toBeInTheDocument();
@@ -89,28 +99,27 @@ describe('TradingModeSwitch', () => {
   });
 
   it('確認ダイアログで正しい確認テキストが必要', async () => {
-    mockApi.get.mockResolvedValue({
-      data: {
-        current_mode: 'paper',
-        message: '現在のモードは Paper Trading です',
-        timestamp: '2024-01-01T00:00:00Z',
-      },
-    });
-
+    setupApiMocks('paper');
     const user = userEvent.setup();
+    
     render(<TradingModeSwitch />);
 
     await waitFor(() => {
       expect(screen.getByLabelText(/Live Trading/)).not.toBeChecked();
     });
 
-    // スイッチをクリックしてダイアログを開く
+    // スイッチをクリック
     const switchElement = screen.getByLabelText(/Live Trading/);
     await user.click(switchElement);
 
+    // ダイアログが表示されるまで待つ
+    await waitFor(() => {
+      expect(screen.getByText('Live Trading確認')).toBeInTheDocument();
+    });
+
     // 確認テキストを入力
     const confirmationInput = screen.getByLabelText('確認テキスト');
-    await userEvent.type(confirmationInput, 'WRONG');
+    await user.type(confirmationInput, 'WRONG');
 
     // エラーメッセージが表示される
     expect(screen.getByText('正確に "LIVE" と入力してください')).toBeInTheDocument();
@@ -120,21 +129,15 @@ describe('TradingModeSwitch', () => {
     expect(confirmButton).toBeDisabled();
 
     // 正しいテキストを入力
-    await userEvent.clear(confirmationInput);
-    await userEvent.type(confirmationInput, 'LIVE');
+    await user.clear(confirmationInput);
+    await user.type(confirmationInput, 'LIVE');
 
     // 確認ボタンが有効になる
     expect(confirmButton).not.toBeDisabled();
   });
 
   it('Live→Paper切り替えが即座に実行される', async () => {
-    mockApi.get.mockResolvedValue({
-      data: {
-        current_mode: 'live',
-        message: '現在のモードは Live Trading です',
-        timestamp: '2024-01-01T00:00:00Z',
-      },
-    });
+    setupApiMocks('live');
 
     mockApi.post.mockResolvedValue({
       data: {
@@ -162,6 +165,7 @@ describe('TradingModeSwitch', () => {
       expect(mockApi.post).toHaveBeenCalledWith('/auth/trading-mode', {
         mode: 'paper',
         confirmation_text: '',
+        csrf_token: 'mock-csrf-token-123',
       });
     });
   });
@@ -180,13 +184,7 @@ describe('TradingModeSwitch', () => {
   });
 
   it('Live Trading切り替え成功時に成功メッセージが表示される', async () => {
-    mockApi.get.mockResolvedValue({
-      data: {
-        current_mode: 'paper',
-        message: '現在のモードは Paper Trading です',
-        timestamp: '2024-01-01T00:00:00Z',
-      },
-    });
+    setupApiMocks('paper');
 
     mockApi.post.mockResolvedValue({
       data: {
@@ -207,31 +205,32 @@ describe('TradingModeSwitch', () => {
     const switchElement = screen.getByLabelText(/Live Trading/);
     await user.click(switchElement);
 
+    // ダイアログが表示されるまで待つ
+    await waitFor(() => {
+      expect(screen.getByText('Live Trading確認')).toBeInTheDocument();
+    });
+
     // 確認テキストを入力
     const confirmationInput = screen.getByLabelText('確認テキスト');
-    await userEvent.type(confirmationInput, 'LIVE');
+    await user.type(confirmationInput, 'LIVE');
 
     // 確認ボタンをクリック
     const confirmButton = screen.getByText('Live Trading有効化');
-    await fireEvent.click(confirmButton);
+    await user.click(confirmButton);
 
     // 成功メッセージが表示される
     await waitFor(() => {
       expect(screen.getByText(/取引モードを LIVE に変更しました/)).toBeInTheDocument();
     });
 
-    // ダイアログが閉じる
-    expect(screen.queryByText('Live Trading確認')).not.toBeInTheDocument();
+    // ダイアログが閉じるまで待つ
+    await waitFor(() => {
+      expect(screen.queryByText('Live Trading確認')).not.toBeInTheDocument();
+    });
   });
 
   it('Live Trading切り替え失敗時にエラーメッセージが表示される', async () => {
-    mockApi.get.mockResolvedValue({
-      data: {
-        current_mode: 'paper',
-        message: '現在のモードは Paper Trading です',
-        timestamp: '2024-01-01T00:00:00Z',
-      },
-    });
+    setupApiMocks('paper');
 
     mockApi.post.mockRejectedValue({
       response: {
@@ -252,13 +251,18 @@ describe('TradingModeSwitch', () => {
     const switchElement = screen.getByLabelText(/Live Trading/);
     await user.click(switchElement);
 
+    // ダイアログが表示されるまで待つ
+    await waitFor(() => {
+      expect(screen.getByText('Live Trading確認')).toBeInTheDocument();
+    });
+
     // 確認テキストを入力
     const confirmationInput = screen.getByLabelText('確認テキスト');
-    await userEvent.type(confirmationInput, 'LIVE');
+    await user.type(confirmationInput, 'LIVE');
 
     // 確認ボタンをクリック
     const confirmButton = screen.getByText('Live Trading有効化');
-    await fireEvent.click(confirmButton);
+    await user.click(confirmButton);
 
     // エラーメッセージが表示される
     await waitFor(() => {
@@ -267,13 +271,7 @@ describe('TradingModeSwitch', () => {
   });
 
   it('セキュリティ警告が適切に表示される', async () => {
-    mockApi.get.mockResolvedValue({
-      data: {
-        current_mode: 'paper',
-        message: '現在のモードは Paper Trading です',
-        timestamp: '2024-01-01T00:00:00Z',
-      },
-    });
+    setupApiMocks('paper');
 
     render(<TradingModeSwitch />);
 
@@ -289,15 +287,9 @@ describe('TradingModeSwitch', () => {
   });
 
   it('確認ダイアログのキャンセル機能が正常動作する', async () => {
-    mockApi.get.mockResolvedValue({
-      data: {
-        current_mode: 'paper',
-        message: '現在のモードは Paper Trading です',
-        timestamp: '2024-01-01T00:00:00Z',
-      },
-    });
-
+    setupApiMocks('paper');
     const user = userEvent.setup();
+
     render(<TradingModeSwitch />);
 
     await waitFor(() => {
@@ -309,14 +301,18 @@ describe('TradingModeSwitch', () => {
     await user.click(switchElement);
 
     // ダイアログが表示される
-    expect(screen.getByText('Live Trading確認')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Live Trading確認')).toBeInTheDocument();
+    });
 
     // キャンセルボタンをクリック
     const cancelButton = screen.getByText('キャンセル');
-    await fireEvent.click(cancelButton);
+    await user.click(cancelButton);
 
-    // ダイアログが閉じる
-    expect(screen.queryByText('Live Trading確認')).not.toBeInTheDocument();
+    // ダイアログが閉じるまで待つ
+    await waitFor(() => {
+      expect(screen.queryByText('Live Trading確認')).not.toBeInTheDocument();
+    });
 
     // スイッチがPaperのままになる
     expect(screen.getByLabelText(/Live Trading/)).not.toBeChecked();
