@@ -3,10 +3,21 @@ import logging
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
-from eth_account import Account
-from hyperliquid.exchange import Exchange
-from hyperliquid.info import Info
-from hyperliquid.utils import constants
+# オプショナル依存関係として処理
+try:
+    from eth_account import Account
+    from hyperliquid.exchange import Exchange
+    from hyperliquid.info import Info
+    from hyperliquid.utils import constants
+    HYPERLIQUID_AVAILABLE = True
+except ImportError as e:
+    logging.warning(f"Hyperliquid dependencies not available: {e}")
+    HYPERLIQUID_AVAILABLE = False
+    # Mock classes for testing
+    Account = None
+    Exchange = None
+    Info = None
+    constants = None
 from tenacity import (
     retry,
     retry_if_exception_type,
@@ -34,6 +45,10 @@ class HyperliquidAdapter(AbstractExchangeAdapter):
 
     def __init__(self, api_key: str, secret: str, sandbox: bool = False):
         super().__init__(api_key, secret, sandbox)
+        
+        # Hyperliquidライブラリが利用できない場合はエラーを発生
+        if not HYPERLIQUID_AVAILABLE:
+            raise ExchangeError("Hyperliquid dependencies not available. Please install eth-account and hyperliquid-python-sdk")
 
         # Hyperliquid SDK設定
         self.base_url = constants.TESTNET_API_URL if sandbox else constants.MAINNET_API_URL
