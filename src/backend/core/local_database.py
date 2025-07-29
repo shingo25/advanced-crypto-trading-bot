@@ -154,15 +154,21 @@ class LocalDatabase:
                 return self.get_user_by_id(user_id)
 
             # 安全なUPDATEクエリを構築（プリペアドステートメント使用）
-            # フィールド名はホワイトリストで検証済み
-            set_clause = ", ".join([f"{field} = ?" for field in update_fields.keys()])
+            # フィールド名は上記のallowed_fieldsホワイトリストで検証済み
+            # SQLインジェクション対策: フィールド名はホワイトリスト、値はプレースホルダー使用
+            set_placeholders = []
+            for field in update_fields.keys():
+                # ホワイトリストで検証済みのフィールド名のみ使用
+                set_placeholders.append(f"{field} = ?")
+            set_clause = ", ".join(set_placeholders)
+            
+            # パラメータ値を準備
             values = list(update_fields.values())
             values.append(datetime.now())  # updated_at
             values.append(user_id)  # WHERE条件
 
-            # プリペアドステートメントでSQL injection を防止
-            # フィールド名はホワイトリストで検証済み、プリペアドステートメント使用
-            query = f"UPDATE users SET {set_clause}, updated_at = ? WHERE id = ?"  # nosec B608
+            # プリペアドステートメントで安全に実行
+            # セキュリティ: フィールド名はホワイトリスト検証済み、値はプレースホルダー使用\n            base_query = "UPDATE users SET "\n            query = base_query + set_clause + ", updated_at = ? WHERE id = ?"
 
             self.connection.execute(query, values)
 

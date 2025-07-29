@@ -82,8 +82,8 @@ class CachedDataSource(DataSourceStrategy):
         if not self._cache_enabled:
             return await self._base_source.get_ohlcv(exchange, symbol, timeframe, since, limit)
 
-        # パラメータをハッシュ化してキャッシュキーの一部に
-        params_hash = hashlib.md5(f"{since}:{limit}".encode()).hexdigest()[:8]
+        # パラメータをハッシュ化してキャッシュキーの一部に（SHA-256使用でセキュリティ向上）
+        params_hash = hashlib.sha256(f"{since}:{limit}".encode()).hexdigest()[:16]
 
         cache_key = f"{CacheKey.ohlcv(exchange, symbol, timeframe.value)}:{params_hash}"
 

@@ -102,9 +102,14 @@ class Settings(BaseSettings):
             raise ValueError("JWT_SECRET must be at least 32 characters long")
 
         # 管理者パスワードのセキュリティチェック
-        if self.ADMIN_PASSWORD == "change_this_password":
-            if self.ENVIRONMENT == "production":
-                raise ValueError("Default admin password must be changed in production")
+        # ハードコードされた文字列との比較を避け、パスワード強度をチェック
+        if self.ENVIRONMENT == "production":
+            if not self.ADMIN_PASSWORD or len(self.ADMIN_PASSWORD) < 12:
+                raise ValueError("Admin password must be at least 12 characters long in production")
+            # 弱いパスワードパターンをチェック
+            weak_patterns = ["password", "admin", "123456", "change_this"]
+            if any(pattern in self.ADMIN_PASSWORD.lower() for pattern in weak_patterns):
+                raise ValueError("Admin password contains weak patterns and must be changed")
 
         # APIキーの存在チェック（Live Trading時）
         if self.ENVIRONMENT == "production":

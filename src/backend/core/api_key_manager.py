@@ -237,9 +237,9 @@ class APIKeyManager:
         """
         exchange = exchange.lower()
 
-        # 環境変数から取得
-        api_key = ""
-        secret = ""
+        # 環境変数から取得（デフォルト値なし - セキュリティ上の理由）
+        api_key = None
+        secret = None
 
         if exchange == "binance":
             api_key = settings.BINANCE_API_KEY

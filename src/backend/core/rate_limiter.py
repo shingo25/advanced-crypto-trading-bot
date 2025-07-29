@@ -7,6 +7,8 @@ import logging
 from datetime import datetime, timedelta
 from typing import Dict
 
+logger = logging.getLogger(__name__)
+
 from fastapi import FastAPI, HTTPException, Request
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -49,8 +51,9 @@ def get_user_id_or_ip(request: Request) -> str:
         user = getattr(request.state, "user", None)
         if user and hasattr(user, "id"):
             return f"user:{user.id}"
-    except Exception:
-        pass
+    except Exception as e:
+        # ユーザー情報の取得に失敗したが、IPアドレスで代替するため継続
+        logger.debug(f"Failed to get user info for rate limiting, falling back to IP: {e}")
 
     # 認証されていない場合はIPアドレスを使用
     return f"ip:{get_client_ip(request)}"
