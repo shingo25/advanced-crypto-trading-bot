@@ -201,7 +201,11 @@ class TestPaperTradingAdapterFunctionality:
         
         result = await adapter.place_order(limit_order)
         
-        # 指値注文は待機状態になる
+        # 指値注文は待機状態になる（失敗の場合はエラーメッセージを確認）
+        if result["status"] == "failed":
+            # エラーの詳細を出力してデバッグしやすくする
+            error_info = result.get("info", {}).get("error", "No error info")
+            print(f"Order failed with error: {error_info}")
         assert result["status"] == "submitted"
         assert result["id"] is not None
         

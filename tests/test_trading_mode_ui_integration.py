@@ -114,7 +114,8 @@ class TestTradingModePOSTEndpoint(TestTradingModeUIIntegration):
         
         request_data = {
             "mode": "live",
-            "confirmation_text": ""
+            "confirmation_text": "",
+            "csrf_token": "test_csrf_token"
         }
         
         response = self.client.post("/auth/trading-mode", json=request_data, headers=admin_headers)
@@ -231,13 +232,13 @@ class TestTradingModeSecurityValidation(TestTradingModeUIIntegration):
         
         # 小文字
         response = self.client.post("/auth/trading-mode", 
-                                   json={"mode": "live", "confirmation_text": "live"}, 
+                                   json={"mode": "live", "confirmation_text": "live", "csrf_token": "test_csrf_token"}, 
                                    headers=admin_headers)
         assert response.status_code in [400, 422]
         
         # 混在
         response = self.client.post("/auth/trading-mode", 
-                                   json={"mode": "live", "confirmation_text": "Live"}, 
+                                   json={"mode": "live", "confirmation_text": "Live", "csrf_token": "test_csrf_token"}, 
                                    headers=admin_headers)
         assert response.status_code in [400, 422]
 
@@ -373,7 +374,7 @@ class TestTradingModeEndToEndWorkflow(TestTradingModeUIIntegration):
         
         # 2. Paperモードに切り替え（冪等性確認）
         post_response = self.client.post("/auth/trading-mode", 
-                                        json={"mode": "paper", "confirmation_text": ""}, 
+                                        json={"mode": "paper", "csrf_token": "test_csrf_token", "confirmation_text": ""}, 
                                         headers=admin_headers)
         assert post_response.status_code == 200
         assert post_response.json()["current_mode"] == "paper"
@@ -390,25 +391,25 @@ class TestTradingModeEndToEndWorkflow(TestTradingModeUIIntegration):
         # 1. 権限チェック（非管理者での試行）
         regular_headers = self._get_auth_headers(self.regular_user)
         response1 = self.client.post("/auth/trading-mode", 
-                                    json={"mode": "live", "confirmation_text": "LIVE"}, 
+                                    json={"mode": "live", "confirmation_text": "LIVE", "csrf_token": "test_csrf_token"}, 
                                     headers=regular_headers)
         assert response1.status_code == 403
         
         # 2. 確認テキストチェック（管理者、間違ったテキスト）
         response2 = self.client.post("/auth/trading-mode", 
-                                    json={"mode": "live", "confirmation_text": "WRONG"}, 
+                                    json={"mode": "live", "confirmation_text": "WRONG", "csrf_token": "test_csrf_token"}, 
                                     headers=admin_headers)
         assert response2.status_code == 400
         
         # 3. 環境チェック（現在は開発環境のため失敗）
         response3 = self.client.post("/auth/trading-mode", 
-                                    json={"mode": "live", "confirmation_text": "LIVE"}, 
+                                    json={"mode": "live", "confirmation_text": "LIVE", "csrf_token": "test_csrf_token"}, 
                                     headers=admin_headers)
         assert response3.status_code == 403  # 環境制限
         
         # 4. 正常なPaper切り替え
         response4 = self.client.post("/auth/trading-mode", 
-                                    json={"mode": "paper", "confirmation_text": ""}, 
+                                    json={"mode": "paper", "csrf_token": "test_csrf_token", "confirmation_text": ""}, 
                                     headers=admin_headers)
         assert response4.status_code == 200
 

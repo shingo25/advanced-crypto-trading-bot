@@ -54,7 +54,7 @@ class TestConfigSecurity:
         """本番環境プロパティテスト"""
         with patch.dict(os.environ, {
             "ENVIRONMENT": "production",
-            "ADMIN_PASSWORD": "Secure_Production_Password_2024!",
+            "ADMIN_PASSWORD": "VerySecureProductionPassword123!@#NoCommonWords",
             "JWT_SECRET": "very_secure_jwt_secret_key_for_production_environment_32chars"
         }):
             settings = Settings()
