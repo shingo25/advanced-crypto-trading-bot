@@ -74,13 +74,15 @@ requests==2.31.0  # API tests need this
 aiosmtplib==3.0.1  # Alert notification tests
 
 # Cryptocurrency & Blockchain Dependencies (required for tests)
-eth-account==0.13.7  # Ethereum account management for Hyperliquid
-web3==6.15.1  # Web3 interactions
+# 互換性のあるバージョンに更新（競合解決をpipに任せる）
+eth-account>=0.10.0,<0.14.0  # Ethereum account management for Hyperliquid (range for compatibility)
+web3>=6.11.0,<7.0.0  # Web3 interactions (v6.x for stability)
 hyperliquid-python-sdk==0.16.0  # Hyperliquid exchange SDK
+# hexbytesのpip依存関係解決に任せる（明示的指定を除去）
 
 # API Testing & Security Testing
-schemathesis==4.0.13  # API fuzzing and testing
-hypothesis==6.96.1  # Property-based testing
+# schemathesis==4.0.13  # API fuzzing and testing (一時的に無効化: pytest競合のため)
+hypothesis>=6.96.1  # Property-based testing
 
 # Additional dependencies for E2E and integration tests
 # starlette version is managed by FastAPI dependency
