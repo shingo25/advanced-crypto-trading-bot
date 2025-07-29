@@ -80,8 +80,11 @@ web3>=6.11.1,<7.0.0  # Web3 interactions (v6.11.1+ for ContractName ImportError 
 hyperliquid-python-sdk==0.16.0  # Hyperliquid exchange SDK
 # hexbytesのpip依存関係解決に任せる（明示的指定を除去）
 
+# FastAPI Rate Limiting
+slowapi>=0.1.9  # Rate limiting for FastAPI (required for test_security_features.py)
+
 # API Testing & Security Testing
-# schemathesis==4.0.13  # API fuzzing and testing (一時的に無効化: pytest競合のため)
+# schemathesis>=4.0.13  # API fuzzing and testing (pytest>=8必要だがCI環境はpytest==7.4.4のため無効化)
 hypothesis>=6.96.1  # Property-based testing
 
 # Additional dependencies for E2E and integration tests

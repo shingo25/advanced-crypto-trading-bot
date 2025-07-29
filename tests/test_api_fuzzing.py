@@ -23,6 +23,7 @@ pytestmark = pytest.mark.skipif(not SCHEMATHESIS_AVAILABLE, reason="schemathesis
 
 
 # FastAPIのappインスタンスからOpenAPIスキーマを読み込む（schemathesis利用可能時のみ）
+schema = None
 if SCHEMATHESIS_AVAILABLE:
     schema = schemathesis.openapi.from_asgi(app=app, path="/openapi.json")
 client = TestClient(app)
@@ -66,11 +67,12 @@ def invalid_auth_token():
     return "Bearer invalid_token_for_fuzzing_test"
 
 
-class TestAPIFuzzingBasic:
-    """基本的なAPIファジングテスト"""
-    
-    @schema.parametrize()
-    def test_no_server_errors(self, case):
+if SCHEMATHESIS_AVAILABLE and schema is not None:
+    class TestAPIFuzzingBasic:
+        """基本的なAPIファジングテスト"""
+        
+        @schema.parametrize()
+        def test_no_server_errors(self, case):
         """
         5xx系サーバーエラーが発生しないことを検証
         どんな不正なリクエストでもサーバーがクラッシュしてはいけない
