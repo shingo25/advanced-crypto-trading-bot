@@ -161,14 +161,16 @@ class LocalDatabase:
                 # ホワイトリストで検証済みのフィールド名のみ使用
                 set_placeholders.append(f"{field} = ?")
             set_clause = ", ".join(set_placeholders)
-            
+
             # パラメータ値を準備
             values = list(update_fields.values())
             values.append(datetime.now())  # updated_at
             values.append(user_id)  # WHERE条件
 
             # プリペアドステートメントで安全に実行
-            # セキュリティ: フィールド名はホワイトリスト検証済み、値はプレースホルダー使用\n            base_query = "UPDATE users SET "\n            query = base_query + set_clause + ", updated_at = ? WHERE id = ?"
+            # セキュリティ: フィールド名はホワイトリスト検証済み、値はプレースホルダー使用
+            base_query = "UPDATE users SET "
+            query = base_query + set_clause + ", updated_at = ? WHERE id = ?"
 
             self.connection.execute(query, values)
 
