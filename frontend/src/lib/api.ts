@@ -554,4 +554,6 @@ export class WebSocketManager {
   }
 }
 
+// デフォルトエクスポートと名前付きエクスポートの両方を提供
+export const api = apiClient;
 export default apiClient;

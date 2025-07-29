@@ -8,7 +8,6 @@ import os
 from enum import Enum
 from typing import Dict, List, Optional, Set
 
-from src.backend.core.config import settings
 from src.backend.exchanges.base import (
     OHLCV,
     FundingRate,

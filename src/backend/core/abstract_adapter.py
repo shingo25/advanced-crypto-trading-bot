@@ -4,8 +4,7 @@
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Any
-from decimal import Decimal
+from typing import Any, Dict, List, Optional
 
 
 class AbstractTradingAdapter(ABC):

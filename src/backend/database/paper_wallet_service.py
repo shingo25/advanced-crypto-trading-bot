@@ -6,14 +6,14 @@ Paper Trading用ウォレットサービス
 import logging
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List
 from uuid import UUID
 
 from sqlalchemy import and_, desc, func
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
-from .models import PaperWalletModel, PaperWalletTransactionModel, PaperWalletDefaultModel, DatabaseManager
+from .models import DatabaseManager, PaperWalletDefaultModel, PaperWalletModel, PaperWalletTransactionModel
 
 logger = logging.getLogger(__name__)
 

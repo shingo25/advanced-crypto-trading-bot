@@ -4,7 +4,6 @@
 """
 
 import hashlib
-import json
 import logging
 from datetime import datetime
 from typing import Dict, List, Optional

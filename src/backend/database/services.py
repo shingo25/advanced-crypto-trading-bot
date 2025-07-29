@@ -4,17 +4,16 @@
 """
 
 import logging
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from decimal import Decimal
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional
 from uuid import UUID
 
-from sqlalchemy import and_, desc, func, or_
-from sqlalchemy.orm import Session
+from sqlalchemy import and_, desc, func
 from sqlalchemy.exc import SQLAlchemyError
 
-from .models import OrderModel, TradeModel, TradingStatistics, DatabaseManager
-from ..trading.orders.models import Order, OrderType, OrderSide, OrderStatus
+from ..trading.orders.models import Order
+from .models import DatabaseManager, OrderModel, TradeModel
 
 logger = logging.getLogger(__name__)
 

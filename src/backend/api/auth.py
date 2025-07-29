@@ -3,11 +3,11 @@ import secrets
 import smtplib
 import time
 from datetime import datetime, timedelta
-from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from typing import Dict, Optional
+from email.mime.text import MIMEText
+from typing import Dict
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status, Header
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel, field_validator
 
@@ -20,8 +20,8 @@ from src.backend.core.security import (
     get_current_user,
     get_password_hash,
 )
-from src.backend.models.user import UserResponse
 from src.backend.exchanges.factory import ExchangeFactory
+from src.backend.models.user import UserResponse
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

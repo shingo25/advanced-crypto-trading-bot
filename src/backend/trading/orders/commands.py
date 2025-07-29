@@ -9,9 +9,9 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Dict, Optional
 
-from src.backend.trading.orders.models import Order, OrderResult, OrderStatus, Trade
-from src.backend.trading.orders.validator import OrderValidator
+from src.backend.trading.orders.models import Order, OrderResult, OrderStatus
 from src.backend.trading.orders.security import SecurityManager
+from src.backend.trading.orders.validator import OrderValidator
 
 logger = logging.getLogger(__name__)
 
@@ -120,9 +120,9 @@ class OrderCommand(ABC):
         }
 
         if result.success:
-            logger.info(f"Order command executed successfully", extra=log_data)
+            logger.info("Order command executed successfully", extra=log_data)
         else:
-            logger.error(f"Order command failed", extra=log_data)
+            logger.error("Order command failed", extra=log_data)
 
 
 class CreateOrderCommand(OrderCommand):

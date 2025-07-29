@@ -1,10 +1,9 @@
 import secrets
-import os
-from typing import List
 from pathlib import Path
+from typing import List
 
-from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
+from pydantic_settings import BaseSettings
 
 # .envファイルを明示的に読み込み（セキュリティ強化）
 env_path = Path(__file__).parent.parent.parent.parent / ".env"

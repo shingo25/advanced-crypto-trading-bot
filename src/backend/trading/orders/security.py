@@ -11,8 +11,8 @@ import time
 from collections import defaultdict, deque
 from datetime import datetime, timezone
 from decimal import Decimal
+from ipaddress import AddressValueError, IPv4Address, IPv6Address
 from typing import Dict, List, Optional, Tuple
-from ipaddress import IPv4Address, IPv6Address, AddressValueError
 
 from cryptography.fernet import Fernet
 

@@ -3,19 +3,20 @@ Paper Trading Adapter
 リアルタイム価格データを使用した模擬取引システム
 """
 
-import logging
 import asyncio
+import logging
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Any, Dict, List, Optional
 from uuid import UUID, uuid4
 
 from src.backend.core.abstract_adapter import AbstractTradingAdapter
+
+from ..database.models import DatabaseManager
+from ..database.paper_wallet_service import PaperWalletService
+from ..trading.orders.models import Order, OrderSide, OrderStatus, OrderType
 from .base import AbstractExchangeAdapter
 from .binance import BinanceAdapter
-from ..trading.orders.models import Order, OrderType, OrderSide, OrderStatus
-from ..database.paper_wallet_service import PaperWalletService
-from ..database.models import DatabaseManager
 
 logger = logging.getLogger(__name__)
 

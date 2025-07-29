@@ -6,12 +6,11 @@ SQLAlchemy ORM models for orders and trades
 import uuid
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
-from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Index, JSON, Numeric, String, Text, CheckConstraint
+from sqlalchemy import JSON, Boolean, CheckConstraint, Column, DateTime, Enum, ForeignKey, Index, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.orm import relationship, validates
+from sqlalchemy.orm import declarative_base, relationship, validates
 from sqlalchemy.sql import func
 
 Base = declarative_base()

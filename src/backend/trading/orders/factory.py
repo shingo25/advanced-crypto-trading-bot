@@ -4,7 +4,7 @@
 """
 
 import logging
-from typing import Dict, Type, Optional
+from typing import Dict
 
 from src.backend.core.abstract_adapter import AbstractAdapterFactory
 from src.backend.trading.orders.commands import (
@@ -14,8 +14,8 @@ from src.backend.trading.orders.commands import (
     OrderCommand,
 )
 from src.backend.trading.orders.models import Order, OrderParams, OrderType
-from src.backend.trading.orders.validator import OrderValidator
 from src.backend.trading.orders.security import SecurityManager
+from src.backend.trading.orders.validator import OrderValidator
 
 logger = logging.getLogger(__name__)
 

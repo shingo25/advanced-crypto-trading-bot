@@ -1,17 +1,16 @@
 import logging
-from typing import Dict, Type, Optional, List
-from uuid import UUID
+from typing import Dict, List, Optional, Type
 
 from src.backend.core import config
-from src.backend.core.config import settings
 from src.backend.core.abstract_adapter import AbstractAdapterFactory, AbstractTradingAdapter
+from src.backend.core.config import settings
 
+from .backpack import BackpackAdapter
 from .base import AbstractExchangeAdapter
 from .binance import BinanceAdapter
-from .bybit import BybitAdapter
 from .bitget import BitgetAdapter
+from .bybit import BybitAdapter
 from .hyperliquid import HyperliquidAdapter
-from .backpack import BackpackAdapter
 from .paper_trading_adapter import PaperTradingAdapter
 
 logger = logging.getLogger(__name__)

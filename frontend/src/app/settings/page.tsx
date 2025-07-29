@@ -1,6 +1,6 @@
 'use client';
 
-import { Typography, Box, Grid, Paper } from '@mui/material';
+import { Typography, Box, Paper, Stack } from '@mui/material';
 import AppLayout from '@/components/layout/AppLayout';
 import TradingModeSwitch from '@/components/settings/TradingModeSwitch';
 
@@ -13,14 +13,14 @@ export default function SettingsPage() {
           設定
         </Typography>
 
-        <Grid container spacing={3}>
+        <Stack spacing={3} direction={{ xs: 'column', md: 'row' }}>
           {/* 取引モード設定 */}
-          <Grid item xs={12} md={8}>
+          <Box sx={{ flex: '2 1 0' }}>
             <TradingModeSwitch />
-          </Grid>
+          </Box>
 
           {/* その他の設定（将来の実装用） */}
-          <Grid item xs={12} md={4}>
+          <Box sx={{ flex: '1 1 0' }}>
             <Paper sx={{ p: 3 }}>
               <Typography variant="h6" gutterBottom>
                 その他の設定
@@ -29,8 +29,8 @@ export default function SettingsPage() {
                 システム設定と戦略パラメータ調整機能を実装予定です。
               </Typography>
             </Paper>
-          </Grid>
-        </Grid>
+          </Box>
+        </Stack>
       </Box>
     </AppLayout>
   );

@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import TradingModeSwitch from '../TradingModeSwitch';
 import { api } from '@/lib/api';
@@ -96,7 +97,7 @@ describe('TradingModeSwitch', () => {
       },
     });
 
-    // const user = userEvent.setup();
+    const user = userEvent.setup();
     render(<TradingModeSwitch />);
 
     await waitFor(() => {
@@ -105,11 +106,11 @@ describe('TradingModeSwitch', () => {
 
     // スイッチをクリックしてダイアログを開く
     const switchElement = screen.getByLabelText(/Live Trading/);
-    await fireEvent.click(switchElement);
+    await user.click(switchElement);
 
     // 確認テキストを入力
     const confirmationInput = screen.getByLabelText('確認テキスト');
-    await fireEvent.type(confirmationInput, 'WRONG');
+    await userEvent.type(confirmationInput, 'WRONG');
 
     // エラーメッセージが表示される
     expect(screen.getByText('正確に "LIVE" と入力してください')).toBeInTheDocument();
@@ -119,8 +120,8 @@ describe('TradingModeSwitch', () => {
     expect(confirmButton).toBeDisabled();
 
     // 正しいテキストを入力
-    await fireEvent.clear(confirmationInput);
-    await fireEvent.type(confirmationInput, 'LIVE');
+    await userEvent.clear(confirmationInput);
+    await userEvent.type(confirmationInput, 'LIVE');
 
     // 確認ボタンが有効になる
     expect(confirmButton).not.toBeDisabled();
@@ -143,7 +144,7 @@ describe('TradingModeSwitch', () => {
       },
     });
 
-    // const user = userEvent.setup();
+    const user = userEvent.setup();
     render(<TradingModeSwitch />);
 
     await waitFor(() => {
@@ -152,7 +153,7 @@ describe('TradingModeSwitch', () => {
 
     // スイッチをクリック（Live→Paper）
     const switchElement = screen.getByLabelText(/Live Trading/);
-    await fireEvent.click(switchElement);
+    await user.click(switchElement);
 
     // 確認ダイアログは表示されず、即座にAPIが呼ばれる
     expect(screen.queryByText('Live Trading確認')).not.toBeInTheDocument();
@@ -195,7 +196,7 @@ describe('TradingModeSwitch', () => {
       },
     });
 
-    // const user = userEvent.setup();
+    const user = userEvent.setup();
     render(<TradingModeSwitch />);
 
     await waitFor(() => {
@@ -204,11 +205,11 @@ describe('TradingModeSwitch', () => {
 
     // スイッチをクリック
     const switchElement = screen.getByLabelText(/Live Trading/);
-    await fireEvent.click(switchElement);
+    await user.click(switchElement);
 
     // 確認テキストを入力
     const confirmationInput = screen.getByLabelText('確認テキスト');
-    await fireEvent.type(confirmationInput, 'LIVE');
+    await userEvent.type(confirmationInput, 'LIVE');
 
     // 確認ボタンをクリック
     const confirmButton = screen.getByText('Live Trading有効化');
@@ -240,7 +241,7 @@ describe('TradingModeSwitch', () => {
       },
     });
 
-    // const user = userEvent.setup();
+    const user = userEvent.setup();
     render(<TradingModeSwitch />);
 
     await waitFor(() => {
@@ -249,11 +250,11 @@ describe('TradingModeSwitch', () => {
 
     // スイッチをクリック
     const switchElement = screen.getByLabelText(/Live Trading/);
-    await fireEvent.click(switchElement);
+    await user.click(switchElement);
 
     // 確認テキストを入力
     const confirmationInput = screen.getByLabelText('確認テキスト');
-    await fireEvent.type(confirmationInput, 'LIVE');
+    await userEvent.type(confirmationInput, 'LIVE');
 
     // 確認ボタンをクリック
     const confirmButton = screen.getByText('Live Trading有効化');
@@ -296,7 +297,7 @@ describe('TradingModeSwitch', () => {
       },
     });
 
-    // const user = userEvent.setup();
+    const user = userEvent.setup();
     render(<TradingModeSwitch />);
 
     await waitFor(() => {
@@ -305,7 +306,7 @@ describe('TradingModeSwitch', () => {
 
     // スイッチをクリック
     const switchElement = screen.getByLabelText(/Live Trading/);
-    await fireEvent.click(switchElement);
+    await user.click(switchElement);
 
     // ダイアログが表示される
     expect(screen.getByText('Live Trading確認')).toBeInTheDocument();

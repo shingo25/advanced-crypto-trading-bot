@@ -3,7 +3,6 @@
 開発・テスト用のリアルなダミーデータを提供
 """
 
-import random
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 

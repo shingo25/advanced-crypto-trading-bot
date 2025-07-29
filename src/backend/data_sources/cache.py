@@ -7,7 +7,7 @@ import asyncio
 import json
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 import redis.asyncio as redis
 from redis.exceptions import RedisError

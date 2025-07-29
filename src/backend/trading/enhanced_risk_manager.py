@@ -3,16 +3,16 @@
 AdvancedRiskManager、CircuitBreaker、PositionManagerを統合
 """
 
+import asyncio
 import logging
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import Any, Callable, Dict, List, Optional, Tuple
-import asyncio
+from typing import Any, Dict, List, Optional, Tuple
 
-from src.backend.risk.advanced_risk_manager import AdvancedRiskManager, RiskMetrics, RiskAlert, RiskLevel
-from src.backend.risk.circuit_breaker import CircuitBreaker, TripReason, BreakerState
-from src.backend.trading.risk_manager import RiskManager
+from src.backend.risk.advanced_risk_manager import AdvancedRiskManager, RiskAlert, RiskLevel, RiskMetrics
+from src.backend.risk.circuit_breaker import CircuitBreaker, TripReason
 from src.backend.trading.orders.models import Order
+from src.backend.trading.risk_manager import RiskManager
 
 
 # Position型のための仮の定義（後で適切なクラスに置き換え）
