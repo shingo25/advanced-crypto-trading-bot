@@ -54,7 +54,7 @@ class PaperWalletService:
             default_config = (
                 session.query(PaperWalletDefaultModel)
                 .filter(
-                    and_(PaperWalletDefaultModel.name == default_setting, PaperWalletDefaultModel.is_active == True)
+                    and_(PaperWalletDefaultModel.name == default_setting, PaperWalletDefaultModel.is_active.is_(True))
                 )
                 .first()
             )
@@ -612,7 +612,7 @@ class PaperWalletService:
         """
         session = self.db_manager.get_session()
         try:
-            defaults = session.query(PaperWalletDefaultModel).filter(PaperWalletDefaultModel.is_active == True).all()
+            defaults = session.query(PaperWalletDefaultModel).filter(PaperWalletDefaultModel.is_active.is_(True)).all()
 
             return [default.to_dict() for default in defaults]
 

@@ -3,6 +3,7 @@
 APIキー暗号化、IP制限、レート制限、異常検知などを提供
 """
 
+import base64
 import hashlib
 import hmac
 import json
@@ -60,13 +61,13 @@ class SecurityManager:
         try:
             if isinstance(encryption_key, str):
                 # 文字列の場合はbase64デコードを試行
-                import base64
 
                 try:
                     decoded_key = base64.urlsafe_b64decode(encryption_key)
                     self.cipher_suite = Fernet(decoded_key)
-                except:
+                except (base64.binascii.Error, ValueError) as decode_error:
                     # base64デコードに失敗した場合は直接使用
+                    logger.debug(f"Base64 decode failed, using string directly: {decode_error}")
                     self.cipher_suite = Fernet(encryption_key.encode())
             else:
                 # bytesの場合は直接使用

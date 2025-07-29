@@ -1,6 +1,7 @@
 import logging
 import secrets
 import smtplib
+import textwrap
 import time
 from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
@@ -182,46 +183,50 @@ def send_trading_mode_notification_email(user_email: str, user_name: str, mode: 
         subject = f"【重要】取引モード変更通知 - {mode.upper()} Mode"
 
         if mode == "live":
-            body = f"""
-            {user_name} 様
-            
-            【重要な通知】
-            
-            あなたのアカウントで Live Trading モードが有効化されました。
-            
-            詳細情報:
-            - ユーザー名: {user_name}
-            - 変更後モード: Live Trading (実際の資金での取引)
-            - 変更日時: {timestamp}
-            
-            ⚠️ 注意事項:
-            - Live Trading モードでは実際の資金で取引が実行されます
-            - 意図しない変更の場合は、直ちに Paper Trading モードに戻してください
-            - 不正なアクセスが疑われる場合は、パスワードを変更してください
-            
-            本通知に心当たりがない場合は、直ちにサポートまでご連絡ください。
-            
-            ---
-            Crypto Trading Bot
-            自動送信メール - 返信不要
-            """
+            body = textwrap.dedent(
+                f"""
+                {user_name} 様
+
+                【重要な通知】
+
+                あなたのアカウントで Live Trading モードが有効化されました。
+
+                詳細情報:
+                - ユーザー名: {user_name}
+                - 変更後モード: Live Trading (実際の資金での取引)
+                - 変更日時: {timestamp}
+
+                ⚠️ 注意事項:
+                - Live Trading モードでは実際の資金で取引が実行されます
+                - 意図しない変更の場合は、直ちに Paper Trading モードに戻してください
+                - 不正なアクセスが疑われる場合は、パスワードを変更してください
+
+                本通知に心当たりがない場合は、直ちにサポートまでご連絡ください。
+
+                ---
+                Crypto Trading Bot
+                自動送信メール - 返信不要
+                """
+            )
         else:
-            body = f"""
-            {user_name} 様
-            
-            取引モードが Paper Trading に変更されました。
-            
-            詳細情報:
-            - ユーザー名: {user_name}
-            - 変更後モード: Paper Trading (模擬取引)
-            - 変更日時: {timestamp}
-            
-            Paper Trading モードでは実際の資金は使用されません。
-            
-            ---
-            Crypto Trading Bot
-            自動送信メール - 返信不要
-            """
+            body = textwrap.dedent(
+                f"""
+                {user_name} 様
+
+                取引モードが Paper Trading に変更されました。
+
+                詳細情報:
+                - ユーザー名: {user_name}
+                - 変更後モード: Paper Trading (模擬取引)
+                - 変更日時: {timestamp}
+
+                Paper Trading モードでは実際の資金は使用されません。
+
+                ---
+                Crypto Trading Bot
+                自動送信メール - 返信不要
+                """
+            )
 
         # メールメッセージ作成
         msg = MIMEMultipart()
@@ -523,7 +528,7 @@ async def set_trading_mode(request: TradingModeRequest, current_user: dict = Dep
             try:
                 factory = ExchangeFactory()
                 # Liveモード切り替えテスト（実際の切り替えは行わない）
-                test_adapter = factory.create_adapter("binance", trading_mode="live")
+                factory.create_adapter("binance", trading_mode="live")
                 logger.info(f"Live trading mode validation passed for user: {current_user['username']}")
             except Exception as factory_error:
                 logger.error(f"ExchangeFactory validation failed: {factory_error}")
