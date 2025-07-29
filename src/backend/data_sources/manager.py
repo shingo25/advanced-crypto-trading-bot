@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 class DataSourceMode(Enum):
     """データソースモード"""
+
     MOCK = "mock"
     LIVE = "live"
     HYBRID = "hybrid"
@@ -35,24 +36,24 @@ class DataSourceMode(Enum):
 class DataSourceManager:
     """
     データソースの管理と切り替えを行うマネージャー
-    
+
     環境変数やランタイム設定に基づいて、適切なデータソース戦略を選択します。
     """
 
     def __init__(self):
         self._mode = self._get_mode_from_env()
         self._strategy = self._create_strategy()
-        
+
         logger.info(f"DataSourceManager initialized with mode: {self._mode.value}")
 
     def _get_mode_from_env(self) -> DataSourceMode:
         """環境変数からデータソースモードを取得"""
         mode_str = os.getenv("DATA_SOURCE_MODE", "mock").lower()
-        
+
         # USE_MOCK_DATA環境変数も考慮（後方互換性）
         if os.getenv("USE_MOCK_DATA", "true").lower() == "false":
             mode_str = "live"
-        
+
         try:
             return DataSourceMode(mode_str)
         except ValueError:
@@ -64,31 +65,20 @@ class DataSourceManager:
         if self._mode == DataSourceMode.MOCK:
             logger.info("Using MOCK data source")
             return MockDataSource()
-        
+
         elif self._mode == DataSourceMode.LIVE:
             logger.info("Using LIVE data source")
             return LiveDataSource()
-        
+
         elif self._mode == DataSourceMode.HYBRID:
             # ハイブリッドモードの設定を環境変数から読み込み
-            live_exchanges = self._parse_exchange_list(
-                os.getenv("HYBRID_LIVE_EXCHANGES", "")
-            )
-            live_symbols = self._parse_symbol_list(
-                os.getenv("HYBRID_LIVE_SYMBOLS", "")
-            )
-            
-            logger.info(
-                f"Using HYBRID data source with live exchanges: {live_exchanges}, "
-                f"live symbols: {live_symbols}"
-            )
-            
-            return HybridDataSource(
-                live_exchanges=live_exchanges,
-                live_symbols=live_symbols,
-                fallback_to_mock=True
-            )
-        
+            live_exchanges = self._parse_exchange_list(os.getenv("HYBRID_LIVE_EXCHANGES", ""))
+            live_symbols = self._parse_symbol_list(os.getenv("HYBRID_LIVE_SYMBOLS", ""))
+
+            logger.info(f"Using HYBRID data source with live exchanges: {live_exchanges}, live symbols: {live_symbols}")
+
+            return HybridDataSource(live_exchanges=live_exchanges, live_symbols=live_symbols, fallback_to_mock=True)
+
         else:
             raise ValueError(f"Unknown data source mode: {self._mode}")
 
@@ -167,14 +157,16 @@ class DataSourceManager:
             "is_mock": self._mode == DataSourceMode.MOCK,
             "is_hybrid": self._mode == DataSourceMode.HYBRID,
         }
-        
+
         # ハイブリッドモードの場合は追加情報
         if isinstance(self._strategy, HybridDataSource):
-            status.update({
-                "live_exchanges": list(self._strategy.live_exchanges),
-                "live_symbols": list(self._strategy.live_symbols),
-            })
-        
+            status.update(
+                {
+                    "live_exchanges": list(self._strategy.live_exchanges),
+                    "live_symbols": list(self._strategy.live_symbols),
+                }
+            )
+
         return status
 
 

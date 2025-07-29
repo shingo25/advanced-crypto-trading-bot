@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Phase 2 - Data Pipeline Implementation
 
 #### Added - 2025-01-20
+
 - **Data Pipeline Infrastructure**
   - `DataCollector` class for fetching OHLCV data from Binance API
   - Batch collection support for multiple symbols and timeframes
@@ -37,10 +38,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Enhanced API documentation
 
 #### Changed
+
 - Extended `backend/data_pipeline/collector.py` with Supabase save functionality
 - Updated `docs/DATABASE_SCHEMA.md` with Phase 2 table definitions
 
 #### Technical Details
+
 - SQLAlchemy ORM model for `price_data` table
 - Decimal precision (20,8) for cryptocurrency prices
 - Timezone-aware timestamps for global market data
@@ -52,15 +55,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Phase 1 Completion - Project Restructuring
 
 #### Added
+
 - Organized documentation structure in `docs/` directory
 - Comprehensive documentation index (`docs/README.md`)
 
 #### Changed
+
 - Moved all documentation files from root to `docs/`
 - Updated all cross-references in documentation files
 - Preserved git history with `git mv` commands
 
 #### Removed
+
 - Scattered markdown files from project root (except README.md and LICENSE)
 
 ---
@@ -70,6 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Initial Release - Phase 1 Foundation
 
 #### Added
+
 - **Backend Infrastructure**
   - FastAPI application with modular architecture
   - Supabase database integration
@@ -99,12 +106,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Upcoming Releases
 
 ### [0.3.0] - Phase 2 Completion (Planned)
+
 - Real-time WebSocket price updates
 - Enhanced backtesting with real data
 - API endpoints using live market data
 - Performance optimizations
 
 ### [0.4.0] - Phase 3 (Planned)
+
 - Machine learning integration
 - Advanced trading strategies
 - Risk management system

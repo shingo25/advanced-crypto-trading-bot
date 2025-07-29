@@ -39,7 +39,7 @@ interface TradingModeResponse {
 
 /**
  * Paper/Live取引モード切り替えコンポーネント
- * 
+ *
  * セキュリティ機能:
  * - 多段階確認プロセス
  * - 管理者権限要求
@@ -93,7 +93,7 @@ export default function TradingModeSwitch() {
 
   const handleModeChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const newMode = event.target.checked ? 'live' : 'paper';
-    
+
     if (newMode === 'live') {
       // Live切り替えは確認ダイアログを表示（CSRFトークンも取得）
       const token = await fetchCsrfToken();
@@ -110,15 +110,19 @@ export default function TradingModeSwitch() {
     }
   };
 
-  const switchTradingMode = async (mode: 'paper' | 'live', confirmation: string, token?: string) => {
+  const switchTradingMode = async (
+    mode: 'paper' | 'live',
+    confirmation: string,
+    token?: string
+  ) => {
     try {
       setSwitching(true);
       setError(null);
       setSuccess(null);
 
       // CSRFトークンが提供されていない場合は取得
-      const csrfTokenToUse = token || csrfToken || await fetchCsrfToken();
-      
+      const csrfTokenToUse = token || csrfToken || (await fetchCsrfToken());
+
       if (!csrfTokenToUse) {
         throw new Error('セキュリティトークンの取得に失敗しました');
       }
@@ -133,15 +137,14 @@ export default function TradingModeSwitch() {
       setSuccess(response.data.message);
       setConfirmationOpen(false);
       setConfirmationText('');
-      
+
       // 成功メッセージを3秒後に自動削除
       setTimeout(() => setSuccess(null), 3000);
-
     } catch (err: any) {
       console.error('Failed to switch trading mode:', err);
       const errorMessage = err.response?.data?.detail || '取引モード切り替えに失敗しました';
       setError(errorMessage);
-      
+
       // エラーメッセージを5秒後に自動削除
       setTimeout(() => setError(null), 5000);
     } finally {
@@ -188,7 +191,9 @@ export default function TradingModeSwitch() {
             </Typography>
             <Chip
               icon={currentMode === 'live' ? <WarningIcon /> : <CheckCircleIcon />}
-              label={currentMode === 'live' ? 'Live Trading (本番取引)' : 'Paper Trading (模擬取引)'}
+              label={
+                currentMode === 'live' ? 'Live Trading (本番取引)' : 'Paper Trading (模擬取引)'
+              }
               color={currentMode === 'live' ? 'error' : 'success'}
               variant="filled"
               size="medium"
@@ -222,9 +227,7 @@ export default function TradingModeSwitch() {
               }
               label={
                 <Box>
-                  <Typography variant="body1">
-                    Live Trading (実際の資金での取引)
-                  </Typography>
+                  <Typography variant="body1">Live Trading (実際の資金での取引)</Typography>
                   <Typography variant="caption" color="text.secondary">
                     {switching ? '切り替え中...' : '注意: 実際の資金でのリスクがあります'}
                   </Typography>
@@ -240,25 +243,25 @@ export default function TradingModeSwitch() {
             </Typography>
             <List dense>
               <ListItem>
-                <ListItemText 
+                <ListItemText
                   primary="• Live Tradingでは実際の資金で取引が行われます"
                   primaryTypographyProps={{ variant: 'body2' }}
                 />
               </ListItem>
               <ListItem>
-                <ListItemText 
+                <ListItemText
                   primary="• 管理者権限が必要です"
                   primaryTypographyProps={{ variant: 'body2' }}
                 />
               </ListItem>
               <ListItem>
-                <ListItemText 
+                <ListItemText
                   primary="• 本番環境でのみ利用可能です"
                   primaryTypographyProps={{ variant: 'body2' }}
                 />
               </ListItem>
               <ListItem>
-                <ListItemText 
+                <ListItemText
                   primary="• すべての操作が監査ログに記録されます"
                   primaryTypographyProps={{ variant: 'body2' }}
                 />
@@ -269,19 +272,14 @@ export default function TradingModeSwitch() {
       </Card>
 
       {/* Live Trading確認ダイアログ */}
-      <Dialog
-        open={confirmationOpen}
-        onClose={handleConfirmationCancel}
-        maxWidth="sm"
-        fullWidth
-      >
+      <Dialog open={confirmationOpen} onClose={handleConfirmationCancel} maxWidth="sm" fullWidth>
         <DialogTitle>
           <Box display="flex" alignItems="center">
             <ErrorIcon color="error" sx={{ mr: 1 }} />
             Live Trading確認
           </Box>
         </DialogTitle>
-        
+
         <DialogContent>
           <Alert severity="error" sx={{ mb: 3 }}>
             <Typography variant="body1" gutterBottom>
@@ -294,7 +292,7 @@ export default function TradingModeSwitch() {
           </Alert>
 
           <Typography variant="body1" gutterBottom>
-            Live Tradingを有効にするには、下記に 
+            Live Tradingを有効にするには、下記に
             <strong style={{ color: 'red' }}> "LIVE" </strong>
             と正確に入力してください:
           </Typography>

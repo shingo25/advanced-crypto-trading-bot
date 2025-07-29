@@ -42,7 +42,7 @@ class CacheKey:
 class DataCache:
     """
     多層キャッシュシステム
-    
+
     Layer 1: インメモリキャッシュ（高速・短期）
     Layer 2: Redis（中速・中期）
     """
@@ -57,7 +57,7 @@ class DataCache:
             "oi": 60,  # 1分
             "balance": 10,  # 10秒
         }
-        
+
         # Layer 2: Redis
         self._redis_client: Optional[redis.Redis] = None
         self._redis_url = redis_url or "redis://localhost:6379/0"
@@ -68,7 +68,7 @@ class DataCache:
             "oi": 300,  # 5分
             "balance": 60,  # 1分
         }
-        
+
         # バックグラウンドでRedis接続を初期化
         asyncio.create_task(self._init_redis())
 
@@ -99,7 +99,7 @@ class DataCache:
             else:
                 # 期限切れのエントリを削除
                 del self._memory_cache[key]
-        
+
         # Layer 2: Redisをチェック
         if self._redis_client:
             try:
@@ -107,14 +107,14 @@ class DataCache:
                 if data:
                     logger.debug(f"Redis cache hit: {key}")
                     decoded = json.loads(data)
-                    
+
                     # メモリキャッシュにも保存
                     await self._set_memory(key, decoded)
-                    
+
                     return decoded
             except (RedisError, json.JSONDecodeError) as e:
                 logger.error(f"Redis cache error: {e}")
-        
+
         logger.debug(f"Cache miss: {key}")
         return None
 
@@ -122,7 +122,7 @@ class DataCache:
         """データをキャッシュに保存"""
         # Layer 1: メモリキャッシュに保存
         await self._set_memory(key, data, ttl)
-        
+
         # Layer 2: Redisに保存
         if self._redis_client:
             try:
@@ -136,10 +136,7 @@ class DataCache:
     async def _set_memory(self, key: str, data: Any, ttl: Optional[int] = None):
         """メモリキャッシュにデータを保存"""
         memory_ttl = ttl or self._get_ttl(key, "memory")
-        self._memory_cache[key] = {
-            "data": data,
-            "expires": datetime.now() + timedelta(seconds=memory_ttl)
-        }
+        self._memory_cache[key] = {"data": data, "expires": datetime.now() + timedelta(seconds=memory_ttl)}
         logger.debug(f"Cached to memory: {key} (TTL: {memory_ttl}s)")
 
     async def delete(self, key: str):
@@ -147,7 +144,7 @@ class DataCache:
         # Layer 1: メモリキャッシュから削除
         if key in self._memory_cache:
             del self._memory_cache[key]
-        
+
         # Layer 2: Redisから削除
         if self._redis_client:
             try:
@@ -161,15 +158,13 @@ class DataCache:
         keys_to_delete = [k for k in self._memory_cache.keys() if pattern in k]
         for key in keys_to_delete:
             del self._memory_cache[key]
-        
+
         # Layer 2: Redis
         if self._redis_client:
             try:
                 cursor = 0
                 while True:
-                    cursor, keys = await self._redis_client.scan(
-                        cursor, match=f"*{pattern}*"
-                    )
+                    cursor, keys = await self._redis_client.scan(cursor, match=f"*{pattern}*")
                     if keys:
                         await self._redis_client.delete(*keys)
                     if cursor == 0:
@@ -183,17 +178,19 @@ class DataCache:
             "memory_cache_size": len(self._memory_cache),
             "redis_available": self._redis_client is not None,
         }
-        
+
         if self._redis_client:
             try:
                 info = await self._redis_client.info()
-                stats.update({
-                    "redis_memory_used": info.get("used_memory_human", "N/A"),
-                    "redis_keys": await self._redis_client.dbsize(),
-                })
+                stats.update(
+                    {
+                        "redis_memory_used": info.get("used_memory_human", "N/A"),
+                        "redis_keys": await self._redis_client.dbsize(),
+                    }
+                )
             except RedisError:
                 pass
-        
+
         return stats
 
     async def close(self):

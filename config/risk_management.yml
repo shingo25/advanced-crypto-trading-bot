@@ -1,52 +1,52 @@
 # リスク管理設定
 risk_management:
   # 全体設定
-  max_drawdown_per_strategy: 0.15    # 戦略ごとの最大許容ドローダウン (15%)
-  max_total_drawdown: 0.25           # ポートフォリオ全体の最大許容ドローダウン (25%)
-  max_position_size_pct: 0.1         # 単一ポジションの最大サイズ (10%)
-  
+  max_drawdown_per_strategy: 0.15 # 戦略ごとの最大許容ドローダウン (15%)
+  max_total_drawdown: 0.25 # ポートフォリオ全体の最大許容ドローダウン (25%)
+  max_position_size_pct: 0.1 # 単一ポジションの最大サイズ (10%)
+
   # デフォルトポジションサイジング設定
-  default_position_sizing: "fixed"   # fixed, kelly, volatility
-  fixed_risk_per_trade: 0.02         # 固定リスク法での1トレードあたりのリスク (2%)
-  kelly_fraction_cap: 0.5            # Kelly基準の上限 (50%)
-  target_volatility: 0.15            # ボラティリティ調整法での目標ボラティリティ (15%)
-  
+  default_position_sizing: "fixed" # fixed, kelly, volatility
+  fixed_risk_per_trade: 0.02 # 固定リスク法での1トレードあたりのリスク (2%)
+  kelly_fraction_cap: 0.5 # Kelly基準の上限 (50%)
+  target_volatility: 0.15 # ボラティリティ調整法での目標ボラティリティ (15%)
+
   # 戦略固有設定
   strategies:
     whale_ema:
       position_sizing: "kelly"
       kelly_fraction_cap: 0.3
       max_position_size: 0.08
-      
+
     funding_rsi:
       position_sizing: "fixed"
       fixed_risk_per_trade: 0.015
       max_position_size: 0.05
-      
+
     stablecoin_momentum:
       position_sizing: "volatility"
       target_volatility: 0.12
       max_position_size: 0.06
-      
+
     # 他の戦略も同様に設定可能
-    
+
   # 緊急停止条件
   emergency_stop:
-    total_drawdown_threshold: 0.2     # 20%のドローダウンで全戦略停止
-    daily_loss_threshold: 0.05       # 1日5%の損失で停止
-    consecutive_losses: 10            # 連続10回の損失で停止
-    
+    total_drawdown_threshold: 0.2 # 20%のドローダウンで全戦略停止
+    daily_loss_threshold: 0.05 # 1日5%の損失で停止
+    consecutive_losses: 10 # 連続10回の損失で停止
+
   # 手数料・スリッページ設定
   trading_costs:
     default_exchange: "binance"
-    
+
     exchanges:
       binance:
-        maker_fee: 0.001               # 0.1%
-        taker_fee: 0.001               # 0.1%
-        slippage_bps: 5                # 0.05%
-        
+        maker_fee: 0.001 # 0.1%
+        taker_fee: 0.001 # 0.1%
+        slippage_bps: 5 # 0.05%
+
       bybit:
-        maker_fee: 0.0001              # 0.01%
-        taker_fee: 0.0006              # 0.06%
-        slippage_bps: 3                # 0.03%
+        maker_fee: 0.0001 # 0.01%
+        taker_fee: 0.0006 # 0.06%
+        slippage_bps: 3 # 0.03%

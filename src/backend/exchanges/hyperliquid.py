@@ -34,10 +34,10 @@ class HyperliquidAdapter(AbstractExchangeAdapter):
 
     def __init__(self, api_key: str, secret: str, sandbox: bool = False):
         super().__init__(api_key, secret, sandbox)
-        
+
         # Hyperliquid SDK設定
         self.base_url = constants.TESTNET_API_URL if sandbox else constants.MAINNET_API_URL
-        
+
         # アカウント設定（eth_accountを使用）
         try:
             # secret_keyは0xプレフィックス付きの16進数文字列として提供される想定
@@ -46,10 +46,10 @@ class HyperliquidAdapter(AbstractExchangeAdapter):
         except Exception as e:
             logger.error(f"Failed to initialize account: {e}")
             raise ExchangeError(f"Invalid private key format: {e}")
-        
+
         # Info APIクライアント（読み取り専用）
         self.info = Info(self.base_url, skip_ws=True)
-        
+
         # Exchange APIクライアント（取引実行用）
         self.exchange = Exchange(self.account, self.base_url, skip_ws=True)
 
@@ -84,7 +84,7 @@ class HyperliquidAdapter(AbstractExchangeAdapter):
         try:
             normalized_symbol = self.normalize_symbol(symbol)
             hyperliquid_timeframe = self.timeframe_map[timeframe]
-            
+
             # SDKを使用してキャンドルデータを取得
             # 注: SDKのcandle_snapshotメソッドは同期的
             candles = await asyncio.get_event_loop().run_in_executor(
@@ -93,13 +93,13 @@ class HyperliquidAdapter(AbstractExchangeAdapter):
                     coin=normalized_symbol,
                     interval=hyperliquid_timeframe,
                     startTime=int(since.timestamp() * 1000) if since else None,
-                    endTime=int(datetime.now().timestamp() * 1000)
-                )
+                    endTime=int(datetime.now().timestamp() * 1000),
+                ),
             )
-            
+
             if not candles:
                 return []
-            
+
             # OHLCV オブジェクトに変換
             ohlcv_list = []
             for candle in candles[-limit:]:  # 最新limit件を取得
@@ -131,12 +131,10 @@ class HyperliquidAdapter(AbstractExchangeAdapter):
         """資金調達率を取得"""
         try:
             normalized_symbol = self.normalize_symbol(symbol)
-            
+
             # メタ情報を取得
-            meta = await asyncio.get_event_loop().run_in_executor(
-                None, lambda: self.info.meta()
-            )
-            
+            meta = await asyncio.get_event_loop().run_in_executor(None, lambda: self.info.meta())
+
             # シンボル情報から資金調達率を検索
             universe = meta.get("universe", [])
             for asset_info in universe:
@@ -147,10 +145,10 @@ class HyperliquidAdapter(AbstractExchangeAdapter):
                         funding_rate=float(asset_info.get("fundingRate", 0)),
                         next_funding_time=datetime.now(timezone.utc),  # Hyperliquidは8時間おき
                     )
-                    
+
                     logger.info(f"Fetched funding rate for {symbol} from Hyperliquid: {funding_rate.funding_rate}")
                     return funding_rate
-            
+
             raise ExchangeError(f"Symbol {normalized_symbol} not found")
 
         except Exception as e:
@@ -168,12 +166,10 @@ class HyperliquidAdapter(AbstractExchangeAdapter):
         """建玉データを取得"""
         try:
             normalized_symbol = self.normalize_symbol(symbol)
-            
+
             # メタ情報を取得
-            meta = await asyncio.get_event_loop().run_in_executor(
-                None, lambda: self.info.meta()
-            )
-            
+            meta = await asyncio.get_event_loop().run_in_executor(None, lambda: self.info.meta())
+
             # シンボル情報から建玉データを検索
             universe = meta.get("universe", [])
             for asset_info in universe:
@@ -184,10 +180,10 @@ class HyperliquidAdapter(AbstractExchangeAdapter):
                         open_interest=float(asset_info.get("openInterest", 0)),
                         open_interest_value=float(asset_info.get("openInterest", 0)),  # USD換算は別途計算
                     )
-                    
+
                     logger.info(f"Fetched open interest for {symbol} from Hyperliquid: {open_interest.open_interest}")
                     return open_interest
-            
+
             raise ExchangeError(f"Symbol {normalized_symbol} not found")
 
         except Exception as e:
@@ -205,21 +201,19 @@ class HyperliquidAdapter(AbstractExchangeAdapter):
         """ティッカーデータを取得"""
         try:
             normalized_symbol = self.normalize_symbol(symbol)
-            
+
             # 全コインの中間価格を取得
-            mids = await asyncio.get_event_loop().run_in_executor(
-                None, lambda: self.info.all_mids()
-            )
-            
+            mids = await asyncio.get_event_loop().run_in_executor(None, lambda: self.info.all_mids())
+
             if normalized_symbol in mids:
                 mid_price = float(mids[normalized_symbol])
-                
+
                 # L2オーダーブックから詳細な価格情報を取得
                 try:
                     l2_data = await asyncio.get_event_loop().run_in_executor(
                         None, lambda: self.info.l2_snapshot(normalized_symbol)
                     )
-                    
+
                     if l2_data and "levels" in l2_data:
                         levels = l2_data["levels"]
                         if levels:
@@ -231,12 +225,12 @@ class HyperliquidAdapter(AbstractExchangeAdapter):
                     else:
                         bid = mid_price * 0.999
                         ask = mid_price * 1.001
-                        
+
                 except Exception:
                     # L2データ取得に失敗した場合は近似値を使用
                     bid = mid_price * 0.999
                     ask = mid_price * 1.001
-                
+
                 ticker = Ticker(
                     timestamp=datetime.now(timezone.utc),
                     symbol=normalized_symbol,
@@ -245,9 +239,9 @@ class HyperliquidAdapter(AbstractExchangeAdapter):
                     last=mid_price,
                     volume=0.0,  # Volume情報は別のエンドポイントが必要
                 )
-                
+
                 return ticker
-            
+
             raise ExchangeError(f"Symbol {normalized_symbol} not found")
 
         except Exception as e:
@@ -259,13 +253,11 @@ class HyperliquidAdapter(AbstractExchangeAdapter):
     async def get_symbols(self) -> List[str]:
         """利用可能なシンボル一覧を取得"""
         try:
-            meta = await asyncio.get_event_loop().run_in_executor(
-                None, lambda: self.info.meta()
-            )
-            
+            meta = await asyncio.get_event_loop().run_in_executor(None, lambda: self.info.meta())
+
             universe = meta.get("universe", [])
             symbols = [asset["name"] for asset in universe]
-            
+
             logger.info(f"Fetched {len(symbols)} symbols from Hyperliquid")
             return symbols
 
@@ -280,13 +272,13 @@ class HyperliquidAdapter(AbstractExchangeAdapter):
             user_state = await asyncio.get_event_loop().run_in_executor(
                 None, lambda: self.info.user_state(self.address)
             )
-            
+
             if not user_state:
                 return {}
-            
+
             # 各アセットの残高を集計
             balance = {}
-            
+
             # クロスマージンの残高
             if "crossMarginSummary" in user_state:
                 margin_summary = user_state["crossMarginSummary"]
@@ -294,7 +286,7 @@ class HyperliquidAdapter(AbstractExchangeAdapter):
                 account_value = float(margin_summary.get("accountValue", 0))
                 if account_value > 0:
                     balance["USDC"] = account_value
-            
+
             # 各ポジションの残高（未実現損益含む）
             if "assetPositions" in user_state:
                 for position in user_state["assetPositions"]:
@@ -302,7 +294,7 @@ class HyperliquidAdapter(AbstractExchangeAdapter):
                     size = float(position["position"]["szi"])
                     if abs(size) > 0:
                         balance[coin] = size
-            
+
             logger.info(f"Fetched balance for {len(balance)} assets from Hyperliquid")
             return balance
 

@@ -49,6 +49,7 @@
 ### 開発者向けセキュリティガイドライン
 
 #### 1. 機密情報の管理
+
 ```bash
 # ❌ 絶対にやってはいけない
 API_KEY = "your-secret-key"
@@ -58,6 +59,7 @@ API_KEY = os.getenv("API_KEY")
 ```
 
 #### 2. 金額計算
+
 ```python
 # ❌ 浮動小数点数は使用禁止
 price = 1000.1 + 0.2
@@ -68,6 +70,7 @@ price = Decimal('1000.1') + Decimal('0.2')
 ```
 
 #### 3. SQLインジェクション対策
+
 ```python
 # ❌ 文字列結合は危険
 query = f"SELECT * FROM users WHERE id = {user_id}"
@@ -78,6 +81,7 @@ cursor.execute(query, (user_id,))
 ```
 
 #### 4. XSS対策
+
 ```typescript
 // ❌ 生のHTMLを直接挿入
 dangerouslySetInnerHTML={{__html: userInput}}

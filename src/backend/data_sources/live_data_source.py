@@ -39,13 +39,13 @@ class LiveDataSource(DataSourceStrategy):
             except Exception as e:
                 logger.error(f"Failed to create adapter for {exchange}: {e}")
                 raise ExchangeError(f"Exchange {exchange} not available: {e}")
-        
+
         return self._adapters[exchange]
 
     async def get_ticker(self, exchange: str, symbol: str) -> Ticker:
         """実際のティッカーデータを取得"""
         adapter = self._get_adapter(exchange)
-        
+
         try:
             ticker = await adapter.fetch_ticker(symbol)
             logger.debug(f"Fetched ticker for {symbol} from {exchange}: {ticker.last}")
@@ -64,7 +64,7 @@ class LiveDataSource(DataSourceStrategy):
     ) -> List[OHLCV]:
         """実際のOHLCVデータを取得"""
         adapter = self._get_adapter(exchange)
-        
+
         try:
             ohlcv_list = await adapter.fetch_ohlcv(symbol, timeframe, since, limit)
             logger.debug(f"Fetched {len(ohlcv_list)} OHLCV records for {symbol} from {exchange}")
@@ -76,7 +76,7 @@ class LiveDataSource(DataSourceStrategy):
     async def get_funding_rate(self, exchange: str, symbol: str) -> FundingRate:
         """実際の資金調達率を取得"""
         adapter = self._get_adapter(exchange)
-        
+
         try:
             funding_rate = await adapter.fetch_funding_rate(symbol)
             logger.debug(f"Fetched funding rate for {symbol} from {exchange}: {funding_rate.funding_rate}")
@@ -88,7 +88,7 @@ class LiveDataSource(DataSourceStrategy):
     async def get_open_interest(self, exchange: str, symbol: str) -> OpenInterest:
         """実際の建玉データを取得"""
         adapter = self._get_adapter(exchange)
-        
+
         try:
             open_interest = await adapter.fetch_open_interest(symbol)
             logger.debug(f"Fetched open interest for {symbol} from {exchange}: {open_interest.open_interest}")
@@ -100,7 +100,7 @@ class LiveDataSource(DataSourceStrategy):
     async def get_balance(self, exchange: str) -> Dict[str, float]:
         """実際の残高を取得"""
         adapter = self._get_adapter(exchange)
-        
+
         try:
             balance = await adapter.get_balance()
             logger.debug(f"Fetched balance from {exchange}: {len(balance)} assets")
@@ -122,7 +122,7 @@ class LiveDataSource(DataSourceStrategy):
         """すべてのアダプタ接続を閉じる"""
         for exchange, adapter in self._adapters.items():
             try:
-                if hasattr(adapter, 'close'):
+                if hasattr(adapter, "close"):
                     await adapter.close()
                     logger.info(f"Closed connection for {exchange}")
             except Exception as e:

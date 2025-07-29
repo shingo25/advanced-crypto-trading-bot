@@ -22,17 +22,20 @@
 ## 🛠️ 技術スタック
 
 ### Frontend
+
 - **Next.js 15.4.3** - React フレームワーク (Static Export)
 - **TypeScript** - 型安全な開発
 - **Material-UI v7** - デザインシステム
 - **Zustand** - 軽量状態管理
 
 ### Backend
+
 - **FastAPI** - Python Web フレームワーク
 - **Mangum** - Vercel Serverless Functions対応
 - **pytest** - テストフレームワーク
 
 ### Infrastructure
+
 - **Vercel** - デプロイプラットフォーム
 - **GitHub Actions** - CI/CDパイプライン
 - **Docker** - ローカル開発環境
@@ -164,12 +167,14 @@ docker-compose down
 ### Vercel デプロイ
 
 1. **Vercelアカウント連携**
+
    ```bash
    npx vercel
    ```
 
 2. **環境変数設定**
    Vercel Dashboardで以下を設定：
+
    ```
    ENVIRONMENT=production
    ```
@@ -191,12 +196,14 @@ npx vercel --prod
 ## 📊 機能概要
 
 ### ダッシュボード
+
 - 🎯 **ポートフォリオ概要**: 保有資産の一目瞭然の表示
 - 📈 **パフォーマンスチャート**: 時系列での成績可視化
 - 💹 **価格情報**: 主要暗号通貨のリアルタイム価格
 - 📊 **取引履歴**: 過去の取引記録の詳細表示
 
 ### API エンドポイント
+
 - `GET /api/` - システム情報
 - `GET /api/health` - ヘルスチェック
 - `GET /api/prices` - 暗号通貨価格情報
@@ -204,6 +211,7 @@ npx vercel --prod
 - `GET /api/trades` - 取引履歴
 
 ### 特徴的な実装
+
 - **認証フリー設計**: 個人利用での利便性を最大化
 - **モックデータ対応**: 外部API不要で即座にデモ動作
 - **レスポンシブデザイン**: デスクトップ・モバイル完全対応
@@ -242,6 +250,7 @@ pytest tests/ -v --cov=src.backend
 ### よくある問題
 
 **Q: フロントエンドが起動しない**
+
 ```bash
 cd frontend
 rm -rf node_modules package-lock.json
@@ -249,12 +258,14 @@ npm install
 ```
 
 **Q: バックエンドテストが失敗する**
+
 ```bash
 pip install -r requirements/requirements-test.txt
 pytest --verbose
 ```
 
 **Q: Vercelデプロイが失敗する**
+
 - `vercel.json`のパス設定を確認
 - 環境変数が正しく設定されているか確認
 

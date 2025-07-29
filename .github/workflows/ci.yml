@@ -2,13 +2,13 @@ name: 🚀 CI/CD Pipeline
 
 on:
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 env:
-  NODE_VERSION: '20'
-  PYTHON_VERSION: '3.9'
+  NODE_VERSION: "20"
+  PYTHON_VERSION: "3.9"
 
 jobs:
   # 🔒 セキュリティスキャン (最優先)
@@ -136,7 +136,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
       - name: 📦 Install dependencies
@@ -275,7 +275,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
       - name: 📦 Install dependencies

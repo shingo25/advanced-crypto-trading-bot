@@ -10,6 +10,7 @@ Advanced Crypto Trading Bot APIの完全リファレンスガイドです。
 ## 🔑 認証
 
 ### JWT Bearer Token
+
 すべての保護されたエンドポイントで必要です。
 
 ```http
@@ -17,6 +18,7 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 ### トークン取得
+
 ```http
 POST /auth/login
 Content-Type: application/json
@@ -28,6 +30,7 @@ Content-Type: application/json
 ```
 
 **レスポンス**:
+
 ```json
 {
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -39,9 +42,11 @@ Content-Type: application/json
 ## 📊 認証エンドポイント
 
 ### POST /auth/register
+
 新規ユーザー登録
 
 **リクエスト**:
+
 ```json
 {
   "username": "string",
@@ -52,6 +57,7 @@ Content-Type: application/json
 ```
 
 **レスポンス**:
+
 ```json
 {
   "id": 1,
@@ -62,9 +68,11 @@ Content-Type: application/json
 ```
 
 ### POST /auth/refresh
+
 トークン更新
 
 **リクエスト**:
+
 ```json
 {
   "refresh_token": "string"
@@ -74,14 +82,17 @@ Content-Type: application/json
 ## 💹 取引エンドポイント
 
 ### GET /api/trades
+
 取引履歴の取得
 
 **パラメータ**:
+
 - `limit` (optional): 件数制限 (default: 100)
 - `offset` (optional): オフセット (default: 0)
 - `symbol` (optional): 通貨ペアフィルター
 
 **レスポンス**:
+
 ```json
 {
   "trades": [
@@ -102,9 +113,11 @@ Content-Type: application/json
 ```
 
 ### POST /api/trades
+
 新規取引実行 (ライブ取引)
 
 **リクエスト**:
+
 ```json
 {
   "symbol": "BTCUSDT",
@@ -118,9 +131,11 @@ Content-Type: application/json
 ## 📈 戦略エンドポイント
 
 ### GET /api/strategies
+
 利用可能な戦略一覧
 
 **レスポンス**:
+
 ```json
 {
   "strategies": [
@@ -150,9 +165,11 @@ Content-Type: application/json
 ```
 
 ### POST /api/strategies/{strategy_id}/backtest
+
 バックテスト実行
 
 **リクエスト**:
+
 ```json
 {
   "symbol": "BTCUSDT",
@@ -168,6 +185,7 @@ Content-Type: application/json
 ```
 
 **レスポンス**:
+
 ```json
 {
   "backtest_id": "bt_123456",
@@ -177,9 +195,11 @@ Content-Type: application/json
 ```
 
 ### GET /api/strategies/backtest/{backtest_id}
+
 バックテスト結果取得
 
 **レスポンス**:
+
 ```json
 {
   "id": "bt_123456",
@@ -214,15 +234,18 @@ Content-Type: application/json
 ## 📊 マーケットデータエンドポイント
 
 ### GET /api/market/ohlcv/{symbol}
+
 OHLCV価格データ取得
 
 **パラメータ**:
+
 - `timeframe`: 時間足 (1m, 5m, 15m, 1h, 4h, 1d)
 - `start_time` (optional): 開始時刻
 - `end_time` (optional): 終了時刻
 - `limit` (optional): 件数 (default: 100, max: 1000)
 
 **レスポンス**:
+
 ```json
 {
   "symbol": "BTCUSDT",
@@ -241,9 +264,11 @@ OHLCV価格データ取得
 ```
 
 ### GET /api/market/ticker/{symbol}
+
 現在価格取得
 
 **レスポンス**:
+
 ```json
 {
   "symbol": "BTCUSDT",
@@ -257,9 +282,11 @@ OHLCV価格データ取得
 ## 🔧 設定エンドポイント
 
 ### GET /api/settings/exchanges
+
 取引所設定一覧
 
 **レスポンス**:
+
 ```json
 {
   "exchanges": [
@@ -275,9 +302,11 @@ OHLCV価格データ取得
 ```
 
 ### POST /api/settings/exchanges/{exchange_id}/configure
+
 取引所API設定
 
 **リクエスト**:
+
 ```json
 {
   "api_key": "string",
@@ -290,9 +319,11 @@ OHLCV価格データ取得
 ## 🚨 リスク管理エンドポイント
 
 ### GET /api/risk/limits
+
 現在のリスク制限設定
 
 **レスポンス**:
+
 ```json
 {
   "max_position_size": 0.1,
@@ -304,9 +335,11 @@ OHLCV価格データ取得
 ```
 
 ### POST /api/risk/limits
+
 リスク制限設定更新
 
 **リクエスト**:
+
 ```json
 {
   "max_position_size": 0.1,
@@ -318,6 +351,7 @@ OHLCV価格データ取得
 ## 📱 WebSocket API
 
 ### 価格データストリーム
+
 ```javascript
 // 接続
 const ws = new WebSocket('ws://localhost:8000/ws/prices/BTCUSDT');
@@ -338,6 +372,7 @@ ws.onmessage = (event) => {
 ```
 
 ### 取引実行通知
+
 ```javascript
 const ws = new WebSocket('ws://localhost:8000/ws/trades');
 
@@ -374,15 +409,15 @@ const ws = new WebSocket('ws://localhost:8000/ws/trades');
 
 ### エラーコード一覧
 
-| コード | 説明 |
-|--------|------|
-| `UNAUTHORIZED` | 認証が必要です |
-| `FORBIDDEN` | アクセス権限がありません |
-| `INVALID_PARAMETER` | パラメータが無効です |
-| `RESOURCE_NOT_FOUND` | リソースが見つかりません |
-| `EXCHANGE_ERROR` | 取引所APIエラー |
-| `INSUFFICIENT_BALANCE` | 残高不足 |
-| `RATE_LIMITED` | レート制限に達しました |
+| コード                 | 説明                     |
+| ---------------------- | ------------------------ |
+| `UNAUTHORIZED`         | 認証が必要です           |
+| `FORBIDDEN`            | アクセス権限がありません |
+| `INVALID_PARAMETER`    | パラメータが無効です     |
+| `RESOURCE_NOT_FOUND`   | リソースが見つかりません |
+| `EXCHANGE_ERROR`       | 取引所APIエラー          |
+| `INSUFFICIENT_BALANCE` | 残高不足                 |
+| `RATE_LIMITED`         | レート制限に達しました   |
 
 ## 📝 レート制限
 
@@ -395,6 +430,7 @@ const ws = new WebSocket('ws://localhost:8000/ws/trades');
 ## 🔍 SDKサンプル
 
 ### Python
+
 ```python
 import requests
 
@@ -417,26 +453,27 @@ trades = api.get_trades()
 ```
 
 ### JavaScript
+
 ```javascript
 class TradingBotAPI {
   constructor(baseUrl, token) {
     this.baseUrl = baseUrl;
     this.headers = {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
     };
   }
 
   async getTrades(limit = 100) {
     const response = await fetch(`${this.baseUrl}/api/trades?limit=${limit}`, {
-      headers: this.headers
+      headers: this.headers,
     });
     return response.json();
   }
 }
 
 // 使用例
-const api = new TradingBotAPI('http://localhost:8000', 'your_token');
+const api = new TradingBotAPI("http://localhost:8000", "your_token");
 const trades = await api.getTrades();
 ```
 

@@ -12,13 +12,13 @@ export default function SettingsPage() {
         <Typography variant="h4" component="h1" gutterBottom>
           設定
         </Typography>
-        
+
         <Grid container spacing={3}>
           {/* 取引モード設定 */}
           <Grid item xs={12} md={8}>
             <TradingModeSwitch />
           </Grid>
-          
+
           {/* その他の設定（将来の実装用） */}
           <Grid item xs={12} md={4}>
             <Paper sx={{ p: 3 }}>

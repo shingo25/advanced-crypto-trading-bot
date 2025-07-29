@@ -136,7 +136,7 @@ class AbstractExchangeAdapter(AbstractTradingAdapter if AbstractTradingAdapter e
     async def get_balance(self) -> Dict[str, Any]:
         """残高を取得"""
         pass
-    
+
     # AbstractTradingAdapterインターフェースの実装（委譲）
     async def get_ticker(self, symbol: str) -> Dict[str, Any]:
         """価格データを取得（fetch_tickerの委譲）"""
@@ -147,49 +147,45 @@ class AbstractExchangeAdapter(AbstractTradingAdapter if AbstractTradingAdapter e
             "bid": ticker.bid,
             "ask": ticker.ask,
             "volume": ticker.volume,
-            "timestamp": ticker.timestamp.isoformat()
+            "timestamp": ticker.timestamp.isoformat(),
         }
-    
+
     async def get_order_book(self, symbol: str, limit: int = 20) -> Dict[str, Any]:
         """板情報を取得（デフォルト実装）"""
         # デフォルトでは空の板情報を返す（各取引所で実装をオーバーライド）
-        return {
-            "bids": [],
-            "asks": [],
-            "timestamp": datetime.now().isoformat()
-        }
-    
+        return {"bids": [], "asks": [], "timestamp": datetime.now().isoformat()}
+
     # 基本的な注文操作（各取引所で実装）
     async def place_order(self, order) -> Dict[str, Any]:
         """注文を発注（各取引所で実装）"""
         raise NotImplementedError("place_order must be implemented by each exchange")
-    
+
     async def cancel_order(self, order_id: str) -> Dict[str, Any]:
         """注文をキャンセル（各取引所で実装）"""
         raise NotImplementedError("cancel_order must be implemented by each exchange")
-    
+
     async def get_order(self, order_id: str) -> Dict[str, Any]:
         """注文状況を取得（各取引所で実装）"""
         raise NotImplementedError("get_order must be implemented by each exchange")
-    
+
     async def get_open_orders(self, symbol: Optional[str] = None) -> List[Dict[str, Any]]:
         """未決済注文を取得（各取引所で実装）"""
         raise NotImplementedError("get_open_orders must be implemented by each exchange")
-    
+
     async def connect(self) -> bool:
         """取引所に接続（デフォルト実装）"""
         return await self.health_check()
-    
+
     async def disconnect(self):
         """取引所から切断（デフォルト実装）"""
         # 基本的には何もしない（各取引所で必要に応じてオーバーライド）
         pass
-    
+
     def is_connected(self) -> bool:
         """接続状態を確認（デフォルト実装）"""
         # 基本的にはTrueを返す（各取引所で必要に応じてオーバーライド）
         return True
-    
+
     @property
     def exchange_name(self) -> str:
         """取引所名を返す"""

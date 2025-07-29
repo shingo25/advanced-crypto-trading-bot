@@ -218,7 +218,7 @@ class EmailChannel(NotificationChannel):
                     <div class="alert-info">
                         <h2 style="margin-top: 0; color: {color};">{alert.title}</h2>
                         <p><strong>Message:</strong> {alert.message}</p>
-                        <p><strong>Time:</strong> {alert.timestamp.strftime('%Y-%m-%d %H:%M:%S UTC')}</p>
+                        <p><strong>Time:</strong> {alert.timestamp.strftime("%Y-%m-%d %H:%M:%S UTC")}</p>
                     </div>
 
                     <table>

@@ -11,6 +11,7 @@
 ### ✅ Phase 1: データベース基盤構築 (完了)
 
 #### Phase1-1.1: 依存関係とライブラリ統合
+
 - **日付**: 2025-07-15
 - **内容**: SQLAlchemy・psycopg2-binary・Supabase SDK のインストールと設定
 - **状況**: ✅ 完了
@@ -20,6 +21,7 @@
   - 仮想環境での動作確認済み
 
 #### Phase1-1.2: データベース接続テスト
+
 - **日付**: 2025-07-15
 - **内容**: Supabase 接続テスト・認証確認
 - **状況**: ✅ 完了
@@ -29,6 +31,7 @@
   - SQLAlchemy直接接続から Supabase SDK に方針変更
 
 #### Phase1-1.3: データベースモデル層構築
+
 - **日付**: 2025-07-15
 - **内容**: Supabase SDK ベースのデータベース層定義
 - **状況**: ✅ 完了
@@ -39,6 +42,7 @@
   - 7テーブルの完全スキーマ定義（`database/supabase-schema.sql`）
 
 #### Phase1-1.4: 既存データベース層移植
+
 - **日付**: 2025-07-15
 - **内容**: DuckDB から Supabase SDK への完全移植
 - **状況**: ✅ 完了
@@ -49,6 +53,7 @@
   - 包括テスト実施・動作確認済み
 
 #### Phase1-1.5: API エンドポイント実データ対応
+
 - **日付**: 2025-07-15
 - **内容**: FastAPI エンドポイントの Supabase SDK 対応
 - **状況**: ✅ 完了
@@ -64,6 +69,7 @@
 ### ✅ バックエンド API サーバー本番デプロイ (完了)
 
 #### Vercel Functions 統合デプロイ
+
 - **日付**: 2025-07-15
 - **内容**: フロントエンド + バックエンド統合デプロイ設定
 - **状況**: ✅ 完了
@@ -99,19 +105,20 @@ graph TB
 
 ### セキュリティ実装状況
 
-| 項目 | 実装状況 | 詳細 |
-|------|----------|------|
-| 認証システム | ✅ 完了 | Supabase Auth 統合 |
-| セッション管理 | ✅ 完了 | httpOnly クッキー + JWT |
-| アクセス制御 | ✅ 完了 | Row Level Security (RLS) |
-| CORS 設定 | ✅ 完了 | 本番・開発環境対応 |
-| 環境変数管理 | ✅ 完了 | Vercel 環境変数 |
+| 項目           | 実装状況 | 詳細                     |
+| -------------- | -------- | ------------------------ |
+| 認証システム   | ✅ 完了  | Supabase Auth 統合       |
+| セッション管理 | ✅ 完了  | httpOnly クッキー + JWT  |
+| アクセス制御   | ✅ 完了  | Row Level Security (RLS) |
+| CORS 設定      | ✅ 完了  | 本番・開発環境対応       |
+| 環境変数管理   | ✅ 完了  | Vercel 環境変数          |
 
 ---
 
 ## 📁 主要ファイル構成
 
 ### バックエンド
+
 ```
 backend/
 ├── main.py                 # FastAPI アプリケーション（Vercel 対応）
@@ -132,12 +139,14 @@ backend/
 ```
 
 ### データベース
+
 ```
 database/
 └── supabase-schema.sql   # 完全スキーマ定義（7テーブル）
 ```
 
 ### 設定・デプロイ
+
 ```
 vercel.json               # Vercel 統合デプロイ設定
 requirements-backend.txt  # バックエンド専用依存関係
@@ -149,6 +158,7 @@ requirements-backend.txt  # バックエンド専用依存関係
 ## 🧪 テスト実装状況
 
 ### 完了テスト
+
 - `test_supabase_connection.py` - 基本接続テスト
 - `test_database_migration.py` - データベース移植テスト
 - `test_supabase_auth.py` - 認証システムテスト
@@ -156,6 +166,7 @@ requirements-backend.txt  # バックエンド専用依存関係
 - `test_backend_deployment.py` - デプロイ前包括テスト
 
 ### テスト結果
+
 - **データベース移植**: 100% 成功
 - **認証システム**: 100% 成功
 - **戦略 API**: 100% 成功
@@ -166,11 +177,13 @@ requirements-backend.txt  # バックエンド専用依存関係
 ## 🔑 環境変数・認証情報
 
 ### Supabase 設定
+
 - `SUPABASE_URL`: `https://huuimmgmxtqigbjfpudo.supabase.co`
 - `SUPABASE_SERVICE_ROLE_KEY`: (設定済み)
 - **管理者ユーザー**: `admin@example.com` / `change_this_password`
 
 ### JWT 設定
+
 - `JWT_SECRET`: セキュア値設定済み
 - `JWT_ALGORITHM`: HS256
 - `JWT_EXPIRATION_HOURS`: 24
@@ -180,11 +193,13 @@ requirements-backend.txt  # バックエンド専用依存関係
 ## 📈 パフォーマンス・制限事項
 
 ### Vercel Functions 制限
+
 - **実行時間**: 10秒（Hobby）/ 60秒（Pro）
 - **メモリ**: 制限あり
 - **ペイロード**: サイズ制限あり
 
 ### 対応状況
+
 - 現在の API は制限内で正常動作
 - 長時間処理（バックテスト等）は別途対応検討
 
@@ -193,21 +208,25 @@ requirements-backend.txt  # バックエンド専用依存関係
 ## 🚀 デプロイ状況
 
 ### 本番環境 ✅ 完了
+
 - **フロントエンド**: Next.js 15.1.5 - Vercel デプロイ済み
 - **バックエンド**: FastAPI + Python 3.12 - Vercel Functions デプロイ済み
 - **データベース**: Supabase PostgreSQL - 運用中
 
 ### 本番URL
+
 - **本番サイト**: `https://crypto-m1u2wjova-shingo-arais-projects.vercel.app`
 - **プロジェクト**: `shingo-arais-projects/crypto-bot`
 - **状態**: 正常稼働中（Vercel認証保護下）
 
 ### API エンドポイント
+
 - `https://crypto-m1u2wjova-shingo-arais-projects.vercel.app/api/health` - ヘルスチェック
 - `https://crypto-m1u2wjova-shingo-arais-projects.vercel.app/api/auth/login` - ログイン
 - `https://crypto-m1u2wjova-shingo-arais-projects.vercel.app/api/strategies/` - 戦略一覧
 
 ### デプロイ詳細
+
 - **ビルド時間**: ~1分30秒
 - **デプロイ成功率**: 100%
 - **最終デプロイ**: 2025-07-15 15:38 JST
@@ -229,6 +248,7 @@ requirements-backend.txt  # バックエンド専用依存関係
 ### ✅ Phase 2: リアルタイムデータ処理・WebSocket・バックテスト (完了)
 
 #### Phase2-1: データ収集パイプライン
+
 - **日付**: 2025-07-16 - 2025-07-18
 - **内容**: CCXT統合・Binance OHLCV データ収集・Supabase保存
 - **状況**: ✅ 完了
@@ -239,6 +259,7 @@ requirements-backend.txt  # バックエンド専用依存関係
   - Supabase `price_data` テーブル設計・実装
 
 #### Phase2-2: WebSocket リアルタイム配信
+
 - **日付**: 2025-07-17 - 2025-07-19
 - **内容**: WebSocket管理・リアルタイム価格配信・クライアント接続管理
 - **状況**: ✅ 完了
@@ -249,6 +270,7 @@ requirements-backend.txt  # バックエンド専用依存関係
   - チャンネル購読システム
 
 #### Phase2-3: バックテストエンジン
+
 - **日付**: 2025-07-18 - 2025-07-19
 - **内容**: EMA戦略バックテスト・パフォーマンス分析・Walk Forward Analysis
 - **状況**: ✅ 完了
@@ -259,6 +281,7 @@ requirements-backend.txt  # バックエンド専用依存関係
   - パフォーマンス統計・結果可視化
 
 #### Phase2-4: フロントエンド統合
+
 - **日付**: 2025-07-19 - 2025-07-20
 - **内容**: Material-UI v7対応・リアルタイムチャート・バックテスト結果ダッシュボード
 - **状況**: ✅ 完了
@@ -269,6 +292,7 @@ requirements-backend.txt  # バックエンド専用依存関係
   - リアルタイムデータ表示・チャート統合
 
 #### Phase2-5: CI/CD完全修正
+
 - **日付**: 2025-07-20
 - **内容**: 依存関係管理・GitHub Actions修正・Docker対応
 - **状況**: ✅ 完了

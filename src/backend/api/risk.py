@@ -118,18 +118,18 @@ async def get_risk_summary(current_user: dict = Depends(get_current_user)):
         var_result = risk_manager.calculate_var(
             returns=[0.01, -0.02, 0.015, -0.005, 0.008],  # ダミーデータ
             confidence_levels=[0.95],
-            method="historical"
+            method="historical",
         )
 
         # リスクメトリクス計算
         portfolio_returns = [0.01, -0.02, 0.015, -0.005, 0.008]  # ダミーデータ
         strategy_returns = {"default": portfolio_returns}  # ダミーデータ
         portfolio_positions = {"BTC": 0.5, "ETH": 0.3, "ADA": 0.2}  # ダミーデータ
-        
+
         risk_metrics = risk_manager.calculate_portfolio_risk_metrics(
             portfolio_returns=portfolio_returns,
             strategy_returns=strategy_returns,
-            portfolio_positions=portfolio_positions
+            portfolio_positions=portfolio_positions,
         )
 
         return RiskSummaryResponse(
@@ -173,14 +173,12 @@ async def calculate_var(request: VaRRequest, current_user: dict = Depends(get_cu
 
         # 統一されたcalculate_varメソッドを使用
         var_result = risk_manager.calculate_var(
-            returns, 
-            confidence_levels=[request.confidence_level], 
-            method=request.method
+            returns, confidence_levels=[request.confidence_level], method=request.method
         )
 
         # VaRResultから適切な値を取得
         var_value = var_result.var_95 if request.confidence_level == 0.95 else var_result.var_99
-        
+
         return VaRResponse(
             portfolio_id=request.portfolio_id,
             confidence_level=request.confidence_level,

@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 class HybridDataSource(DataSourceStrategy):
     """
     ハイブリッドデータソースの実装
-    
+
     以下の条件で自動的にデータソースを切り替え：
     - 指定された取引所がホワイトリストにある場合は実データ
     - API接続エラーが発生した場合はモックデータにフォールバック
@@ -46,12 +46,12 @@ class HybridDataSource(DataSourceStrategy):
         """
         self.mock_source = MockDataSource()
         self.live_source = LiveDataSource()
-        
+
         # デフォルトは全てモック
         self.live_exchanges = live_exchanges or set()
         self.live_symbols = live_symbols or set()
         self.fallback_to_mock = fallback_to_mock
-        
+
         # エラーカウンター（一定回数エラーが続いたら一時的にモックに切り替え）
         self._error_counts: Dict[str, int] = {}
         self._max_errors = 5
@@ -62,14 +62,14 @@ class HybridDataSource(DataSourceStrategy):
         if self._error_counts.get(exchange, 0) >= self._max_errors:
             logger.warning(f"Too many errors for {exchange}, using mock data")
             return False
-        
+
         # ホワイトリストチェック
         if self.live_exchanges and exchange in self.live_exchanges:
             return True
-        
+
         if self.live_symbols and symbol in self.live_symbols:
             return True
-        
+
         return False
 
     def _record_error(self, exchange: str):
@@ -94,7 +94,7 @@ class HybridDataSource(DataSourceStrategy):
                 logger.warning(f"Failed to get live ticker, falling back to mock: {e}")
                 if not self.fallback_to_mock:
                     raise
-        
+
         logger.debug(f"Using mock ticker for {symbol} from {exchange}")
         return await self.mock_source.get_ticker(exchange, symbol)
 
@@ -118,7 +118,7 @@ class HybridDataSource(DataSourceStrategy):
                 logger.warning(f"Failed to get live OHLCV, falling back to mock: {e}")
                 if not self.fallback_to_mock:
                     raise
-        
+
         logger.debug(f"Using mock OHLCV for {symbol} from {exchange}")
         return await self.mock_source.get_ohlcv(exchange, symbol, timeframe, since, limit)
 
@@ -135,7 +135,7 @@ class HybridDataSource(DataSourceStrategy):
                 logger.warning(f"Failed to get live funding rate, falling back to mock: {e}")
                 if not self.fallback_to_mock:
                     raise
-        
+
         logger.debug(f"Using mock funding rate for {symbol} from {exchange}")
         return await self.mock_source.get_funding_rate(exchange, symbol)
 
@@ -152,7 +152,7 @@ class HybridDataSource(DataSourceStrategy):
                 logger.warning(f"Failed to get live open interest, falling back to mock: {e}")
                 if not self.fallback_to_mock:
                     raise
-        
+
         logger.debug(f"Using mock open interest for {symbol} from {exchange}")
         return await self.mock_source.get_open_interest(exchange, symbol)
 
@@ -169,7 +169,7 @@ class HybridDataSource(DataSourceStrategy):
                 logger.warning(f"Failed to get live balance, falling back to mock: {e}")
                 if not self.fallback_to_mock:
                     raise
-        
+
         logger.debug(f"Using mock balance for {exchange}")
         return await self.mock_source.get_balance(exchange)
 
@@ -179,7 +179,7 @@ class HybridDataSource(DataSourceStrategy):
         if exchange in self.live_exchanges:
             if await self.live_source.is_available(exchange):
                 return True
-        
+
         # モックデータソースは常に利用可能
         return await self.mock_source.is_available(exchange)
 

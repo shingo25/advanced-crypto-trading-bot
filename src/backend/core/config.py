@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     JWT_SECRET: str = secrets.token_urlsafe(32)
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRATION_HOURS: int = 24
-    
+
     # セキュリティ強化: パスワードポリシー
     MIN_PASSWORD_LENGTH: int = 12
     REQUIRE_SPECIAL_CHARS: bool = True
@@ -90,39 +90,36 @@ class Settings(BaseSettings):
         env_file = ".env"
         case_sensitive = True
         extra = "ignore"  # Ignore extra environment variables
-        
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         # セキュリティ検証
         self._validate_security_settings()
-    
+
     def _validate_security_settings(self):
         """セキュリティ設定の検証"""
         # JWT_SECRETの強度チェック
         if len(self.JWT_SECRET) < 32:
             raise ValueError("JWT_SECRET must be at least 32 characters long")
-        
+
         # 管理者パスワードのセキュリティチェック
         if self.ADMIN_PASSWORD == "change_this_password":
             if self.ENVIRONMENT == "production":
                 raise ValueError("Default admin password must be changed in production")
-        
+
         # APIキーの存在チェック（Live Trading時）
         if self.ENVIRONMENT == "production":
-            required_keys = [
-                (self.BINANCE_API_KEY, "BINANCE_API_KEY"),
-                (self.BINANCE_SECRET, "BINANCE_SECRET")
-            ]
-            
+            required_keys = [(self.BINANCE_API_KEY, "BINANCE_API_KEY"), (self.BINANCE_SECRET, "BINANCE_SECRET")]
+
             missing_keys = [name for key, name in required_keys if not key]
             if missing_keys:
                 print(f"Warning: Missing API keys for production: {', '.join(missing_keys)}")
-    
+
     @property
     def is_development(self) -> bool:
         """開発環境かどうか"""
         return self.ENVIRONMENT == "development"
-    
+
     @property
     def is_production(self) -> bool:
         """本番環境かどうか"""

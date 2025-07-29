@@ -220,11 +220,8 @@ class BitgetAdapter(AbstractExchangeAdapter):
             markets = await asyncio.get_event_loop().run_in_executor(None, lambda: self.exchange.load_markets())
 
             # デリバティブ（swap）のシンボルを優先
-            symbols = [
-                symbol for symbol, market in markets.items()
-                if market.get("type") in ["swap", "future", "spot"]
-            ]
-            
+            symbols = [symbol for symbol, market in markets.items() if market.get("type") in ["swap", "future", "spot"]]
+
             logger.info(f"Fetched {len(symbols)} symbols from Bitget")
             return symbols
 

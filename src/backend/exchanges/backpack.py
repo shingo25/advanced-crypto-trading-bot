@@ -36,10 +36,12 @@ class BackpackAdapter(AbstractExchangeAdapter):
 
     def __init__(self, api_key: str, secret: str, sandbox: bool = False):
         super().__init__(api_key, secret, sandbox)
-        
+
         # BackPack API設定
-        self.base_url = "https://api.backpack.exchange" if not sandbox else "https://api.backpack.exchange"  # テストネット未確認
-        
+        self.base_url = (
+            "https://api.backpack.exchange" if not sandbox else "https://api.backpack.exchange"
+        )  # テストネット未確認
+
         # セッション管理
         self.session: Optional[aiohttp.ClientSession] = None
 
@@ -62,30 +64,20 @@ class BackpackAdapter(AbstractExchangeAdapter):
         """HTTP セッションを取得"""
         if self.session is None or self.session.closed:
             timeout = aiohttp.ClientTimeout(total=30)
-            headers = {
-                "Content-Type": "application/json",
-                "User-Agent": "crypto-bot/1.0"
-            }
-            self.session = aiohttp.ClientSession(
-                timeout=timeout,
-                headers=headers
-            )
+            headers = {"Content-Type": "application/json", "User-Agent": "crypto-bot/1.0"}
+            self.session = aiohttp.ClientSession(timeout=timeout, headers=headers)
         return self.session
 
     def _generate_signature(self, method: str, path: str, body: str = "") -> Dict[str, str]:
         """BackPack API署名を生成"""
         timestamp = str(int(time.time() * 1000))
-        
+
         # 署名文字列を作成
         message = f"{method}{path}{body}{timestamp}"
-        
+
         # HMAC-SHA256で署名
-        signature = hmac.new(
-            self.secret.encode('utf-8'),
-            message.encode('utf-8'),
-            digestmod='sha256'
-        ).hexdigest()
-        
+        signature = hmac.new(self.secret.encode("utf-8"), message.encode("utf-8"), digestmod="sha256").hexdigest()
+
         return {
             "X-API-Key": self.api_key,
             "X-Timestamp": timestamp,
@@ -96,20 +88,20 @@ class BackpackAdapter(AbstractExchangeAdapter):
         """HTTP リクエストを実行"""
         session = await self._get_session()
         url = f"{self.base_url}{path}"
-        
+
         headers = {}
         body = ""
-        
+
         if auth:
             if data and method.upper() == "POST":
                 body = json.dumps(data)
             elif data and method.upper() == "GET":
                 query_string = urlencode(data)
                 url += f"?{query_string}"
-            
+
             auth_headers = self._generate_signature(method.upper(), path, body)
             headers.update(auth_headers)
-        
+
         try:
             if method.upper() == "POST":
                 if auth:
@@ -124,7 +116,7 @@ class BackpackAdapter(AbstractExchangeAdapter):
                 async with session.get(url, params=data if not auth else None, headers=headers) as response:
                     response.raise_for_status()
                     result = await response.json()
-            
+
             return result
         except aiohttp.ClientResponseError as e:
             if e.status == 429:
@@ -150,23 +142,23 @@ class BackpackAdapter(AbstractExchangeAdapter):
         try:
             normalized_symbol = self.normalize_symbol(symbol)
             backpack_timeframe = self.timeframe_map[timeframe]
-            
+
             # リクエストパラメータ
             params = {
                 "symbol": normalized_symbol,
                 "interval": backpack_timeframe,
                 "limit": limit,
             }
-            
+
             if since:
                 params["startTime"] = int(since.timestamp() * 1000)
-            
+
             # データを取得
             response = await self._make_request("/api/v1/klines", "GET", params)
-            
+
             if not response:
                 return []
-            
+
             # OHLCV オブジェクトに変換
             ohlcv_list = []
             for candle in response:
@@ -197,7 +189,7 @@ class BackpackAdapter(AbstractExchangeAdapter):
         try:
             # BackPackの資金調達率エンドポイント（仮実装）
             logger.warning("Funding rate not implemented for BackPack (API endpoint unknown)")
-            
+
             # デフォルト値を返す
             funding_rate = FundingRate(
                 timestamp=datetime.now(timezone.utc),
@@ -205,7 +197,7 @@ class BackpackAdapter(AbstractExchangeAdapter):
                 funding_rate=0.0,
                 next_funding_time=datetime.now(timezone.utc),
             )
-            
+
             return funding_rate
 
         except Exception as e:
@@ -222,7 +214,7 @@ class BackpackAdapter(AbstractExchangeAdapter):
         try:
             # BackPackの建玉データエンドポイント（仮実装）
             logger.warning("Open interest not implemented for BackPack (API endpoint unknown)")
-            
+
             # デフォルト値を返す
             open_interest = OpenInterest(
                 timestamp=datetime.now(timezone.utc),
@@ -230,7 +222,7 @@ class BackpackAdapter(AbstractExchangeAdapter):
                 open_interest=0.0,
                 open_interest_value=0.0,
             )
-            
+
             return open_interest
 
         except Exception as e:
@@ -246,13 +238,13 @@ class BackpackAdapter(AbstractExchangeAdapter):
         """ティッカーデータを取得"""
         try:
             normalized_symbol = self.normalize_symbol(symbol)
-            
+
             params = {"symbol": normalized_symbol}
             response = await self._make_request("/api/v1/ticker/24hr", "GET", params)
-            
+
             if not response:
                 raise ExchangeError(f"No ticker data for {normalized_symbol}")
-            
+
             ticker = Ticker(
                 timestamp=datetime.now(timezone.utc),
                 symbol=normalized_symbol,
@@ -261,7 +253,7 @@ class BackpackAdapter(AbstractExchangeAdapter):
                 last=float(response.get("lastPrice", 0)),
                 volume=float(response.get("volume", 0)),
             )
-            
+
             return ticker
 
         except Exception as e:
@@ -272,12 +264,15 @@ class BackpackAdapter(AbstractExchangeAdapter):
         """利用可能なシンボル一覧を取得"""
         try:
             response = await self._make_request("/api/v1/exchangeInfo", "GET")
-            
+
             symbols = []
             if "symbols" in response:
-                symbols = [symbol_info["symbol"] for symbol_info in response["symbols"] 
-                          if symbol_info.get("status") == "TRADING"]
-            
+                symbols = [
+                    symbol_info["symbol"]
+                    for symbol_info in response["symbols"]
+                    if symbol_info.get("status") == "TRADING"
+                ]
+
             logger.info(f"Fetched {len(symbols)} symbols from BackPack")
             return symbols
 
@@ -289,15 +284,13 @@ class BackpackAdapter(AbstractExchangeAdapter):
         """残高を取得（認証が必要）"""
         try:
             response = await self._make_request("/api/v1/capital", "GET", auth=True)
-            
+
             balance = {}
             if "balances" in response:
                 balance = {
-                    asset["asset"]: float(asset["free"])
-                    for asset in response["balances"]
-                    if float(asset["free"]) > 0
+                    asset["asset"]: float(asset["free"]) for asset in response["balances"] if float(asset["free"]) > 0
                 }
-            
+
             logger.info(f"Fetched balance for {len(balance)} assets from BackPack")
             return balance
 
