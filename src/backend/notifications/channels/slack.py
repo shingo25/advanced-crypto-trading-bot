@@ -197,9 +197,9 @@ class SlackChannel(NotificationChannel):
                 formatted_message = formatted_message[: config.max_message_length - 100] + "\n\n... (truncated)"
             else:
                 # 長すぎる場合は添付ファイルに移動
-                payload["text"] = (
-                    f"{self.level_emojis.get(alert.level, ':warning:')} Alert message too long, see attachment"
-                )
+                payload[
+                    "text"
+                ] = f"{self.level_emojis.get(alert.level, ':warning:')} Alert message too long, see attachment"
                 config.use_attachments = True
 
         if config.use_attachments:
