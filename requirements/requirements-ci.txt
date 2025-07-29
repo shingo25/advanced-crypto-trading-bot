@@ -76,7 +76,7 @@ aiosmtplib==3.0.1  # Alert notification tests
 # Cryptocurrency & Blockchain Dependencies (required for tests)
 # 互換性のあるバージョンに更新（競合解決をpipに任せる）
 eth-account>=0.10.0,<0.14.0  # Ethereum account management for Hyperliquid (range for compatibility)
-web3>=6.11.0,<7.0.0  # Web3 interactions (v6.x for stability)
+web3>=6.11.1,<7.0.0  # Web3 interactions (v6.11.1+ for ContractName ImportError fix)
 hyperliquid-python-sdk==0.16.0  # Hyperliquid exchange SDK
 # hexbytesのpip依存関係解決に任せる（明示的指定を除去）
 
