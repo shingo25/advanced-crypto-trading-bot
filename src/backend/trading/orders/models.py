@@ -9,7 +9,7 @@ from decimal import Decimal
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, model_validator
 
 
 class OrderType(Enum):
@@ -71,22 +71,18 @@ class OrderParams(BaseModel):
     strategy_name: Optional[str] = Field(None, description="戦略名")
     client_order_id: Optional[str] = Field(None, description="クライアント注文ID")
 
-    @field_validator("price")
-    @classmethod
-    def validate_price_for_limit_orders(cls, v, info):
-        """指値注文では価格が必須"""
-        if info.data.get("order_type") == OrderType.LIMIT and v is None:
+    @model_validator(mode="after")
+    def validate_order_params(self):
+        """注文タイプに応じた価格バリデーション"""
+        # 指値注文では価格が必須
+        if self.order_type == OrderType.LIMIT and self.price is None:
             raise ValueError("Limit orders require a price")
-        return v
 
-    @field_validator("stop_price")
-    @classmethod
-    def validate_stop_price(cls, v, info):
-        """ストップ注文では停止価格が必須"""
-        order_type = info.data.get("order_type")
-        if order_type in [OrderType.STOP_LOSS, OrderType.TAKE_PROFIT] and v is None:
-            raise ValueError(f"{order_type.value} orders require a stop_price")
-        return v
+        # ストップ注文では停止価格が必須
+        if self.order_type in [OrderType.STOP_LOSS, OrderType.TAKE_PROFIT] and self.stop_price is None:
+            raise ValueError(f"{self.order_type.value} orders require a stop_price")
+
+        return self
 
 
 class Order(BaseModel):
