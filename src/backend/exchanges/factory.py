@@ -121,8 +121,7 @@ class ExchangeFactory(AbstractAdapterFactory):
         """
         # セキュリティ: 実際のAPIキーは使用しない
         if real_exchange not in self._adapters:
-            logger.warning(f"Unsupported real exchange for paper trading: {real_exchange}, using binance as default")
-            real_exchange = "binance"
+            raise ValueError(f"Unsupported exchange: {real_exchange}")
 
         # Paper Trading専用設定
         safe_config = {

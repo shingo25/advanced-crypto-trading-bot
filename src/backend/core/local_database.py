@@ -8,7 +8,10 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, Optional
 
-import duckdb
+try:
+    import duckdb
+except ImportError:
+    duckdb = None
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +20,8 @@ class LocalDatabase:
     """DuckDBベースのローカルデータベース"""
 
     def __init__(self, db_path: str = "crypto_bot.db"):
+        if duckdb is None:
+            raise ImportError("duckdb is required for LocalDatabase but not installed")
         self.db_path = db_path
         self.connection = None
         self._init_database()
@@ -207,8 +212,12 @@ class LocalDatabase:
 _local_db_instance: Optional[LocalDatabase] = None
 
 
-def get_local_db() -> LocalDatabase:
+def get_local_db() -> Optional[LocalDatabase]:
     """ローカルデータベースインスタンスを取得"""
+    if duckdb is None:
+        logger.warning("DuckDB not available, returning None")
+        return None
+
     global _local_db_instance
     if _local_db_instance is None:
         db_path = os.path.join(os.getcwd(), "data", "crypto_bot.db")
