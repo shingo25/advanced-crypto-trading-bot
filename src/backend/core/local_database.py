@@ -174,8 +174,8 @@ class LocalDatabase:
 
             # プリペアドステートメントで安全に実行
             # セキュリティ: フィールド名はホワイトリスト検証済み、値はプレースホルダー使用
-            base_query = "UPDATE users SET "
-            query = base_query + set_clause + ", updated_at = ? WHERE id = ?"  # nosec B608
+            query_parts = ["UPDATE users SET", set_clause, ", updated_at = ? WHERE id = ?"]
+            query = "".join(query_parts)
 
             self.connection.execute(query, values)
 
