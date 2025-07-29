@@ -60,8 +60,23 @@ class PaperWalletService:
             )
 
             if not default_config:
-                logger.error(f"Default setting not found: {default_setting}")
-                return False
+                # デフォルト設定が存在しない場合は作成
+                logger.info(f"Creating default setting: {default_setting}")
+                default_balances = {
+                    "beginner": {"USDT": 100000.0},  # 初心者: 10万USDT
+                    "intermediate": {"USDT": 500000.0, "BTC": 1.0},  # 中級者: 50万USDT + 1 BTC
+                    "advanced": {"USDT": 1000000.0, "BTC": 5.0, "ETH": 10.0},  # 上級者: 100万USDT + 5 BTC + 10 ETH
+                }
+
+                if default_setting in default_balances:
+                    default_config = PaperWalletDefaultModel(
+                        name=default_setting, default_balances=default_balances[default_setting], is_active=True
+                    )
+                    session.add(default_config)
+                    session.flush()  # IDを取得するためにflush
+                else:
+                    logger.error(f"Unknown default setting: {default_setting}")
+                    return False
 
             # 既存ウォレットを削除（force_resetの場合）
             if force_reset and existing_wallets:

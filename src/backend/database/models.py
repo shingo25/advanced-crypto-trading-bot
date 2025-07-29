@@ -4,12 +4,65 @@ SQLAlchemy ORM models for orders and trades
 """
 
 import uuid
+import uuid as uuid_module
 from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Dict, Optional
 
-from sqlalchemy import JSON, Boolean, CheckConstraint, Column, DateTime, Enum, ForeignKey, Index, Numeric, String, Text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    CheckConstraint,
+    Column,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Index,
+    Numeric,
+    String,
+    Text,
+    TypeDecorator,
+)
+from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
+from sqlalchemy.types import CHAR
+
+
+class UUID(TypeDecorator):
+    """Platform-independent GUID type.
+
+    Uses PostgreSQL's UUID type when available, otherwise
+    uses CHAR(36), storing as stringified hex values.
+    """
+
+    impl = CHAR
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == "postgresql":
+            return dialect.type_descriptor(PostgresUUID())
+        else:
+            return dialect.type_descriptor(CHAR(36))
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return value
+        elif dialect.name == "postgresql":
+            return str(value)
+        else:
+            if not isinstance(value, uuid_module.UUID):
+                return str(uuid_module.UUID(value))
+            else:
+                return str(value)
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return value
+        else:
+            if not isinstance(value, uuid_module.UUID):
+                return uuid_module.UUID(value)
+            return value
+
+
 from sqlalchemy.orm import declarative_base, relationship, validates
 from sqlalchemy.sql import func
 
@@ -22,10 +75,10 @@ class OrderModel(Base):
     __tablename__ = "orders"
 
     # Primary Key
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(UUID(), primary_key=True, default=uuid.uuid4)
 
     # ユーザー・戦略情報
-    user_id = Column(UUID(as_uuid=True), nullable=False)
+    user_id = Column(UUID(), nullable=False)
     strategy_id = Column(String(100))
     strategy_name = Column(String(200))
 
@@ -203,13 +256,13 @@ class TradeModel(Base):
     __tablename__ = "trades"
 
     # Primary Key
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(UUID(), primary_key=True, default=uuid.uuid4)
 
     # 関連注文
-    order_id = Column(UUID(as_uuid=True), ForeignKey("orders.id", ondelete="CASCADE"), nullable=False)
+    order_id = Column(UUID(), ForeignKey("orders.id", ondelete="CASCADE"), nullable=False)
 
     # ユーザー・戦略情報
-    user_id = Column(UUID(as_uuid=True), nullable=False)
+    user_id = Column(UUID(), nullable=False)
     strategy_id = Column(String(100))
     strategy_name = Column(String(200))
 
@@ -323,8 +376,8 @@ class TradingStatistics(Base):
 
     __tablename__ = "trading_statistics"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), nullable=False)
+    id = Column(UUID(), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(), nullable=False)
     strategy_id = Column(String(100))
     exchange = Column(String(50), nullable=False)
     symbol = Column(String(50), nullable=False)
@@ -378,10 +431,10 @@ class PaperWalletModel(Base):
     __tablename__ = "paper_wallets"
 
     # Primary Key
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(UUID(), primary_key=True, default=uuid.uuid4)
 
     # ユーザー情報
-    user_id = Column(UUID(as_uuid=True), nullable=False)
+    user_id = Column(UUID(), nullable=False)
 
     # 資産情報
     asset = Column(String(20), nullable=False)
@@ -442,11 +495,11 @@ class PaperWalletTransactionModel(Base):
     __tablename__ = "paper_wallet_transactions"
 
     # Primary Key
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(UUID(), primary_key=True, default=uuid.uuid4)
 
     # 関連ウォレット
-    wallet_id = Column(UUID(as_uuid=True), ForeignKey("paper_wallets.id", ondelete="CASCADE"), nullable=False)
-    user_id = Column(UUID(as_uuid=True), nullable=False)
+    wallet_id = Column(UUID(), ForeignKey("paper_wallets.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(UUID(), nullable=False)
     asset = Column(String(20), nullable=False)
 
     # 取引詳細
@@ -529,7 +582,7 @@ class PaperWalletDefaultModel(Base):
     __tablename__ = "paper_wallet_defaults"
 
     # Primary Key
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(UUID(), primary_key=True, default=uuid.uuid4)
 
     # 設定情報
     name = Column(String(100), nullable=False, unique=True)

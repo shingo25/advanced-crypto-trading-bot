@@ -132,6 +132,9 @@ class Order(BaseModel):
     fee_amount: Optional[Decimal] = None
     fee_currency: Optional[str] = None
 
+    # Paper Trading フラグ
+    paper_trading: bool = Field(default=False, description="Paper Tradingフラグ")
+
     def __init__(self, **data):
         super().__init__(**data)
         if self.remaining_amount is None:
