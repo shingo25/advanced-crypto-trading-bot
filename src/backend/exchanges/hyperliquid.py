@@ -9,6 +9,7 @@ try:
     from hyperliquid.exchange import Exchange
     from hyperliquid.info import Info
     from hyperliquid.utils import constants
+
     HYPERLIQUID_AVAILABLE = True
 except ImportError as e:
     logging.warning(f"Hyperliquid dependencies not available: {e}")
@@ -45,10 +46,12 @@ class HyperliquidAdapter(AbstractExchangeAdapter):
 
     def __init__(self, api_key: str, secret: str, sandbox: bool = False):
         super().__init__(api_key, secret, sandbox)
-        
+
         # Hyperliquidライブラリが利用できない場合はエラーを発生
         if not HYPERLIQUID_AVAILABLE:
-            raise ExchangeError("Hyperliquid dependencies not available. Please install eth-account and hyperliquid-python-sdk")
+            raise ExchangeError(
+                "Hyperliquid dependencies not available. Please install eth-account and hyperliquid-python-sdk"
+            )
 
         # Hyperliquid SDK設定
         self.base_url = constants.TESTNET_API_URL if sandbox else constants.MAINNET_API_URL
