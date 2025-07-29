@@ -101,7 +101,7 @@ describe('TradingModeSwitch', () => {
   it('確認ダイアログで正しい確認テキストが必要', async () => {
     setupApiMocks('paper');
     const user = userEvent.setup();
-    
+
     render(<TradingModeSwitch />);
 
     await waitFor(() => {
