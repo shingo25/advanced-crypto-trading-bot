@@ -450,7 +450,10 @@ class EnhancedRiskManager:
     async def _simulate_order_impact(self, order: Order, portfolio_value: Decimal) -> float:
         """注文のポートフォリオ影響をシミュレーション"""
         # 簡略化された実装
-        order_value = float(order.amount * (order.price or Decimal("50000")))
+        # Decimal型で統一して計算
+        order_amount = Decimal(str(order.amount))
+        order_price = Decimal(str(order.price)) if order.price else Decimal("50000")
+        order_value = float(order_amount * order_price)
         return order_value / float(portfolio_value)
 
     async def _calculate_new_concentration(self, order: Order, current_concentrations: Dict[str, float]) -> float:

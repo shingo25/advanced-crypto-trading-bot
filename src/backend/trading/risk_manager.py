@@ -4,6 +4,7 @@
 
 import logging
 from datetime import datetime, timezone
+from decimal import Decimal
 from typing import Any, Callable, Dict, List, Optional
 
 from .engine import Order, Position
@@ -172,7 +173,10 @@ class RiskManager:
     def _check_position_size_limit(self, order: Order, current_positions: Dict[str, Position]) -> bool:
         """ポジションサイズ制限をチェック"""
         # 新しいポジションサイズを計算
-        estimated_value = order.amount * (order.price or 50000.0)
+        # Decimal型で統一
+        order_amount = Decimal(str(order.amount))
+        order_price = Decimal(str(order.price)) if order.price else Decimal("50000.0")
+        estimated_value = float(order_amount * order_price)
 
         # 既存ポジションがある場合は統合
         if order.symbol in current_positions:
