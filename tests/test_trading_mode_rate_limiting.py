@@ -25,8 +25,6 @@ class TestTradingModeRateLimiting:
 
     def setup_method(self):
         """テストメソッドごとの設定"""
-        self.client = TestClient(app)
-        
         # レート制限データをクリア
         _trading_mode_rate_limits.clear()
         
@@ -145,39 +143,31 @@ class TestRateLimitIntegration(TestTradingModeRateLimiting):
     """レート制限統合テスト"""
 
     @patch.dict('os.environ', {'ENVIRONMENT': 'production'})
-    def test_live_switch_rate_limit_via_api(self):
+    def test_live_switch_rate_limit_via_api(self, authenticated_client_with_csrf):
         """API経由でのLive切り替えレート制限"""
-        admin_headers = self._get_auth_headers(self.admin_user)
-        
         request_data = {
             "mode": "live",
             "confirmation_text": "LIVE",
-            "csrf_token": "test_csrf_token"
+            "csrf_token": authenticated_client_with_csrf.csrf_token
         }
         
         # 3回目まで: 環境制限で403が返される（レート制限には達しない）
         for i in range(3):
-            response = self.client.post("/auth/trading-mode", 
-                                       json=request_data, 
-                                       headers=admin_headers)
+            response = authenticated_client_with_csrf.post("/auth/trading-mode", json=request_data)
             # 本番環境でもAPIキー不足で400、403、または422になる
             assert response.status_code in [400, 403, 422]
 
-    def test_paper_switch_no_rate_limit_via_api(self):
+    def test_paper_switch_no_rate_limit_via_api(self, authenticated_client_with_csrf):
         """API経由でのPaper切り替えはレート制限なし"""
-        admin_headers = self._get_auth_headers(self.admin_user)
-        
         request_data = {
             "mode": "paper",
             "confirmation_text": "",
-            "csrf_token": "test_csrf_token"
+            "csrf_token": authenticated_client_with_csrf.csrf_token
         }
         
         # 10回連続でPaper切り替え（すべて成功）
         for i in range(10):
-            response = self.client.post("/auth/trading-mode", 
-                                       json=request_data, 
-                                       headers=admin_headers)
+            response = authenticated_client_with_csrf.post("/auth/trading-mode", json=request_data)
             assert response.status_code in [200, 422]  # 422も許容
             if response.status_code == 200:
                 data = response.json()

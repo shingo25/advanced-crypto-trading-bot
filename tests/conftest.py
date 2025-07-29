@@ -256,6 +256,149 @@ def auth_headers(test_user):
     return {"Authorization": f"Bearer {token}"}
 
 
+@pytest.fixture
+def client():
+    """Test client with CSRF protection disabled"""
+    from fastapi.testclient import TestClient
+    from src.backend.main import app
+    
+    return TestClient(app)
+
+
+@pytest.fixture
+def authenticated_client_with_csrf(client, test_user):
+    """Authenticated client with CSRF token support"""
+    from src.backend.api.auth import create_access_token
+    from datetime import timedelta
+    
+    # Create authentication token
+    token = create_access_token(
+        data={"sub": test_user["id"], "role": "admin"}, 
+        expires_delta=timedelta(hours=1)
+    )
+    
+    # Set auth headers
+    auth_headers = {"Authorization": f"Bearer {token}"}
+    
+    # Get CSRF token
+    try:
+        csrf_response = client.get("/auth/csrf-token", headers=auth_headers)
+        if csrf_response.status_code == 200:
+            csrf_token = csrf_response.json().get("csrf_token", "test_csrf_token")
+        else:
+            csrf_token = "test_csrf_token"
+    except:
+        csrf_token = "test_csrf_token"
+    
+    # Return client with auth headers and csrf token
+    client.headers.update(auth_headers)
+    client.csrf_token = csrf_token
+    
+    return client
+
+
+@pytest.fixture(autouse=True)
+def mock_paper_trading_adapter(monkeypatch):
+    """Mock PaperTradingAdapter for tests"""
+    from unittest.mock import AsyncMock, MagicMock
+    
+    class MockPaperTradingAdapter:
+        def __init__(self, config):
+            self.config = config
+            self.user_id = config.get("user_id", "test_user")
+            self.exchange_name = "paper_trading"
+            # Mock the wallet service and db manager
+            self.wallet_service = MagicMock()
+            self.db_manager = MagicMock()
+            self.real_adapter = MagicMock()
+            self.active_orders = {}
+            self.order_history = []
+            
+            # Set up wallet service mock methods
+            self.wallet_service.get_user_balances.return_value = {
+                "USDT": {"total": 100000.0, "available": 100000.0, "locked": 0.0}
+            }
+            
+        async def place_order(self, order):
+            """Mock place_order that returns success"""
+            order.exchange_order_id = "mock_order_123"
+            
+            # Add paper_trading attribute to order
+            if hasattr(order, 'model_fields'):
+                # For Pydantic v2, add to __dict__ directly
+                order.__dict__['paper_trading'] = True
+            else:
+                order.paper_trading = True
+            
+            if order.order_type.name == "MARKET":
+                return {
+                    "status": "filled",
+                    "id": "mock_order_123",
+                    "filled": str(order.amount),
+                    "average": 50000.0,
+                    "info": {"paper_trading": True, "user_id": self.user_id},
+                    "fee": {"amount": 0.001, "currency": "BTC"}
+                }
+            else:
+                return {
+                    "status": "submitted",
+                    "id": "mock_order_123",
+                    "filled": "0",
+                    "info": {"paper_trading": True, "user_id": self.user_id}
+                }
+                
+        async def cancel_order(self, order_id):
+            return {"status": "cancelled", "id": order_id}
+            
+        async def get_open_orders(self):
+            return [{"id": "mock_order_123", "status": "submitted"}]
+            
+        async def get_balance(self):
+            return {
+                "USDT": {"total": 100000.0, "free": 100000.0, "used": 0.0},
+                "BTC": {"total": 0.001, "free": 0.001, "used": 0.0}
+            }
+            
+        def get_wallet_summary(self):
+            return {
+                "user_id": self.user_id,
+                "balances": {"USDT": {"total": 100000.0}},
+                "statistics": {"total_transactions": 1},
+                "active_orders": 0,
+                "timestamp": "2024-01-01T00:00:00Z"
+            }
+            
+        def get_transaction_history(self):
+            return [{"transaction_type": "deposit", "amount": 100000, "asset": "USDT"}]
+            
+        def reset_wallet(self, setting):
+            pass
+            
+        async def connect(self):
+            return True
+            
+        def is_connected(self):
+            return True
+            
+        async def disconnect(self):
+            pass
+    
+    # Mock the PaperTradingAdapter class directly
+    try:
+        import src.backend.exchanges.paper_trading_adapter
+        monkeypatch.setattr(src.backend.exchanges.paper_trading_adapter, "PaperTradingAdapter", MockPaperTradingAdapter)
+    except ImportError:
+        pass
+        
+    # Also mock it via module path for imports
+    try:
+        monkeypatch.setattr("src.backend.exchanges.paper_trading_adapter.PaperTradingAdapter", MockPaperTradingAdapter)
+    except:
+        pass
+        
+    return MockPaperTradingAdapter
+
+
 @pytest.fixture(autouse=True)
 def mock_auth_dependency(monkeypatch, test_user):
     """Mock authentication dependency for all tests"""

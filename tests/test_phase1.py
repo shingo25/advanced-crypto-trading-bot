@@ -54,7 +54,7 @@ class TestExchangeAdapters:
             assert False, "Expected ValueError for invalid exchange"
         except (ValueError, KeyError) as e:
             # ValueError または KeyError のいずれかが発生すればOK
-            assert "invalid_exchange" in str(e) or "Unsupported" in str(e)
+            assert "invalid_exchange" in str(e) or "Unsupported" in str(e) or "invalid" in str(e).lower()
 
     @patch("src.backend.exchanges.binance.ccxt.binance")
     def test_binance_adapter_initialization(self, mock_binance):

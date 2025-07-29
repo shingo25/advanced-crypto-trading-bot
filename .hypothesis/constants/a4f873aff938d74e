@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/trading/orders/commands.py
+# hypothesis_version: 6.136.4
+
+['Cancel failed', 'EXCHANGE_ERROR', 'EXECUTION_ERROR', 'Exchange is required', 'INVALID_STATUS', 'Modify failed', 'Order command failed', 'Symbol is required', 'Unknown error', 'VALIDATION_ERROR', 'amount', 'command_type', 'error', 'error_code', 'error_message', 'exchange', 'execution_time', 'message', 'order_id', 'price', 'side', 'status', 'submitted', 'success', 'symbol']
