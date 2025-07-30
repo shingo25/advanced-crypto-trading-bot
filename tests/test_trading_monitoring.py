@@ -2,8 +2,6 @@
 """
 ライブトレーディング・監視システムのテスト
 """
-import sys
-import os
 import logging
 
 # テスト用のパスを追加（pytest.iniで設定済みのため削除）
@@ -31,7 +29,7 @@ def test_order_creation():
     print("Testing order creation...")
 
     try:
-        from src.backend.trading.engine import TradingEngine, OrderType, OrderSide
+        from src.backend.trading.engine import OrderSide, OrderType, TradingEngine
 
         # エンジンを作成
         engine = TradingEngine()
@@ -66,7 +64,7 @@ def test_position_management():
     print("Testing position management...")
 
     try:
-        from src.backend.trading.engine import TradingEngine, OrderType, OrderSide
+        from src.backend.trading.engine import OrderSide, OrderType, TradingEngine
 
         # エンジンを作成
         engine = TradingEngine()
@@ -118,10 +116,10 @@ def test_order_cancellation():
 
     try:
         from src.backend.trading.engine import (
-            TradingEngine,
-            OrderType,
             OrderSide,
             OrderStatus,
+            OrderType,
+            TradingEngine,
         )
 
         # エンジンを作成
@@ -158,7 +156,7 @@ def test_trading_statistics():
     print("Testing trading statistics...")
 
     try:
-        from src.backend.trading.engine import TradingEngine, OrderType, OrderSide
+        from src.backend.trading.engine import OrderSide, OrderType, TradingEngine
 
         # エンジンを作成
         engine = TradingEngine()
@@ -206,7 +204,7 @@ def test_alert_creation():
     print("Testing alert creation...")
 
     try:
-        from src.backend.monitoring.alerts import AlertManager, AlertLevel, AlertType
+        from src.backend.monitoring.alerts import AlertLevel, AlertManager, AlertType
 
         # アラートマネージャーを作成
         alert_manager = AlertManager()
@@ -269,7 +267,7 @@ def test_alert_acknowledgment():
     print("Testing alert acknowledgment...")
 
     try:
-        from src.backend.monitoring.alerts import AlertManager, AlertLevel, AlertType
+        from src.backend.monitoring.alerts import AlertLevel, AlertManager, AlertType
 
         # アラートマネージャーを作成
         alert_manager = AlertManager()
@@ -319,9 +317,7 @@ def test_performance_monitor():
 
         # アラートが作成されたことを確認
         alerts = alert_manager.get_alerts()
-        performance_alerts = [
-            a for a in alerts if a.alert_type.value == "strategy_performance"
-        ]
+        performance_alerts = [a for a in alerts if a.alert_type.value == "strategy_performance"]
         assert len(performance_alerts) > 0
 
         print("✓ Performance monitor test passed")
@@ -337,7 +333,7 @@ def test_alert_statistics():
     print("Testing alert statistics...")
 
     try:
-        from src.backend.monitoring.alerts import AlertManager, AlertLevel, AlertType
+        from src.backend.monitoring.alerts import AlertLevel, AlertManager, AlertType
 
         # アラートマネージャーを作成
         alert_manager = AlertManager()

@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/core/security.py
+# hypothesis_version: 6.136.4
+
+['/auth/login', '2024-01-01T00:00:00Z', 'Bearer', 'WWW-Authenticate', 'access_token', 'admin', 'auto', 'bcrypt', 'created_at', 'email', 'exp', 'id', 'is_active', 'password_hash', 'personal-bot-user', 'personal-user', 'role', 'username']

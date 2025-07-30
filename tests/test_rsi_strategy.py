@@ -1,12 +1,13 @@
 """RSI戦略のテスト"""
 
-import pytest
-import pandas as pd
-import numpy as np
 from datetime import datetime, timedelta
 
-from src.backend.strategies.implementations.rsi_strategy import RSIStrategy
+import numpy as np
+import pandas as pd
+import pytest
+
 from src.backend.strategies.base import Signal, TechnicalIndicators
+from src.backend.strategies.implementations.rsi_strategy import RSIStrategy
 
 
 class TestRSIStrategy:
@@ -133,9 +134,7 @@ class TestRSIStrategy:
         # 売られすぎ状態のデータを作成
         data = pd.DataFrame(
             {
-                "timestamp": [
-                    datetime.now() - timedelta(hours=i) for i in reversed(range(25))
-                ],
+                "timestamp": [datetime.now() - timedelta(hours=i) for i in reversed(range(25))],
                 "close": [50000 - (i * 200) for i in range(25)],  # 価格下落
                 "open": [50000 - (i * 200) + 50 for i in range(25)],
                 "high": [50000 - (i * 200) + 100 for i in range(25)],
@@ -164,9 +163,7 @@ class TestRSIStrategy:
         # 買われすぎ状態のデータを作成
         data = pd.DataFrame(
             {
-                "timestamp": [
-                    datetime.now() - timedelta(hours=i) for i in reversed(range(25))
-                ],
+                "timestamp": [datetime.now() - timedelta(hours=i) for i in reversed(range(25))],
                 "close": [40000 + (i * 200) for i in range(25)],  # 価格上昇
                 "open": [40000 + (i * 200) - 50 for i in range(25)],
                 "high": [40000 + (i * 200) + 100 for i in range(25)],
@@ -218,12 +215,8 @@ class TestRSIStrategy:
 
         data = pd.DataFrame(
             {
-                "timestamp": [
-                    base_time - timedelta(hours=i) for i in reversed(range(num_rows))
-                ],
-                "close": [
-                    45000 + (i * 10) for i in range(num_rows)
-                ],  # 価格上昇トレンド
+                "timestamp": [base_time - timedelta(hours=i) for i in reversed(range(num_rows))],
+                "close": [45000 + (i * 10) for i in range(num_rows)],  # 価格上昇トレンド
                 "open": [45000 + (i * 10) - 25 for i in range(num_rows)],
                 "high": [45000 + (i * 10) + 50 for i in range(num_rows)],
                 "low": [45000 + (i * 10) - 50 for i in range(num_rows)],
@@ -282,9 +275,7 @@ class TestRSIStrategy:
         # ベアリッシュダイバージェンス用データ（価格上昇、RSI下降）
         data = pd.DataFrame(
             {
-                "timestamp": [
-                    datetime.now() - timedelta(hours=i) for i in reversed(range(25))
-                ],
+                "timestamp": [datetime.now() - timedelta(hours=i) for i in reversed(range(25))],
                 "high": [45000 + (i * 50) for i in range(25)],  # 高値更新
                 "low": [44000 + (i * 50) for i in range(25)],
                 "close": [44500 + (i * 50) for i in range(25)],

@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/main.py
+# hypothesis_version: 6.136.4
+
+['*', '/', '/api/alerts', '/api/market-data', '/api/performance', '/api/portfolio', '/api/risk', '/auth', '/backtest', '/health', '/ready', '/strategies', '/streaming', '/websocket', '1.0.0', 'CI', 'Crypto Bot API', 'GITHUB_ACTIONS', 'active', 'alerts', 'alive', 'auth', 'backtest', 'connected', 'crypto-bot-backend', 'database', 'disabled', 'disconnected', 'error', 'false', 'health_check', 'inactive', 'market-data', 'message', 'performance', 'portfolio', 'price_streaming', 'production', 'ready', 'risk', 'service', 'status', 'strategies', 'streaming', 'true', 'unready', 'websocket']

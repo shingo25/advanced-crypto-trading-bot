@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/api/performance.py
+# hypothesis_version: 6.136.4
+
+[-0.03, 0.0, 0.03, 0.5, 100000.0, 400, 404, 500, 503, '*', '+00:00', '/health', '/history', '/summary', '1d', '30d', '7d', '90d', 'BTCUSDT', 'Z', 'binance', 'btc_records', 'calculation_period', 'close_price', 'count', 'cumulative_return', 'daily_return', 'daily_return_avg', 'daily_return_max', 'daily_return_min', 'database_connection', 'drawdown', 'exact', 'exchange', 'healthy', 'last_updated', 'max_drawdown', 'ok', 'price_data', 'sharpe_ratio', 'status', 'symbol', 'timeframe', 'timestamp', 'total_value', 'volatility', 'パフォーマンスデータが見つかりません', 'パフォーマンスデータの取得に失敗しました', '期間（1d, 7d, 30d, 90d）']

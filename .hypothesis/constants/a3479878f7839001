@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/exchanges/paper_trading_adapter.py
+# hypothesis_version: 6.136.4
+
+[0.0, 0.0001, 0.001, 0.1, 0.998, 0.999, 1.0, 1.001, 1.002, 2.0, 50000.0, 100, '/', '50000', 'Insufficient balance', 'Order not found', 'active_orders', 'amount', 'api_key', 'asks', 'available', 'average', 'balances', 'beginner', 'bids', 'binance', 'currency', 'database_url', 'datetime', 'default_setting', 'default_user', 'error', 'execution_delay', 'fee', 'fee_rates', 'filled', 'free', 'id', 'info', 'locked', 'maker', 'paper_trading', 'paper_trading_mock', 'price', 'real_exchange', 'remaining', 'sandbox', 'secret', 'side', 'slippage_rate', 'statistics', 'status', 'symbol', 'taker', 'timestamp', 'total', 'total_orders', 'type', 'used', 'user_id']

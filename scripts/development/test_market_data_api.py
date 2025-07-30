@@ -72,17 +72,13 @@ async def test_market_data_endpoints():
         print("4️⃣ OHLCVデータ取得（BTCUSDT, 1h, 10件）")
         try:
             params = {"symbol": "BTCUSDT", "timeframe": "1h", "limit": 10}
-            response = await client.get(
-                f"{API_BASE_URL}/api/market-data/ohlcv", params=params
-            )
+            response = await client.get(f"{API_BASE_URL}/api/market-data/ohlcv", params=params)
             if response.status_code == 200:
                 ohlcv_data = response.json()
                 print(f"✅ OHLCVデータ取得成功: {len(ohlcv_data)}件")
                 if ohlcv_data:
                     latest = ohlcv_data[-1]
-                    print(
-                        f"   📊 最新データ: {latest['timestamp']} - Close: ${latest['close']:,.2f}"
-                    )
+                    print(f"   📊 最新データ: {latest['timestamp']} - Close: ${latest['close']:,.2f}")
             else:
                 print(f"❌ OHLCVデータ取得失敗: {response.status_code}")
                 print(f"   レスポンス: {response.text}")
@@ -95,9 +91,7 @@ async def test_market_data_endpoints():
         print("5️⃣ 最新価格取得")
         try:
             params = {"symbols": "BTCUSDT,ETHUSDT", "timeframe": "1h"}
-            response = await client.get(
-                f"{API_BASE_URL}/api/market-data/latest", params=params
-            )
+            response = await client.get(f"{API_BASE_URL}/api/market-data/latest", params=params)
             if response.status_code == 200:
                 latest_data = response.json()
                 latest_prices = latest_data.get("latest_prices", [])
@@ -136,9 +130,7 @@ async def test_performance_endpoints():
         print("2️⃣ パフォーマンス履歴取得（7日間）")
         try:
             params = {"period": "7d"}
-            response = await client.get(
-                f"{API_BASE_URL}/api/performance/history", params=params
-            )
+            response = await client.get(f"{API_BASE_URL}/api/performance/history", params=params)
             if response.status_code == 200:
                 performance_data = response.json()
                 print(f"✅ パフォーマンス履歴取得成功: {len(performance_data)}件")

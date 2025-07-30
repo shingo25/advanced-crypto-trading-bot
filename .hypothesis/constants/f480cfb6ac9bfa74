@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/exchanges/bybit.py
+# hypothesis_version: 6.136.4
+
+[1000, 30000, '15m', '1M', '1d', '1h', '1m', '1w', '2h', '30m', '4h', '5m', '8h', 'apiKey', 'ask', 'baseVolume', 'bid', 'enableRateLimit', 'free', 'fundingRate', 'fundingTimestamp', 'last', 'openInterestAmount', 'openInterestValue', 'sandbox', 'secret', 'timeout', 'timestamp']

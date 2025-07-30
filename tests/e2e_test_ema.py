@@ -3,12 +3,13 @@
 EMA戦略のE2Eテスト（End-to-End Test）
 データ収集からバックテストまでの全体フローをテスト
 """
-import sys
-import os
-from datetime import datetime, timezone, timedelta
-import pandas as pd
-import numpy as np
 import logging
+import os
+import sys
+from datetime import datetime, timedelta, timezone
+
+import numpy as np
+import pandas as pd
 
 # テスト用のパスを追加
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -117,19 +118,11 @@ def test_indicator_calculation(strategy, data):
         required_indicators = ["ema_fast", "ema_slow", "volume_sma", "trend_strength"]
 
         for indicator in required_indicators:
-            assert (
-                indicator in data_with_indicators.columns
-            ), f"Missing indicator: {indicator}"
+            assert indicator in data_with_indicators.columns, f"Missing indicator: {indicator}"
 
         # 指標の値が計算されているかチェック（NaN以外）
-        assert (
-            not data_with_indicators["ema_fast"].iloc[-1]
-            != data_with_indicators["ema_fast"].iloc[-1]
-        )  # NaNチェック
-        assert (
-            not data_with_indicators["ema_slow"].iloc[-1]
-            != data_with_indicators["ema_slow"].iloc[-1]
-        )  # NaNチェック
+        assert not data_with_indicators["ema_fast"].iloc[-1] != data_with_indicators["ema_fast"].iloc[-1]  # NaNチェック
+        assert not data_with_indicators["ema_slow"].iloc[-1] != data_with_indicators["ema_slow"].iloc[-1]  # NaNチェック
 
         print("✓ Indicator calculation test passed")
         return data_with_indicators
@@ -172,15 +165,11 @@ def test_signal_generation(strategy, data):
         if signals:
             # 最初のシグナルが enter_long または enter_short であることを確認
             valid_first_actions = ["enter_long", "enter_short"]
-            assert (
-                signals[0].action in valid_first_actions
-            ), f"First signal should be entry, got {signals[0].action}"
+            assert signals[0].action in valid_first_actions, f"First signal should be entry, got {signals[0].action}"
 
             # シグナルのタイムスタンプが昇順であることを確認
             for i in range(1, len(signals)):
-                assert (
-                    signals[i].timestamp >= signals[i - 1].timestamp
-                ), "Signals should be in chronological order"
+                assert signals[i].timestamp >= signals[i - 1].timestamp, "Signals should be in chronological order"
 
         print("✓ Signal generation test passed")
         return signals
@@ -198,9 +187,7 @@ def test_backtest_integration(strategy, data):
         from src.backend.backtesting.engine import BacktestEngine
 
         # バックテストエンジンを初期化
-        engine = BacktestEngine(
-            initial_capital=10000.0, commission=0.001, slippage=0.0005
-        )
+        engine = BacktestEngine(initial_capital=10000.0, commission=0.001, slippage=0.0005)
 
         # データを順次処理
         for i, row in data.iterrows():
@@ -279,15 +266,9 @@ def test_strategy_performance(result):
         assert hasattr(result, "profit_factor")
 
         # 合理的な範囲内の値であることを確認
-        assert (
-            -1.0 <= result.total_return <= 10.0
-        ), f"Total return seems unrealistic: {result.total_return}"
-        assert (
-            -10.0 <= result.sharpe_ratio <= 10.0
-        ), f"Sharpe ratio seems unrealistic: {result.sharpe_ratio}"
-        assert (
-            0.0 <= result.max_drawdown <= 1.0
-        ), f"Max drawdown should be between 0 and 1: {result.max_drawdown}"
+        assert -1.0 <= result.total_return <= 10.0, f"Total return seems unrealistic: {result.total_return}"
+        assert -10.0 <= result.sharpe_ratio <= 10.0, f"Sharpe ratio seems unrealistic: {result.sharpe_ratio}"
+        assert 0.0 <= result.max_drawdown <= 1.0, f"Max drawdown should be between 0 and 1: {result.max_drawdown}"
 
         # 最低限の取引があることを確認
         assert result.total_trades >= 0, "Total trades should be non-negative"

@@ -34,9 +34,7 @@ def test_backtest_api_import():
         print("✅ backtest.router found")
 
         # エンドポイントの確認
-        routes = [
-            route.path for route in backtest.router.routes if hasattr(route, "path")
-        ]
+        routes = [route.path for route in backtest.router.routes if hasattr(route, "path")]
         print(f"✅ Found {len(routes)} routes:")
         for route in routes:
             print(f"   - {route}")

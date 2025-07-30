@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/api/auth.py
+# hypothesis_version: 6.136.4
+
+[3600, '/login', '/logout', '/me', '/refresh', '/register', 'Bearer', 'WWW-Authenticate', 'access_token', 'bearer', 'created_at', 'email', 'id', 'message', 'production', 'role', 'strict', 'sub', 'token_type', 'username', 'viewer', '有効なメールアドレスを入力してください']

@@ -1,12 +1,13 @@
 """MACD戦略のテスト"""
 
-import pytest
-import pandas as pd
-import numpy as np
 from datetime import datetime, timedelta
 
-from src.backend.strategies.implementations.macd_strategy import MACDStrategy
+import numpy as np
+import pandas as pd
+import pytest
+
 from src.backend.strategies.base import Signal, TechnicalIndicators
+from src.backend.strategies.implementations.macd_strategy import MACDStrategy
 
 
 class TestMACDStrategy:
@@ -102,9 +103,7 @@ class TestMACDStrategy:
                 and not pd.isna(result["signal_line"].iloc[i])
                 and not pd.isna(result["histogram"].iloc[i])
             ):
-                expected_histogram = (
-                    result["macd_line"].iloc[i] - result["signal_line"].iloc[i]
-                )
+                expected_histogram = result["macd_line"].iloc[i] - result["signal_line"].iloc[i]
                 actual_histogram = result["histogram"].iloc[i]
                 assert abs(expected_histogram - actual_histogram) < 0.001
 
@@ -162,13 +161,8 @@ class TestMACDStrategy:
         num_rows = strategy.parameters["required_data_length"] + 10
         data = pd.DataFrame(
             {
-                "timestamp": [
-                    datetime.now() - timedelta(hours=i)
-                    for i in reversed(range(num_rows))
-                ],
-                "close": [
-                    45000 + (i * 15) for i in range(num_rows)
-                ],  # 価格上昇トレンド
+                "timestamp": [datetime.now() - timedelta(hours=i) for i in reversed(range(num_rows))],
+                "close": [45000 + (i * 15) for i in range(num_rows)],  # 価格上昇トレンド
                 "open": [45000 + (i * 15) - 25 for i in range(num_rows)],
                 "high": [45000 + (i * 15) + 50 for i in range(num_rows)],
                 "low": [45000 + (i * 15) - 50 for i in range(num_rows)],
@@ -206,17 +200,12 @@ class TestMACDStrategy:
             if i < num_rows // 2:
                 price = 45000 + (i * 20)  # 上昇
             else:
-                price = (
-                    45000 + (num_rows // 2 * 20) - ((i - num_rows // 2) * 25)
-                )  # 下降
+                price = 45000 + (num_rows // 2 * 20) - ((i - num_rows // 2) * 25)  # 下降
             prices.append(price)
 
         data = pd.DataFrame(
             {
-                "timestamp": [
-                    datetime.now() - timedelta(hours=i)
-                    for i in reversed(range(num_rows))
-                ],
+                "timestamp": [datetime.now() - timedelta(hours=i) for i in reversed(range(num_rows))],
                 "close": prices,
                 "open": [p - 25 for p in prices],
                 "high": [p + 50 for p in prices],
@@ -268,13 +257,8 @@ class TestMACDStrategy:
         # 下降トレンドのデータ（MACDクロスオーバー発生）
         data = pd.DataFrame(
             {
-                "timestamp": [
-                    datetime.now() - timedelta(hours=i)
-                    for i in reversed(range(num_rows))
-                ],
-                "close": [
-                    46000 - (i * 15) for i in range(num_rows)
-                ],  # 価格下降トレンド
+                "timestamp": [datetime.now() - timedelta(hours=i) for i in reversed(range(num_rows))],
+                "close": [46000 - (i * 15) for i in range(num_rows)],  # 価格下降トレンド
                 "open": [46000 - (i * 15) + 25 for i in range(num_rows)],
                 "high": [46000 - (i * 15) + 50 for i in range(num_rows)],
                 "low": [46000 - (i * 15) - 50 for i in range(num_rows)],
@@ -346,10 +330,7 @@ class TestMACDStrategy:
         num_rows = 55
         data = pd.DataFrame(
             {
-                "timestamp": [
-                    datetime.now() - timedelta(hours=i)
-                    for i in reversed(range(num_rows))
-                ],
+                "timestamp": [datetime.now() - timedelta(hours=i) for i in reversed(range(num_rows))],
                 "close": [45000 + (i * 10) for i in range(num_rows)],
                 "open": [45000 + (i * 10) - 25 for i in range(num_rows)],
                 "high": [45000 + (i * 10) + 50 for i in range(num_rows)],

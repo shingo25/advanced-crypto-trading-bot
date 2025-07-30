@@ -39,7 +39,7 @@ async def root():
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "description": "個人用暗号通貨トレーディングボットAPI",
         "features": ["価格取得", "取引履歴", "ポートフォリオ管理", "バックテスト"],
-        "version": "5.0.0"
+        "version": "5.0.0",
     }
 
 
@@ -51,7 +51,7 @@ async def health_check():
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "version": "5.0.0",
         "environment": os.getenv("ENVIRONMENT", "production"),
-        "uptime": "ready"
+        "uptime": "ready",
     }
 
 
@@ -64,10 +64,10 @@ async def get_crypto_prices():
             "BTC": {"price": 43250.50, "change_24h": 2.45},
             "ETH": {"price": 2680.75, "change_24h": -1.23},
             "ADA": {"price": 0.58, "change_24h": 3.67},
-            "DOT": {"price": 7.42, "change_24h": -0.89}
+            "DOT": {"price": 7.42, "change_24h": -0.89},
         },
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "source": "mock_data"
+        "source": "mock_data",
     }
 
 
@@ -81,10 +81,10 @@ async def get_portfolio():
             {"symbol": "BTC", "amount": 0.5, "value": 21625.25},
             {"symbol": "ETH", "amount": 1.2, "value": 3216.90},
             {"symbol": "ADA", "amount": 1000, "value": 580.00},
-            {"symbol": "DOT", "amount": 60, "value": 445.20}
+            {"symbol": "DOT", "amount": 60, "value": 445.20},
         ],
         "change_24h": 1.34,
-        "timestamp": datetime.now(timezone.utc).isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -100,7 +100,7 @@ async def get_trades():
                 "type": "buy",
                 "amount": 0.1,
                 "price": 42500.00,
-                "timestamp": "2025-07-23T10:30:00Z"
+                "timestamp": "2025-07-23T10:30:00Z",
             },
             {
                 "id": 2,
@@ -108,11 +108,11 @@ async def get_trades():
                 "type": "sell",
                 "amount": 0.5,
                 "price": 2700.00,
-                "timestamp": "2025-07-23T14:15:00Z"
-            }
+                "timestamp": "2025-07-23T14:15:00Z",
+            },
         ],
         "total_trades": 2,
-        "timestamp": datetime.now(timezone.utc).isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 

@@ -1,12 +1,13 @@
 """Bollinger Bands戦略のテスト"""
 
-import pytest
-import pandas as pd
-import numpy as np
 from datetime import datetime, timedelta
 
-from src.backend.strategies.implementations.bollinger_strategy import BollingerBandsStrategy
+import numpy as np
+import pandas as pd
+import pytest
+
 from src.backend.strategies.base import Signal, TechnicalIndicators
+from src.backend.strategies.implementations.bollinger_strategy import BollingerBandsStrategy
 
 
 class TestBollingerBandsStrategy:
@@ -113,15 +114,11 @@ class TestBollingerBandsStrategy:
                 middle = result["bb_middle"].iloc[i]
                 lower = result["bb_lower"].iloc[i]
 
-                assert (
-                    upper >= middle >= lower
-                ), f"Band order invalid at index {i}: {upper} >= {middle} >= {lower}"
+                assert upper >= middle >= lower, f"Band order invalid at index {i}: {upper} >= {middle} >= {lower}"
 
         # %Bの範囲確認（通常は0～1だが、バンド外では範囲外も可能）
         for position in bb_position_values:
-            assert (
-                -1 <= position <= 2
-            ), f"%B value {position} is out of reasonable range"
+            assert -1 <= position <= 2, f"%B value {position} is out of reasonable range"
 
     def test_bollinger_bands_calculation_accuracy(self):
         """Bollinger Bands計算の精度テスト"""
@@ -190,10 +187,7 @@ class TestBollingerBandsStrategy:
 
         data = pd.DataFrame(
             {
-                "timestamp": [
-                    datetime.now() - timedelta(hours=i)
-                    for i in reversed(range(num_rows))
-                ],
+                "timestamp": [datetime.now() - timedelta(hours=i) for i in reversed(range(num_rows))],
                 "close": prices,
                 "open": [p - 25 for p in prices],
                 "high": [p + 50 for p in prices],
@@ -242,10 +236,7 @@ class TestBollingerBandsStrategy:
 
         data = pd.DataFrame(
             {
-                "timestamp": [
-                    datetime.now() - timedelta(hours=i)
-                    for i in reversed(range(num_rows))
-                ],
+                "timestamp": [datetime.now() - timedelta(hours=i) for i in reversed(range(num_rows))],
                 "close": prices,
                 "open": [p - 25 for p in prices],
                 "high": [p + 50 for p in prices],
@@ -300,19 +291,13 @@ class TestBollingerBandsStrategy:
         expected_positions = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
         for i, (actual, expected) in enumerate(zip(bb_positions, expected_positions)):
-            assert (
-                abs(actual - expected) < 0.01
-            ), f"Position {i}: expected {expected}, got {actual}"
+            assert abs(actual - expected) < 0.01, f"Position {i}: expected {expected}, got {actual}"
 
     def test_signal_strength_calculation(self, strategy):
         """シグナル強度計算のテスト"""
         # 下部バンド寄りの買いシグナル
-        strength1 = strategy._calculate_signal_strength(
-            0.1, 0.05, "buy", True
-        )  # スクイーズあり
-        strength2 = strategy._calculate_signal_strength(
-            0.3, 0.15, "buy", False
-        )  # スクイーズなし
+        strength1 = strategy._calculate_signal_strength(0.1, 0.05, "buy", True)  # スクイーズあり
+        strength2 = strategy._calculate_signal_strength(0.3, 0.15, "buy", False)  # スクイーズなし
 
         # スクイーズありの方が強いシグナル
         assert strength1 > strength2
@@ -338,10 +323,7 @@ class TestBollingerBandsStrategy:
 
         data = pd.DataFrame(
             {
-                "timestamp": [
-                    datetime.now() - timedelta(hours=i)
-                    for i in reversed(range(num_rows))
-                ],
+                "timestamp": [datetime.now() - timedelta(hours=i) for i in reversed(range(num_rows))],
                 "close": [45000 + (i * 10) for i in range(num_rows)],
                 "open": [45000 + (i * 10) - 25 for i in range(num_rows)],
                 "high": [45000 + (i * 10) + 50 for i in range(num_rows)],
@@ -382,10 +364,7 @@ class TestBollingerBandsStrategy:
 
         data = pd.DataFrame(
             {
-                "timestamp": [
-                    datetime.now() - timedelta(hours=i)
-                    for i in reversed(range(num_rows))
-                ],
+                "timestamp": [datetime.now() - timedelta(hours=i) for i in reversed(range(num_rows))],
                 "close": prices,
                 "open": [p - 25 for p in prices],
                 "high": [p + 50 for p in prices],

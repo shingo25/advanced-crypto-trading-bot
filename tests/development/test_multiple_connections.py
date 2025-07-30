@@ -3,8 +3,9 @@
 複数のPostgreSQL URL候補でSQLAlchemy接続をテストするスクリプト
 """
 import os
-from sqlalchemy import create_engine, text
+
 from dotenv import load_dotenv
+from sqlalchemy import create_engine, text
 
 
 def test_multiple_connections():
@@ -44,9 +45,7 @@ def test_multiple_connections():
             # 接続テスト
             with engine.connect() as connection:
                 # 簡単なクエリを実行
-                result = connection.execute(
-                    text("SELECT current_database(), current_user, version()")
-                )
+                result = connection.execute(text("SELECT current_database(), current_user, version()"))
                 row = result.fetchone()
 
                 print("✅ 接続成功！")
@@ -73,8 +72,6 @@ if __name__ == "__main__":
     success, working_url = test_multiple_connections()
     if success:
         print("\n🎉 Step 2完了: SQLAlchemy接続テスト成功！")
-        print(
-            f"💾 動作するURL: {working_url.replace(os.getenv('SUPABASE_SERVICE_ROLE_KEY'), '***')}"
-        )
+        print(f"💾 動作するURL: {working_url.replace(os.getenv('SUPABASE_SERVICE_ROLE_KEY'), '***')}")
     else:
         print("\n💔 Step 2失敗: すべての接続候補が失敗しました")

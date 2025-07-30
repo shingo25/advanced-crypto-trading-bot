@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/api/risk.py
+# hypothesis_version: 6.136.4
+
+[-0.02, -0.015, -0.01, -0.008, -0.005, -0.002, 0.0, 0.003, 0.004, 0.005, 0.007, 0.008, 0.01, 0.012, 0.015, 0.025, 0.05, 0.1, 0.2, 0.3, 0.5, 0.95, 0.99, 20000.0, 30000.0, 50000.0, 100000.0, 400, 500, '/health', '/position-sizing', '/scenarios', '/stress-test', '/summary', '/var', '1d', 'BNBUSDT', 'BTCUSDT', 'BTC_CRASH_30_PERCENT', 'Bitcoin 30%下落シナリオ', 'ETHUSDT', 'VaR計算手法', 'amount', 'available_methods', 'available_scenarios', 'confidence_level', 'default', 'description', 'error', 'healthy', 'historical', 'long', 'monte_carlo', 'name', 'parameters', 'parametric', 'percentage', 'percentage_drop', 'scenarios', 'short', 'status', 'time_horizon', 'timestamp', 'unhealthy', 'value', 'weight', 'エントリー価格', 'シナリオパラメータ', 'シナリオ名', 'フラッシュクラッシュ 50%下落シナリオ', 'ポートフォリオID', '信頼水準 (0.5-0.99)', '取引シンボル', '取引方向', '市場全体 20%下落シナリオ', '戦略名', '時間軸 (1d, 5d, 1w)']

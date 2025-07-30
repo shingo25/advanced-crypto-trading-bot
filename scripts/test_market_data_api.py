@@ -6,11 +6,12 @@ APIエンドポイントの実データ対応機能をテストします。
 """
 
 import asyncio
-import aiohttp
 import json
-from datetime import datetime, timezone
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
+
+import aiohttp
 
 # プロジェクトルートをPythonパスに追加
 project_root = Path(__file__).parent.parent
@@ -20,9 +21,7 @@ sys.path.insert(0, str(project_root))
 API_BASE_URL = "http://localhost:8000"
 
 
-async def test_api_endpoint(
-    session: aiohttp.ClientSession, endpoint: str, params: dict = None
-):
+async def test_api_endpoint(session: aiohttp.ClientSession, endpoint: str, params: dict = None):
     """APIエンドポイントをテスト"""
     url = f"{API_BASE_URL}{endpoint}"
 
@@ -41,13 +40,9 @@ async def test_api_endpoint(
 
                 # データの詳細を少し表示
                 if isinstance(data, list) and data:
-                    print(
-                        f"📄 Sample data: {json.dumps(data[0], indent=2, default=str)[:200]}..."
-                    )
+                    print(f"📄 Sample data: {json.dumps(data[0], indent=2, default=str)[:200]}...")
                 elif isinstance(data, dict):
-                    print(
-                        f"📄 Response: {json.dumps(data, indent=2, default=str)[:300]}..."
-                    )
+                    print(f"📄 Response: {json.dumps(data, indent=2, default=str)[:300]}...")
 
                 return True
             else:
@@ -81,9 +76,7 @@ async def test_market_data_endpoints():
         test_results.append(("Timeframes", result))
 
         # 4. 最新価格
-        result = await test_api_endpoint(
-            session, "/api/market-data/latest", {"symbols": "BTCUSDT,ETHUSDT"}
-        )
+        result = await test_api_endpoint(session, "/api/market-data/latest", {"symbols": "BTCUSDT,ETHUSDT"})
         test_results.append(("Latest Prices", result))
 
         # 5. OHLCVデータ
@@ -125,9 +118,7 @@ async def test_performance_endpoints():
         test_results.append(("Performance Health", result))
 
         # 2. パフォーマンス履歴
-        result = await test_api_endpoint(
-            session, "/api/performance/history", {"period": "7d"}
-        )
+        result = await test_api_endpoint(session, "/api/performance/history", {"period": "7d"})
         test_results.append(("Performance History", result))
 
         # 3. パフォーマンスサマリー
@@ -146,9 +137,7 @@ async def test_error_handling():
         test_results = []
 
         # 1. 無効なシンボル
-        result = await test_api_endpoint(
-            session, "/api/market-data/ohlcv", {"symbol": "INVALID", "timeframe": "1h"}
-        )
+        result = await test_api_endpoint(session, "/api/market-data/ohlcv", {"symbol": "INVALID", "timeframe": "1h"})
         test_results.append(("Invalid Symbol", not result))  # エラーが期待される
 
         # 2. 無効な時間足
@@ -160,9 +149,7 @@ async def test_error_handling():
         test_results.append(("Invalid Timeframe", not result))  # エラーが期待される
 
         # 3. 無効な期間
-        result = await test_api_endpoint(
-            session, "/api/performance/history", {"period": "invalid"}
-        )
+        result = await test_api_endpoint(session, "/api/performance/history", {"period": "invalid"})
         test_results.append(("Invalid Period", not result))  # エラーが期待される
 
         return test_results

@@ -2,17 +2,17 @@
 """
 Phase 1 の基本的なテスト（pytest不要）
 """
-import sys
 import os
+import sys
 from datetime import datetime, timezone
 
 # テスト用のパスを追加
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from src.backend.exchanges.base import TimeFrame, OHLCV
-from src.backend.exchanges.factory import ExchangeFactory
 from src.backend.data_pipeline.collector import DataCollector
 from src.backend.data_pipeline.onchain import OnChainDataCollector
+from src.backend.exchanges.base import OHLCV, TimeFrame
+from src.backend.exchanges.factory import ExchangeFactory
 
 
 def test_timeframe_enum():
@@ -28,9 +28,7 @@ def test_ohlcv_dataclass():
     """OHLCV データクラスのテスト"""
     print("Testing OHLCV dataclass...")
     now = datetime.now(timezone.utc)
-    ohlcv = OHLCV(
-        timestamp=now, open=100.0, high=110.0, low=90.0, close=105.0, volume=1000.0
-    )
+    ohlcv = OHLCV(timestamp=now, open=100.0, high=110.0, low=90.0, close=105.0, volume=1000.0)
 
     assert ohlcv.timestamp == now
     assert ohlcv.open == 100.0
@@ -94,12 +92,12 @@ def test_imports():
     print("Testing imports...")
 
     try:
+        from src.backend.data_pipeline.collector import DataCollector
+        from src.backend.data_pipeline.onchain import OnChainDataCollector
         from src.backend.exchanges.base import AbstractExchangeAdapter
         from src.backend.exchanges.binance import BinanceAdapter
         from src.backend.exchanges.bybit import BybitAdapter
         from src.backend.exchanges.factory import ExchangeFactory
-        from src.backend.data_pipeline.collector import DataCollector
-        from src.backend.data_pipeline.onchain import OnChainDataCollector
 
         print("✓ All required imports successful")
     except ImportError as e:

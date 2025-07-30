@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/streaming/routes.py
+# hypothesis_version: 6.136.4
+
+[403, 404, 500, '/health', '/prices', '/prices/{symbol}', '/restart', '/start', '/status', '/stop', '/subscribe', '/subscribe/{symbol}', '/symbols', 'active_connections', 'admin', 'analyst', 'binance', 'cached_prices', 'connections', 'count', 'data', 'error', 'healthy', 'is_running', 'manager_running', 'message', 'price_streaming', 'prices', 'role', 'service', 'status', 'success', 'symbol', 'symbols', 'symbols_count', 'timestamp', 'total_symbols', 'unhealthy', '価格配信システムの停止処理を実行中です', '価格配信システムの再起動処理を実行中です', '価格配信システムの開始処理を実行中です', '権限が不足しています', '管理者権限が必要です']

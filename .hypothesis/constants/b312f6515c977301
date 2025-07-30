@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/trading/orders/validator.py
+# hypothesis_version: 6.136.4
+
+[0.05, 0.1, '.', '/', '1.0', '10.0', '100000.0', '50000.0', 'Exchange is required', 'Symbol is required', 'binance', 'hyperliquid', 'max_order_value', 'max_price_deviation', 'min_order_value', 'min_price_precision', 'not available', 'sell']

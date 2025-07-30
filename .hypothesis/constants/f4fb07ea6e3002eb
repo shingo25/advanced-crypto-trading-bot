@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/core/supabase_db.py
+# hypothesis_version: 6.136.4
+
+['*', 'Supabaseクライアント初期化成功', 'exact', 'id', 'profiles']

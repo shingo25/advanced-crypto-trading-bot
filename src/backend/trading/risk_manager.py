@@ -4,6 +4,7 @@
 
 import logging
 from datetime import datetime, timezone
+from decimal import Decimal
 from typing import Any, Callable, Dict, List, Optional
 
 from .engine import Order, Position
@@ -84,7 +85,8 @@ class RiskManager:
 
         # 個別ポジションサイズ
         for symbol, position in positions.items():
-            if position.get_market_value() > self.risk_limits["max_position_size"]:
+            position_value = float(position.get_market_value())
+            if position_value > self.risk_limits["max_position_size"]:
                 violations.append(f"Position size limit exceeded: {symbol}")
                 self.stats["position_size_violations"] += 1
 
@@ -172,16 +174,20 @@ class RiskManager:
     def _check_position_size_limit(self, order: Order, current_positions: Dict[str, Position]) -> bool:
         """ポジションサイズ制限をチェック"""
         # 新しいポジションサイズを計算
-        estimated_value = order.amount * (order.price or 50000.0)
+        # Decimal型で統一
+        order_amount = Decimal(str(order.amount))
+        order_price = Decimal(str(order.price)) if order.price else Decimal("50000.0")
+        estimated_value_decimal = order_amount * order_price
 
         # 既存ポジションがある場合は統合
         if order.symbol in current_positions:
             current_position = current_positions[order.symbol]
             if current_position.side == order.side:
-                estimated_value += current_position.get_market_value()
+                estimated_value_decimal += current_position.get_market_value()
 
-        if estimated_value > self.risk_limits["max_position_size"]:
-            logger.warning(f"Position size limit exceeded: {estimated_value}")
+        estimated_value_float = float(estimated_value_decimal)
+        if estimated_value_float > self.risk_limits["max_position_size"]:
+            logger.warning(f"Position size limit exceeded: {estimated_value_float}")
             return False
 
         return True
@@ -196,7 +202,7 @@ class RiskManager:
     def _check_leverage_limit(self, order: Order, current_positions: Dict[str, Position]) -> bool:
         """レバレッジ制限をチェック"""
         # 簡単な実装（実際のレバレッジ計算は複雑）
-        total_exposure = sum(pos.get_market_value() for pos in current_positions.values())
+        total_exposure = float(sum(pos.get_market_value() for pos in current_positions.values()))
         order_value = order.amount * (order.price or 50000.0)
 
         # 仮の資本金（実際の実装では動的に計算）
@@ -233,8 +239,10 @@ class RiskManager:
 
         for position in current_positions.values():
             # 未実現損失の割合
-            if position.unrealized_pnl < 0:
-                total_risk += abs(position.unrealized_pnl) / position.get_market_value()
+            pnl = float(position.unrealized_pnl)
+            market_value = float(position.get_market_value())
+            if pnl < 0 and market_value > 0:
+                total_risk += abs(pnl) / market_value
 
         # 新規注文のリスク
         order_risk = self.risk_limits["position_size_limit_pct"]
@@ -250,10 +258,11 @@ class RiskManager:
         if not positions:
             return None
 
-        total_value = sum(pos.get_market_value() for pos in positions.values())
+        total_value = float(sum(pos.get_market_value() for pos in positions.values()))
 
         for symbol, position in positions.items():
-            concentration = position.get_market_value() / total_value
+            position_value = float(position.get_market_value())
+            concentration = position_value / total_value if total_value > 0 else 0
             if concentration > self.risk_limits["position_size_limit_pct"]:
                 return f"Portfolio concentration risk: {symbol} ({concentration:.2%})"
 
@@ -275,7 +284,7 @@ class RiskManager:
 
     def get_risk_metrics(self, positions: Dict[str, Position], current_pnl: float) -> Dict[str, Any]:
         """リスクメトリクスを取得"""
-        total_exposure = sum(pos.get_market_value() for pos in positions.values())
+        total_exposure = float(sum(pos.get_market_value() for pos in positions.values()))
 
         return {
             "total_exposure": total_exposure,
@@ -284,7 +293,7 @@ class RiskManager:
             "current_drawdown": self._calculate_current_drawdown(current_pnl),
             "risk_limit_usage": {
                 "max_position_size": max(
-                    pos.get_market_value() / self.risk_limits["max_position_size"] for pos in positions.values()
+                    float(pos.get_market_value()) / self.risk_limits["max_position_size"] for pos in positions.values()
                 )
                 if positions
                 else 0.0,

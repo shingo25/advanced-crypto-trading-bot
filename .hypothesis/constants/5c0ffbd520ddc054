@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/trading/orders/models.py
+# hypothesis_version: 6.136.4
+
+['0', 'Order', 'OrderResult', 'alo', 'buy', 'cancelled', 'expired', 'failed', 'filled', 'fok', 'gtc', 'ioc', 'limit', 'market', 'oco', 'order_type', 'partially_filled', 'pending', 'price', 'rejected', 'sell', 'stop_loss', 'stop_price', 'submitted', 'take_profit', 'クライアント注文ID', 'ストップ価格', 'メイカー約定かどうか', '価格（成行の場合はNone）', '内部注文ID', '利確価格', '取引ペア（例: BTC/USDT）', '取引所の注文ID', '取引所の約定ID', '取引所名', '売買方向', '平均約定価格', '戦略名', '手数料', '手数料通貨', '損切価格', '残り数量', '注文タイプ', '注文数量', '注文有効期限', '約定ID', '約定価格', '約定数量', '約定済み数量', '関連する注文ID']

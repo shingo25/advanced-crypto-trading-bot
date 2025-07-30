@@ -5,18 +5,21 @@
 ## ファイル一覧
 
 ### 接続テスト
+
 - `test_supabase_connection.py` - Supabase接続テスト
-- `test_supabase_sdk_connection.py` - Supabase SDK接続テスト  
+- `test_supabase_sdk_connection.py` - Supabase SDK接続テスト
 - `test_sqlalchemy_connection.py` - SQLAlchemy接続テスト
 - `test_multiple_connections.py` - 複数接続テスト
 - `debug_supabase_connection.py` - Supabase接続デバッグ
 
 ### API テスト
+
 - `test_auth_api.py` - 認証APIテスト
 - `test_strategies_api.py` - 戦略APIテスト
 - `test_backend_deployment.py` - バックエンドデプロイテスト
 
 ### データベーステスト
+
 - `test_supabase_auth.py` - Supabase認証テスト
 - `test_supabase_models.py` - Supabaseモデルテスト
 - `test_database_migration.py` - データベース移行テスト

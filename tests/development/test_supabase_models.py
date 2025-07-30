@@ -2,19 +2,21 @@
 """
 Supabase SDKベースのモデルクラスをテストするスクリプト
 """
-import sys
 import os
+import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from src.backend.models.user import get_profiles_model
+import uuid
+
+from dotenv import load_dotenv
+
+from src.backend.core.supabase_db import get_supabase_connection
 from src.backend.models.trading import (
     get_strategies_model,
     get_trades_model,
 )
-from src.backend.core.supabase_db import get_supabase_connection
-import uuid
-from dotenv import load_dotenv
+from src.backend.models.user import get_profiles_model
 
 
 def test_connection_health():

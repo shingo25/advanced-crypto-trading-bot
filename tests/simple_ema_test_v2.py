@@ -2,10 +2,10 @@
 """
 Simple EMA戦略のテスト（パッケージ依存なし）
 """
-import sys
-import os
-from datetime import datetime, timezone
 import logging
+import os
+import sys
+from datetime import datetime, timezone
 
 # テスト用のパスを追加
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -139,9 +139,7 @@ def test_signal_generation():
         )
 
         # 戦略を作成
-        strategy = SimpleEMAStrategy(
-            parameters={"ema_fast": 3, "ema_slow": 5, "required_data_length": 10}
-        )
+        strategy = SimpleEMAStrategy(parameters={"ema_fast": 3, "ema_slow": 5, "required_data_length": 10})
 
         # テストデータ（上昇トレンド）
         test_data = []

@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/fee_models/exchanges.py
+# hypothesis_version: 6.136.4
+
+[0.0001, 0.0006, 0.001, 0.3, 0.5, 10000, 'BTCUSDT', 'binance', 'buy', 'bybit']

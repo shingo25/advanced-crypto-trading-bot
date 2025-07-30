@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/exchanges/backpack.py
+# hypothesis_version: 6.136.4
+
+[0.0, 429, 1000, '/', '/api/v1/capital', '/api/v1/exchangeInfo', '/api/v1/klines', '/api/v1/ticker/24hr', '15m', '1M', '1d', '1h', '1m', '1w', '2h', '30m', '4h', '5m', '8h', 'Content-Type', 'GET', 'POST', 'TRADING', 'User-Agent', 'X-API-Key', 'X-Signature', 'X-Timestamp', 'application/json', 'askPrice', 'asset', 'balances', 'bidPrice', 'crypto-bot/1.0', 'free', 'interval', 'lastPrice', 'limit', 'sha256', 'startTime', 'status', 'symbol', 'symbols', 'utf-8', 'volume']

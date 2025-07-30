@@ -4,8 +4,9 @@ Supabase SDKを使ったデータベースアクセステスト
 SQLAlchemy直接接続の代替アプローチ
 """
 import os
-from supabase import create_client, Client
+
 from dotenv import load_dotenv
+from supabase import Client, create_client
 
 
 def test_supabase_sdk_database_operations():

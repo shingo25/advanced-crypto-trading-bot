@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/core/database.py
+# hypothesis_version: 6.136.4
+
+['Supabase接続に失敗しました', 'created_at', 'id', 'password_hash', 'role', 'username', 'viewer']

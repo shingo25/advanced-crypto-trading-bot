@@ -8,24 +8,26 @@
 ## 環境変数の設定手順
 
 ### 1. Vercelダッシュボードにアクセス
+
 1. [https://vercel.com/dashboard](https://vercel.com/dashboard) にログイン
 2. `crypto-bot` プロジェクトをクリック
 
 ### 2. 環境変数の設定
+
 1. 上部メニューの **Settings** タブをクリック
 2. 左側メニューの **Environment Variables** をクリック
 3. 以下の変数を1つずつ追加：
 
 #### 必須の環境変数
 
-| 変数名 | 値 | 環境 |
-|--------|-----|------|
-| `SUPABASE_URL` | `https://huuimmgmxtqigbjfpudo.supabase.co` | ✅ Production<br>✅ Preview<br>✅ Development |
-| `SUPABASE_ANON_KEY` | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (現在の.envファイルの値) | ✅ Production<br>✅ Preview<br>✅ Development |
-| `SUPABASE_SERVICE_ROLE_KEY` | **Supabaseダッシュボードから取得必要** | ✅ Production<br>✅ Preview<br>✅ Development |
-| `JWT_SECRET` | 強力なランダム文字列を生成 | ✅ Production<br>✅ Preview<br>✅ Development |
-| `ENVIRONMENT` | `production` | ✅ Production のみ |
-| `LOG_LEVEL` | `INFO` | ✅ Production<br>✅ Preview<br>✅ Development |
+| 変数名                      | 値                                                                 | 環境                                          |
+| --------------------------- | ------------------------------------------------------------------ | --------------------------------------------- |
+| `SUPABASE_URL`              | `https://huuimmgmxtqigbjfpudo.supabase.co`                         | ✅ Production<br>✅ Preview<br>✅ Development |
+| `SUPABASE_ANON_KEY`         | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (現在の.envファイルの値) | ✅ Production<br>✅ Preview<br>✅ Development |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Supabaseダッシュボードから取得必要**                             | ✅ Production<br>✅ Preview<br>✅ Development |
+| `JWT_SECRET`                | 強力なランダム文字列を生成                                         | ✅ Production<br>✅ Preview<br>✅ Development |
+| `ENVIRONMENT`               | `production`                                                       | ✅ Production のみ                            |
+| `LOG_LEVEL`                 | `INFO`                                                             | ✅ Production<br>✅ Preview<br>✅ Development |
 
 ### 3. SERVICE_ROLE_KEYの取得
 
@@ -47,6 +49,7 @@ openssl rand -base64 32
 ### 5. 設定の確認
 
 すべての環境変数を追加したら、Vercelダッシュボードで確認：
+
 - 各変数が正しく設定されているか
 - すべての環境（Production, Preview, Development）にチェックが入っているか
 

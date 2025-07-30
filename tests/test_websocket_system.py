@@ -4,10 +4,10 @@ WebSocketシステムテスト
 包括的WebSocket接続管理システムの動作確認
 """
 
-import os
-import sys
 import asyncio
 import json
+import os
+import sys
 from pathlib import Path
 
 # プロジェクトルートをPythonパスに追加
@@ -27,7 +27,7 @@ async def test_websocket_manager_import():
     try:
         print("🔍 Testing WebSocket manager import...")
 
-        from src.backend.websocket.manager import MessageType, ChannelType
+        from src.backend.websocket.manager import ChannelType, MessageType
 
         print("✅ WebSocket manager imported successfully")
 
@@ -52,7 +52,7 @@ async def test_websocket_message_creation():
     try:
         print("\n🔍 Testing WebSocket message creation...")
 
-        from src.backend.websocket.manager import WebSocketMessage, MessageType, ChannelType
+        from src.backend.websocket.manager import ChannelType, MessageType, WebSocketMessage
 
         # 基本メッセージの作成
         message = WebSocketMessage(
@@ -91,7 +91,7 @@ async def test_connection_management():
     try:
         print("\n🔍 Testing connection management...")
 
-        from src.backend.websocket.manager import WebSocketManager, ClientConnection
+        from src.backend.websocket.manager import ClientConnection, WebSocketManager
 
         # テスト用マネージャーを作成
         manager = WebSocketManager()
@@ -136,7 +136,7 @@ async def test_connection_management():
         print(f"   - Channel subscribers: {manager.channel_subscribers}")
 
         # メッセージ送信テスト
-        from src.backend.websocket.manager import WebSocketMessage, MessageType, ChannelType
+        from src.backend.websocket.manager import ChannelType, MessageType, WebSocketMessage
 
         test_message = WebSocketMessage(
             type=MessageType.SYSTEM_ALERT,
@@ -221,7 +221,7 @@ async def test_rate_limiting():
     try:
         print("\n🔍 Testing rate limiting...")
 
-        from src.backend.websocket.manager import WebSocketManager, ClientConnection
+        from src.backend.websocket.manager import ClientConnection, WebSocketManager
 
         manager = WebSocketManager()
         manager.rate_limit_requests = 5  # テスト用に制限を低く設定

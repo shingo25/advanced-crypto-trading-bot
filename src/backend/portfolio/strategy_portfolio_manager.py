@@ -129,7 +129,7 @@ class AdvancedPortfolioManager(PortfolioManager):
             )
 
             self.strategy_allocations[strategy.name] = allocation
-            logger.info(f"Added strategy {strategy.name} with {allocation_weight*100:.1f}% allocation")
+            logger.info(f"Added strategy {strategy.name} with {allocation_weight * 100:.1f}% allocation")
             return True
 
         except Exception as e:

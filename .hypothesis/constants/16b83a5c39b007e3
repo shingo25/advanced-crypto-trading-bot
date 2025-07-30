@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/core/redis.py
+# hypothesis_version: 6.136.4
+
+[1.0, 6379, 'REDIS_DB', 'REDIS_HOST', 'REDIS_PASSWORD', 'REDIS_PORT', 'REDIS_SSL', 'REDIS_USERNAME', 'active_channels', 'alerts', 'config', 'connection_healthy', 'data', 'db', 'error', 'false', 'host', 'localhost', 'max_connections', 'message', 'password', 'port', 'retry_on_timeout', 'running_tasks', 'socket_timeout', 'ssl', 'subscribed_channels', 'true', 'type', 'username', 'utf-8']

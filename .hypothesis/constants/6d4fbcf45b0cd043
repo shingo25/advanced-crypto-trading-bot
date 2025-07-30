@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/websocket/manager.py
+# hypothesis_version: 6.136.4
+
+[100, 'active_channels', 'alerts', 'alive', 'auth', 'backtest', 'channel', 'channel_subscribers', 'client_id', 'data', 'error', 'heartbeat', 'market_news', 'message', 'message_id', 'news', 'order_update', 'orders', 'portfolio', 'price_update', 'prices', 'status', 'subscribe', 'system_alert', 'timestamp', 'token', 'total_connections', 'trade_execution', 'trades', 'type', 'unsubscribe', 'user_id', 'チャンネルが指定されていません', 'メッセージ処理中にエラーが発生しました', 'レート制限に達しました', '接続が確立されました', '認証が完了しました', '認証トークンが必要です']

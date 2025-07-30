@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/api/alerts.py
+# hypothesis_version: 6.136.4
+
+[100, 404, 500, '/', '/health', '/history', '/stats', '/{alert_id}', '/{alert_id}/test', '/{alert_id}/toggle', 'Alert not found', 'EQUALS', 'GREATER_THAN', 'LESS_THAN', 'NOT_EQUALS', 'Unknown', 'alert_id', 'alert_name', 'channels', 'condition', 'connected', 'created_at', 'critical', 'disabled', 'disconnected', 'email', 'enabled', 'error', 'healthy', 'id', 'info', 'last_triggered', 'level', 'message', 'name', 'original_alert_id', 'redis_status', 'slack', 'status', 'supported_channels', 'symbol', 'target', 'test_alert_id', 'test_trigger', 'timestamp', 'trigger_count', 'triggered_at', 'unhealthy', 'unknown', 'updated_at', 'user_id', 'value', 'warning', 'webhook', 'websocket', 'アラートレベル', 'アラート名', '取引シンボル', '取得件数', '有効なアラートのみ取得', '有効状態', '条件', '特定のアラートIDでフィルタ', '通知チャンネル', '閾値']

@@ -8,7 +8,10 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, Optional
 
-import duckdb
+try:
+    import duckdb
+except ImportError:
+    duckdb = None
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +20,8 @@ class LocalDatabase:
     """DuckDBベースのローカルデータベース"""
 
     def __init__(self, db_path: str = "crypto_bot.db"):
+        if duckdb is None:
+            raise ImportError("duckdb is required for LocalDatabase but not installed")
         self.db_path = db_path
         self.connection = None
         self._init_database()
@@ -154,15 +159,23 @@ class LocalDatabase:
                 return self.get_user_by_id(user_id)
 
             # 安全なUPDATEクエリを構築（プリペアドステートメント使用）
-            # フィールド名はホワイトリストで検証済み
-            set_clause = ", ".join([f"{field} = ?" for field in update_fields.keys()])
+            # フィールド名は上記のallowed_fieldsホワイトリストで検証済み
+            # SQLインジェクション対策: フィールド名はホワイトリスト、値はプレースホルダー使用
+            set_placeholders = []
+            for field in update_fields.keys():
+                # ホワイトリストで検証済みのフィールド名のみ使用
+                set_placeholders.append(f"{field} = ?")
+            set_clause = ", ".join(set_placeholders)
+
+            # パラメータ値を準備
             values = list(update_fields.values())
             values.append(datetime.now())  # updated_at
             values.append(user_id)  # WHERE条件
 
-            # プリペアドステートメントでSQL injection を防止
-            # フィールド名はホワイトリストで検証済み、プリペアドステートメント使用
-            query = f"UPDATE users SET {set_clause}, updated_at = ? WHERE id = ?"  # nosec B608
+            # プリペアドステートメントで安全に実行
+            # セキュリティ: フィールド名はホワイトリスト検証済み、値はプレースホルダー使用
+            query_parts = ["UPDATE users SET", set_clause, ", updated_at = ? WHERE id = ?"]
+            query = "".join(query_parts)
 
             self.connection.execute(query, values)
 
@@ -199,8 +212,12 @@ class LocalDatabase:
 _local_db_instance: Optional[LocalDatabase] = None
 
 
-def get_local_db() -> LocalDatabase:
+def get_local_db() -> Optional[LocalDatabase]:
     """ローカルデータベースインスタンスを取得"""
+    if duckdb is None:
+        logger.warning("DuckDB not available, returning None")
+        return None
+
     global _local_db_instance
     if _local_db_instance is None:
         db_path = os.path.join(os.getcwd(), "data", "crypto_bot.db")

@@ -214,7 +214,7 @@ class DataCollector:
                 )
 
                 logger.info(
-                    f"Saved batch {i//batch_size + 1}/{(len(records)-1)//batch_size + 1} "
+                    f"Saved batch {i // batch_size + 1}/{(len(records) - 1) // batch_size + 1} "
                     f"({len(batch)} records) to Supabase for {symbol} {timeframe.value}"
                 )
 

@@ -18,12 +18,8 @@ def test_frontend_component_files():
         print("🔍 Testing frontend WebSocket component files...")
 
         # ファイルパス
-        price_websocket_path = (
-            project_root / "frontend/src/components/realtime/PriceWebSocket.tsx"
-        )
-        dashboard_page_path = (
-            project_root / "frontend/src/app/dashboard/realtime/page.tsx"
-        )
+        price_websocket_path = project_root / "frontend/src/components/realtime/PriceWebSocket.tsx"
+        dashboard_page_path = project_root / "frontend/src/app/dashboard/realtime/page.tsx"
 
         # ファイル存在確認
         if price_websocket_path.exists():
@@ -43,13 +39,9 @@ def test_frontend_component_files():
             with open(dashboard_page_path, "r", encoding="utf-8") as f:
                 content = f.read()
                 print(f"   - File size: {len(content):,} characters")
-                print(
-                    f"   - Contains PriceWebSocket import: {'PriceWebSocket' in content}"
-                )
+                print(f"   - Contains PriceWebSocket import: {'PriceWebSocket' in content}")
                 print(f"   - Contains settings dialog: {'SettingsDialog' in content}")
-                print(
-                    f"   - Contains symbol management: {'selectedSymbols' in content}"
-                )
+                print(f"   - Contains symbol management: {'selectedSymbols' in content}")
         else:
             print("❌ Dashboard page not found")
             return False
@@ -66,9 +58,7 @@ def test_component_structure():
     try:
         print("\n🔍 Testing component structure...")
 
-        price_websocket_path = (
-            project_root / "frontend/src/components/realtime/PriceWebSocket.tsx"
-        )
+        price_websocket_path = project_root / "frontend/src/components/realtime/PriceWebSocket.tsx"
 
         with open(price_websocket_path, "r", encoding="utf-8") as f:
             content = f.read()
@@ -188,9 +178,7 @@ def test_integration_readiness():
                 print(f"   - {path}: ❌")
 
         # WebSocket URL 設定確認
-        price_websocket_path = (
-            project_root / "frontend/src/components/realtime/PriceWebSocket.tsx"
-        )
+        price_websocket_path = project_root / "frontend/src/components/realtime/PriceWebSocket.tsx"
         with open(price_websocket_path, "r", encoding="utf-8") as f:
             content = f.read()
 
@@ -262,9 +250,7 @@ def test_error_handling():
     try:
         print("\n🔍 Testing error handling...")
 
-        price_websocket_path = (
-            project_root / "frontend/src/components/realtime/PriceWebSocket.tsx"
-        )
+        price_websocket_path = project_root / "frontend/src/components/realtime/PriceWebSocket.tsx"
 
         with open(price_websocket_path, "r", encoding="utf-8") as f:
             content = f.read()

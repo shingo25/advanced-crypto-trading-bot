@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/streaming/price_streamer.py
+# hypothesis_version: 6.136.4
+
+[200, 300, 1000, 'ADAUSDT', 'AVAXUSDT', 'BNBUSDT', 'BTCUSDT', 'DOTUSDT', 'ETHUSDT', 'P', 'SOLUSDT', 'T', 'XRPUSDT', 'active_connections', 'binance', 'buy', 'c', 'cached_prices', 'change_24h', 'change_percent_24h', 'h', 'highPrice', 'high_24h', 'is_running', 'l', 'lowPrice', 'low_24h', 'm', 'manager_running', 'p', 'price', 'priceChange', 'priceChangePercent', 'q', 'quantity', 's', 'sell', 'side', 'subscribed_symbols', 'symbol', 't', 'timestamp', 'total_symbols', 'trade_id', 'v', 'volume', 'volume_24h']

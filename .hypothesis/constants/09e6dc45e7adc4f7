@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/strategies/implementations/rsi_strategy.py
+# hypothesis_version: 6.136.4
+
+[0.03, 0.06, 0.3, 0.5, 0.7, 0.8, 1.0, 1.2, '15m', '1d', '1h', '4h', 'BTCUSDT', 'Mean Reversion', 'Medium', 'Oscillator', 'Price SMA', 'RSI', 'RSI Strategy', 'Volume SMA', 'buy', 'category', 'close', 'confirmation_bars', 'description', 'divergence_detection', 'enter_long', 'enter_short', 'exit_long', 'exit_short', 'high', 'indicators', 'low', 'name', 'overbought_threshold', 'oversold_threshold', 'parameters', 'price_sma', 'required_data_length', 'risk_level', 'rolling', 'rsi', 'rsi_period', 'rsi_sma', 'sell', 'stop_loss_pct', 'take_profit_pct', 'timeframes', 'timestamp', 'type', 'volume', 'volume_sma', 'volume_threshold']

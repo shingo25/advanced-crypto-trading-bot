@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/core/config.py
+# hypothesis_version: 6.136.4
+
+[5.0, 10.0, 100, ',', '.env', '123456', 'BINANCE_API_KEY', 'BINANCE_SECRET', 'Crypto Bot', 'HS256', 'INFO', 'admin', 'change_this', 'change_this_password', 'crypto-bot-alerts', 'development', 'https://ntfy.sh', 'ignore', 'password', 'production']

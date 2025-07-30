@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/notifications/channels/base.py
+# hypothesis_version: 6.136.4
+
+[0.0, 0.1, 0.9, 1.0, 1000, ', ', 'Alert filtered out', 'Base health check OK', 'Channel is disabled', 'OK', 'Rate limit exceeded', 'cancelled', 'channel', 'compact', 'critical', 'default', 'detailed', 'details', 'error', 'failed', 'healthy', 'info', 'last_sent', 'limit', 'message', 'pending', 'requests', 'retry', 'success', 'success_rate', 'timeout', 'timestamp', 'total_failed', 'total_retries', 'total_sent', 'total_success', 'unknown', 'warning', 'ℹ️', '⚠️', '❌', '🚨']

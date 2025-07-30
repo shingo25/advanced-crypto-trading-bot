@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/notifications/channels/email.py
+# hypothesis_version: 6.136.4
+
+[1.0, 587, '\nProcessing Status:\n', '#007bff', '#6c757d', '#6f42c1', '#dc3545', '#ffc107', ', ', '</table>', '</table></div>', '</ul></div>', 'CRYPTO BOT ALERT', 'From', 'Message:', 'Recommended Actions:', 'Subject', 'To', '[CryptoBot Alert]', 'alternative', 'batch_size', 'compact', 'detailed', 'details', 'email', 'enabled', 'error', 'failed_recipients', 'from_email', 'healthy', 'html', 'html_format', 'max_recipients', 'message', 'password_configured', 'plain', 'recipients_count', 'retry_attempts', 'sent_count', 'smtp_port', 'smtp_server', 'standard', 'subject_prefix', 'thread_pool', 'timeout_seconds', 'total_recipients', 'use_ssl', 'use_tls', 'username_configured', 'utf-8', 'ℹ️', '⚠️', '❌', '📢', '🚨']

@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/risk/position_sizing.py
+# hypothesis_version: 6.136.4
+
+[0.0, 0.01, 0.02, 0.1, 0.15, 0.2, 0.5, 'fixed', 'fixed_risk_per_trade', 'kelly', 'kelly_fraction_cap', 'position_sizing', 'strategies', 'target_volatility', 'volatility']

@@ -73,6 +73,20 @@ python-dateutil==2.8.2
 requests==2.31.0  # API tests need this
 aiosmtplib==3.0.1  # Alert notification tests
 
+# Cryptocurrency & Blockchain Dependencies (required for tests)
+# 互換性のあるバージョンに更新（競合解決をpipに任せる）
+eth-account>=0.10.0,<0.14.0  # Ethereum account management for Hyperliquid (range for compatibility)
+web3>=6.11.1,<7.0.0  # Web3 interactions (v6.11.1+ for ContractName ImportError fix)
+hyperliquid-python-sdk==0.16.0  # Hyperliquid exchange SDK
+# hexbytesのpip依存関係解決に任せる（明示的指定を除去）
+
+# FastAPI Rate Limiting
+slowapi>=0.1.9  # Rate limiting for FastAPI (required for test_security_features.py)
+
+# API Testing & Security Testing
+# schemathesis>=4.0.13  # API fuzzing and testing (pytest>=8必要だがCI環境はpytest==7.4.4のため無効化)
+hypothesis>=6.96.1  # Property-based testing
+
 # Additional dependencies for E2E and integration tests
 # starlette version is managed by FastAPI dependency
 typing-extensions==4.14.1  # Required for Pydantic compatibility

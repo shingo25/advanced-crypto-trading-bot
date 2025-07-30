@@ -2,15 +2,17 @@
 """
 Supabase Auth統合後の認証システムをテストするスクリプト
 """
-import sys
 import os
+import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from src.backend.core.security import authenticate_user, create_access_token
-from src.backend.core.config import settings
-from dotenv import load_dotenv
 import asyncio
+
+from dotenv import load_dotenv
+
+from src.backend.core.config import settings
+from src.backend.core.security import authenticate_user, create_access_token
 
 
 async def test_supabase_authentication():
@@ -19,9 +21,7 @@ async def test_supabase_authentication():
 
     try:
         # 正しいクレデンシャルでの認証テスト
-        print(
-            f"   🔑 管理者認証テスト: {settings.ADMIN_USERNAME} / {settings.ADMIN_PASSWORD}"
-        )
+        print(f"   🔑 管理者認証テスト: {settings.ADMIN_USERNAME} / {settings.ADMIN_PASSWORD}")
 
         user = await authenticate_user(settings.ADMIN_USERNAME, settings.ADMIN_PASSWORD)
 
@@ -34,9 +34,7 @@ async def test_supabase_authentication():
 
             # JWTトークン作成テスト
             print("\n🎫 JWTトークン作成テスト...")
-            token = create_access_token(
-                data={"sub": user["username"], "role": user["role"]}
-            )
+            token = create_access_token(data={"sub": user["username"], "role": user["role"]})
             print(f"   ✅ JWTトークン作成成功: {token[:50]}...")
 
             return True

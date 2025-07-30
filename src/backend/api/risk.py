@@ -26,7 +26,9 @@ def get_risk_manager() -> AdvancedRiskManager:
     """リスクマネージャーインスタンスを取得"""
     global _risk_manager
     if _risk_manager is None:
-        _risk_manager = AdvancedRiskManager()
+        # AdvancedRiskManagerに空のconfigを渡して初期化
+        # 実装では適切なデフォルト値が使用される
+        _risk_manager = AdvancedRiskManager(config={})
     return _risk_manager
 
 
@@ -113,15 +115,21 @@ async def get_risk_summary(current_user: dict = Depends(get_current_user)):
         portfolio_value = 100000.0
 
         # VaR計算
-        var_result = risk_manager.calculate_var_historical(
+        var_result = risk_manager.calculate_var(
             returns=[0.01, -0.02, 0.015, -0.005, 0.008],  # ダミーデータ
-            confidence_level=0.95,
+            confidence_levels=[0.95],
+            method="historical",
         )
 
         # リスクメトリクス計算
-        risk_metrics = risk_manager.calculate_risk_metrics(
-            returns=[0.01, -0.02, 0.015, -0.005, 0.008],  # ダミーデータ
-            benchmark_returns=[0.005, -0.01, 0.01, -0.002, 0.004],  # ダミーデータ
+        portfolio_returns = [0.01, -0.02, 0.015, -0.005, 0.008]  # ダミーデータ
+        strategy_returns = {"default": portfolio_returns}  # ダミーデータ
+        portfolio_positions = {"BTC": 0.5, "ETH": 0.3, "ADA": 0.2}  # ダミーデータ
+
+        risk_metrics = risk_manager.calculate_portfolio_risk_metrics(
+            portfolio_returns=portfolio_returns,
+            strategy_returns=strategy_returns,
+            portfolio_positions=portfolio_positions,
         )
 
         return RiskSummaryResponse(
@@ -163,22 +171,21 @@ async def calculate_var(request: VaRRequest, current_user: dict = Depends(get_cu
         ]
         portfolio_value = 100000.0
 
-        if request.method == "historical":
-            var_result = risk_manager.calculate_var_historical(returns, request.confidence_level)
-        elif request.method == "parametric":
-            var_result = risk_manager.calculate_var_parametric(returns, request.confidence_level)
-        elif request.method == "monte_carlo":
-            var_result = risk_manager.calculate_var_monte_carlo(returns, request.confidence_level)
-        else:
-            raise ValueError(f"Unsupported VaR method: {request.method}")
+        # 統一されたcalculate_varメソッドを使用
+        var_result = risk_manager.calculate_var(
+            returns, confidence_levels=[request.confidence_level], method=request.method
+        )
+
+        # VaRResultから適切な値を取得
+        var_value = var_result.var_95 if request.confidence_level == 0.95 else var_result.var_99
 
         return VaRResponse(
             portfolio_id=request.portfolio_id,
             confidence_level=request.confidence_level,
             time_horizon=request.time_horizon,
             method=request.method,
-            var_amount=var_result * portfolio_value,
-            var_percentage=var_result,
+            var_amount=var_value * portfolio_value,
+            var_percentage=var_value,
             portfolio_value=portfolio_value,
             calculated_at=datetime.now(),
         )

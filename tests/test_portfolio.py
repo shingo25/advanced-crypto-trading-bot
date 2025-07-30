@@ -2,9 +2,9 @@
 """
 ポートフォリオ管理システムのテスト
 """
-import sys
-import os
 import logging
+import os
+import sys
 
 # テスト用のパスを追加
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -61,7 +61,7 @@ def test_asset_management():
     print("Testing asset management...")
 
     try:
-        from src.backend.portfolio.manager import PortfolioManager, Asset, AssetType
+        from src.backend.portfolio.manager import Asset, AssetType, PortfolioManager
 
         # マネージャーとポートフォリオを作成
         manager = PortfolioManager()
@@ -108,7 +108,7 @@ def test_portfolio_weights():
     print("Testing portfolio weights calculation...")
 
     try:
-        from src.backend.portfolio.manager import PortfolioManager, Asset, AssetType
+        from src.backend.portfolio.manager import Asset, AssetType, PortfolioManager
 
         # マネージャーとポートフォリオを作成
         manager = PortfolioManager()
@@ -169,7 +169,7 @@ def test_rebalance_suggestions():
     print("Testing rebalance suggestions...")
 
     try:
-        from src.backend.portfolio.manager import PortfolioManager, Asset, AssetType
+        from src.backend.portfolio.manager import Asset, AssetType, PortfolioManager
 
         # マネージャーとポートフォリオを作成
         manager = PortfolioManager()
@@ -231,7 +231,7 @@ def test_risk_assessment():
     print("Testing risk assessment...")
 
     try:
-        from src.backend.portfolio.manager import PortfolioManager, Asset, AssetType
+        from src.backend.portfolio.manager import Asset, AssetType, PortfolioManager
 
         # マネージャーとポートフォリオを作成
         manager = PortfolioManager()
@@ -287,8 +287,8 @@ def test_portfolio_optimization():
 
     try:
         from src.backend.portfolio.optimizer import (
-            PortfolioOptimizer,
             OptimizationObjective,
+            PortfolioOptimizer,
         )
 
         # オプティマイザーを作成
@@ -334,7 +334,7 @@ def test_portfolio_summary():
     print("Testing portfolio summary...")
 
     try:
-        from src.backend.portfolio.manager import PortfolioManager, Asset, AssetType
+        from src.backend.portfolio.manager import Asset, AssetType, PortfolioManager
 
         # マネージャーとポートフォリオを作成
         manager = PortfolioManager()

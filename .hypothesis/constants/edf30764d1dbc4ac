@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/api/auth.py
+# hypothesis_version: 6.136.4
+
+[587, 3600, ' (⚠️ 実際の資金での取引になります)', '/csrf-token', '/login', '/logout', '/me', '/refresh', '/register', '/trading-mode', 'Bearer', 'CSRFトークン生成に失敗しました', 'FROM_EMAIL', 'From', 'LIVE', 'SMTP_PASSWORD', 'SMTP_PORT', 'SMTP_SERVER', 'SMTP_USERNAME', 'Subject', 'To', 'Unknown User', 'WWW-Authenticate', 'access_token', 'admin', 'attempts', 'bearer', 'binance', 'created_at', 'csrf_token', 'dev', 'development', 'email', 'expires_at', 'expires_in', 'failures', 'id', 'live', 'live_switch', 'localhost', 'locked_until', 'message', 'mode', 'paper', 'plain', 'production', 'role', 'staging', 'strict', 'sub', 'switch', 'test', 'timestamp', 'token', 'token_type', 'unknown', 'unknown@example.com', 'username', 'utf-8', 'viewer', '取引モード取得に失敗しました', '取引モード変更でエラーが発生しました', '有効なメールアドレスを入力してください']

@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/api/market_data.py
+# hypothesis_version: 6.136.4
+
+[100, 400, 500, 503, 1000, '*', '+00:00', ',', '/', '/health', '/latest', '/ohlcv', '/symbols', '/timeframes', '15m', '1d', '1h', '1m', '30m', '4h', '5m', ':', 'Z', 'binance', 'cache_size', 'close', 'close_price', 'count', 'database_connection', 'exact', 'exchange', 'healthy', 'high', 'high_price', 'latest_prices', 'low', 'low_price', 'ok', 'open', 'open_price', 'price_data', 'status', 'symbol', 'symbols', 'timeframe', 'timeframes', 'timestamp', 'total_records', 'volume', 'シンボル（オプション）', 'シンボル（例: BTCUSDT）', '内部サーバーエラー', '取引所名', '取得件数', '取得件数（最大1000件）', '時間足', '終了時刻', '終了時刻（ISO 8601形式）', '開始時刻', '開始時刻（ISO 8601形式）']

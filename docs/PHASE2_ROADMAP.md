@@ -28,7 +28,9 @@ gantt
 **目標**: 取引所APIから価格データを自動取得し、Supabaseに保存
 
 #### 実装内容
+
 1. **取引所データ収集器の作成**
+
    ```python
    # backend/data_pipeline/collectors/
    ├── __init__.py
@@ -38,6 +40,7 @@ gantt
    ```
 
 2. **データベーススキーマ設計**
+
    ```sql
    -- OHLCV価格データテーブル
    CREATE TABLE price_data (
@@ -57,6 +60,7 @@ gantt
    ```
 
 3. **スケジューラー実装**
+
    ```python
    # backend/data_pipeline/scheduler.py
    from celery import Celery
@@ -71,12 +75,14 @@ gantt
    ```
 
 #### 🎯 受け入れ条件
+
 - [ ] 1分足データの自動取得
 - [ ] データ重複の防止
 - [ ] エラーハンドリング（API制限、ネットワークエラー）
 - [ ] ログ記録とモニタリング
 
 #### 📝 実装手順
+
 1. `backend/data_pipeline/collectors/base_collector.py`作成
 2. Binance/Bybit個別コレクター実装
 3. Supabaseテーブル作成とマイグレーション
@@ -90,7 +96,9 @@ gantt
 **目標**: モックデータから実際のデータベースデータへ移行
 
 #### 実装内容
+
 1. **trades.pyの更新**
+
    ```python
    # Before: モックデータ
    fake_trades = generate_fake_trades()
@@ -100,6 +108,7 @@ gantt
    ```
 
 2. **backtest.pyの更新**
+
    ```python
    # Before: サンプルデータ
    sample_data = get_sample_ohlcv()
@@ -112,6 +121,7 @@ gantt
    ```
 
 #### 🎯 受け入れ条件
+
 - [ ] 全APIエンドポイントが実データを返す
 - [ ] レスポンス時間が許容範囲内（<500ms）
 - [ ] エラーハンドリング完備
@@ -124,12 +134,14 @@ gantt
 **目標**: バックテストエンジンの最適化と新機能追加
 
 #### 実装内容
+
 1. **パフォーマンス最適化**
    - データ読み込み最適化（バッチ処理）
    - 計算処理の並列化
    - メモリ使用量削減
 
 2. **新機能追加**
+
    ```python
    # パラメータ最適化機能
    class ParameterOptimizer:
@@ -143,6 +155,7 @@ gantt
    ```
 
 #### 🎯 受け入れ条件
+
 - [ ] バックテスト実行時間短縮（50%以上）
 - [ ] パラメータ最適化機能
 - [ ] 詳細パフォーマンスレポート
@@ -155,7 +168,9 @@ gantt
 **目標**: WebSocket接続でリアルタイム価格表示
 
 #### 実装内容
+
 1. **バックエンドWebSocket**
+
    ```python
    # backend/api/websocket.py
    @app.websocket("/ws/prices/{symbol}")
@@ -167,6 +182,7 @@ gantt
    ```
 
 2. **フロントエンド実装**
+
    ```typescript
    // frontend/hooks/useRealtimePrice.ts
    export const useRealtimePrice = (symbol: string) => {
@@ -183,6 +199,7 @@ gantt
    ```
 
 #### 🎯 受け入れ条件
+
 - [ ] リアルタイム価格表示（遅延<1秒）
 - [ ] WebSocket接続の安定性
 - [ ] 複数通貨ペア対応
@@ -195,7 +212,9 @@ gantt
 **目標**: 実際の取引所アカウントとの安全な連携
 
 #### 実装内容
+
 1. **APIキー管理**
+
    ```python
    # backend/core/exchange_auth.py
    class ExchangeAPIManager:
@@ -212,6 +231,7 @@ gantt
    - 権限最小化（読み取り専用推奨）
 
 #### 🎯 受け入れ条件
+
 - [ ] 安全なAPIキー保存
 - [ ] 複数取引所対応
 - [ ] 権限管理機能
@@ -224,7 +244,9 @@ gantt
 **目標**: 実際の注文執行機能（⚠️十分なテスト後）
 
 #### 実装内容
+
 1. **注文執行エンジン**
+
    ```python
    # backend/trading/live_engine.py
    class LiveTradingEngine:
@@ -241,13 +263,16 @@ gantt
    - 緊急停止機能
 
 #### 🎯 受け入れ条件
+
 - [ ] デモモードでの完全テスト
 - [ ] リスク制限機能
 - [ ] 緊急停止機能
 - [ ] 取引履歴記録
 
 #### ⚠️ **重要な注意事項**
+
 **ライブ取引は十分なテストなしに有効化してはいけません:**
+
 1. デモ環境で最低30日間のテスト
 2. 小額での段階的導入
 3. 複数の安全装置の確認
@@ -259,7 +284,9 @@ gantt
 **目標**: 包括的なリスク管理システム
 
 #### 実装内容
+
 1. **ポジションサイジング**
+
    ```python
    class PositionSizer:
        def calculate_size(self, account_balance, risk_per_trade, stop_loss_distance):
@@ -272,6 +299,7 @@ gantt
    - 相関リスク管理
 
 #### 🎯 受け入れ条件
+
 - [ ] 自動ポジションサイジング
 - [ ] リアルタイムリスク監視
 - [ ] アラート機能
@@ -284,7 +312,9 @@ gantt
 **目標**: 包括的な監視・通知システム
 
 #### 実装内容
+
 1. **アラートシステム**
+
    ```python
    # backend/monitoring/alerts.py
    class AlertManager:
@@ -301,6 +331,7 @@ gantt
    - システム健全性監視
 
 #### 🎯 受け入れ条件
+
 - [ ] リアルタイム監視ダッシュボード
 - [ ] 多様な通知チャネル
 - [ ] カスタムアラート設定
@@ -309,12 +340,14 @@ gantt
 ## 📋 実装チェックリスト
 
 ### Phase 2 開始前の準備
+
 - [ ] 現在のコードベースの動作確認
 - [ ] Supabaseデータベース設計レビュー
 - [ ] 取引所API利用制限の確認
 - [ ] 開発環境のセットアップ完了
 
 ### Phase 3 開始前の準備
+
 - [ ] Phase 2の全機能動作確認
 - [ ] セキュリティレビュー実施
 - [ ] テスト環境での十分な検証
@@ -323,11 +356,13 @@ gantt
 ## 🔄 継続的改善
 
 ### 定期レビューポイント
+
 1. **毎週**: 進捗確認とブロッカー解決
 2. **毎月**: パフォーマンス分析と最適化
 3. **四半期**: アーキテクチャレビューと技術スタック見直し
 
 ### 品質管理
+
 - すべてのPRにコードレビュー必須
 - 自動テストカバレッジ80%以上維持
 - セキュリティスキャン定期実行

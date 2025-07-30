@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/strategies/loader.py
+# hypothesis_version: 6.136.4
+
+['*.yml', '15m', '1d', '1h', '1m', '1w', '2h', '30m', '4h', '5m', '8h', 'BTCUSDT', 'bollinger', 'config/strategies', 'description', 'ema', 'enabled', 'macd', 'name', 'parameters', 'r', 'rsi', 'symbol', 'timeframe', 'type', 'utf-8', 'w']

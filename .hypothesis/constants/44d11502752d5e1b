@@ -1,0 +1,4 @@
+# file: /Users/arata/Dev/advanced-crypto-trading-bot/src/backend/monitoring/alert_manager.py
+# hypothesis_version: 6.136.4
+
+[3600, ':', 'Connection failed', 'Not initialized', 'Not started', 'OK', 'alert_system', 'alerts.yml', 'alerts_by_category', 'alerts_by_level', 'balance_low', 'business_hours', 'components', 'concentration', 'config', 'config_last_loaded', 'correlation', 'daily_loss', 'drawdown', 'duplicate_alerts', 'enabled', 'end_hour', 'excluded_alert_types', 'excluded_sources', 'failed_alerts', 'filters', 'healthy', 'last_alert', 'legacy_alert_manager', 'message', 'message_broker', 'network_issue', 'notification_rules', 'order_execution', 'position_loss', 'price_change', 'r', 'redis', 'sent_alerts', 'start_hour', 'started', 'strategy_filters', 'strategy_performance', 'symbol_filters', 'system_enabled', 'system_error', 'throttled_alerts', 'timestamp', 'total_alerts', 'unknown', 'utf-8', 'var_breach', 'volatility', 'volume_spike', 'weekdays_only']

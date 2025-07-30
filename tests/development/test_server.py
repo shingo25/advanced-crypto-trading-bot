@@ -3,17 +3,18 @@
 簡単なテストサーバー - 暗号通貨取引ボットのコア機能をテスト
 """
 
-import sys
 import os
+import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+from datetime import datetime
+from typing import Dict, List
+
+import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import uvicorn
-from typing import Dict, List
-from datetime import datetime
 
 
 # Basic models
@@ -169,9 +170,7 @@ MOCK_PORTFOLIO = {
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
     """ヘルスチェック"""
-    return HealthResponse(
-        status="healthy", timestamp=datetime.now().isoformat(), version="1.0.0"
-    )
+    return HealthResponse(status="healthy", timestamp=datetime.now().isoformat(), version="1.0.0")
 
 
 @app.post("/api/auth/login", response_model=LoginResponse)
