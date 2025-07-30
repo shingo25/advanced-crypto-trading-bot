@@ -87,17 +87,17 @@ jobs:
           find . -name "bandit-report.json" -type f -delete || true
           rm -f bandit-report.json backend/bandit-report.json frontend/bandit-report.json || true
 
-          # Banditスキャンを実行（JSONレポート生成）
-          echo "📊 Generating Bandit security report..."
-          bandit -r src/backend/ -f json -o bandit-report.json
-
-          # Banditスキャンを再実行（コンソール出力・終了コード確認）
+          # Banditスキャンを実行（シンプルで確実な方法）
           echo "🛡️ Running Bandit security analysis..."
-          bandit -r src/backend/ --severity-level medium || {
-            echo "⚠️ Bandit found issues. Check the report above."
-            echo "📄 JSON report generated: bandit-report.json"
+          if ! bandit -r src/backend/ --severity-level medium; then
+            echo "⚠️ Bandit found security issues with medium+ severity!"
+            echo "📊 Generating JSON report for detailed analysis..."
+            bandit -r src/backend/ -f json -o bandit-report.json || true
+            echo "📄 Check bandit-report.json for detailed issue information"
             exit 1
-          }
+          else
+            echo "✅ Bandit security analysis passed - no medium+ severity issues found"
+          fi
 
       - name: 🔍 Dependency vulnerability scan
         run: |

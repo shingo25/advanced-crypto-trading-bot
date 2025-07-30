@@ -20,6 +20,10 @@ from .binance import BinanceAdapter
 
 logger = logging.getLogger(__name__)
 
+# Paper Trading用の安全なモック認証情報
+# 実際のAPIキーではなく、テスト/デモ用の定数値
+PAPER_TRADING_MOCK_KEY = "paper_trading_mock"  # nosec B105
+
 
 class PaperTradingAdapter(AbstractTradingAdapter):
     """
@@ -97,10 +101,10 @@ class PaperTradingAdapter(AbstractTradingAdapter):
         from unittest.mock import Mock
 
         mock_adapter = Mock()
-        # モック取引所の設定
+        # モック取引所の設定（Paper Trading用の安全な値）
         mock_exchange = Mock()
-        mock_exchange.apiKey = "paper_trading_mock"
-        mock_exchange.secret = "paper_trading_mock"
+        mock_exchange.apiKey = PAPER_TRADING_MOCK_KEY
+        mock_exchange.secret = PAPER_TRADING_MOCK_KEY
         mock_exchange.sandbox = True
         mock_adapter.exchange = mock_exchange
         return mock_adapter
@@ -109,8 +113,8 @@ class PaperTradingAdapter(AbstractTradingAdapter):
         """実際の取引所Adapterを作成（価格データ取得用）"""
         # セキュリティ上、Paper Tradingでは実際のAPIキーは不要
         mock_config = {
-            "api_key": "paper_trading_mock",
-            "secret": "paper_trading_mock",
+            "api_key": PAPER_TRADING_MOCK_KEY,
+            "secret": PAPER_TRADING_MOCK_KEY,
             "sandbox": True,  # サンドボックスモードで安全に
         }
 
