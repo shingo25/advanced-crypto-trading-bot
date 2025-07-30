@@ -622,12 +622,9 @@ class DatabaseManager:
         engine_kwargs = {"echo": False}
 
         if "sqlite" in database_url:
-            # SQLiteの場合、WALモードとタイムアウト設定を追加
+            # SQLiteの場合、基本的な接続設定のみ
             engine_kwargs.update(
                 {
-                    "pool_timeout": 20,
-                    "pool_recycle": -1,
-                    "pool_pre_ping": True,
                     "connect_args": {"timeout": 20, "check_same_thread": False},
                 }
             )

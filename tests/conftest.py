@@ -248,13 +248,20 @@ def mock_redis(monkeypatch):
 @pytest.fixture
 def test_user():
     """Test user data for authentication"""
-    return {"id": "test-user-123", "email": "test@example.com", "username": "testuser"}
+    return {
+        "id": "personal-user",
+        "username": "personal-bot-user",
+        "email": "user@personal-bot.local",
+        "role": "admin",
+        "is_active": True,
+        "created_at": "2024-01-01T00:00:00Z",
+    }
 
 
 @pytest.fixture
 def auth_headers(test_user):
     """Authorization headers with valid JWT token"""
-    from src.backend.api.auth import create_access_token
+    from src.backend.core.security import create_access_token
 
     token = create_access_token(data={"sub": test_user["id"]}, expires_delta=timedelta(minutes=30))
     return {"Authorization": f"Bearer {token}"}
@@ -275,7 +282,7 @@ def authenticated_client_with_csrf(client, test_user):
     """Authenticated client with CSRF token support"""
     from datetime import timedelta
 
-    from src.backend.api.auth import create_access_token
+    from src.backend.core.security import create_access_token
 
     # Create authentication token
     token = create_access_token(data={"sub": test_user["id"], "role": "admin"}, expires_delta=timedelta(hours=1))
@@ -486,7 +493,16 @@ def mock_auth_dependency(monkeypatch, test_user):
     """Mock authentication dependency for all tests"""
 
     async def mock_get_current_user(*args, **kwargs):
-        return test_user
+        # For tests that expect personal-bot-user (like test_auth_security.py)
+        # Return the expected fixed user for backward compatibility
+        return {
+            "id": "personal-user",
+            "username": "personal-bot-user",
+            "email": "user@personal-bot.local",
+            "role": "admin",
+            "is_active": True,
+            "created_at": "2024-01-01T00:00:00Z",
+        }
 
     # Mock in multiple places to ensure coverage
     try:
