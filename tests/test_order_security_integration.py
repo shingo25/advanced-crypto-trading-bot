@@ -38,6 +38,7 @@ def security_config():
             "max_order_value_ratio": 0.1,  # 10%
             "max_hourly_trades": 5,
             "max_price_deviation": 0.05,  # 5%
+            "suspicious_symbol_threshold": 3,  # 1日の新規シンボル数制限
         },
     }
 
@@ -87,7 +88,7 @@ class TestSecurityManagerIntegration:
         """SecurityManagerの初期化テスト"""
         security_manager = SecurityManager(security_config)
 
-        assert security_manager.enable_ip_filtering == True
+        assert security_manager.enable_ip_filtering is True
         assert "127.0.0.1" in security_manager.ip_whitelist
         assert security_manager.rate_limits["orders_per_minute"] == 5
 
@@ -107,12 +108,12 @@ class TestSecurityManagerIntegration:
         security_manager = SecurityManager(security_config)
 
         # 許可されたIP
-        assert security_manager.check_ip_address("127.0.0.1") == True
-        assert security_manager.check_ip_address("192.168.1.100") == True
+        assert security_manager.check_ip_address("127.0.0.1") is True
+        assert security_manager.check_ip_address("192.168.1.100") is True
 
         # 許可されていないIP
-        assert security_manager.check_ip_address("192.168.1.200") == False
-        assert security_manager.check_ip_address("10.0.0.1") == False
+        assert security_manager.check_ip_address("192.168.1.200") is False
+        assert security_manager.check_ip_address("10.0.0.1") is False
 
     def test_rate_limiting(self, security_config):
         """レート制限テスト"""
@@ -121,10 +122,10 @@ class TestSecurityManagerIntegration:
 
         # 制限以内
         for i in range(5):
-            assert security_manager.check_rate_limit(user_id) == True
+            assert security_manager.check_rate_limit(user_id) is True
 
         # 制限超過
-        assert security_manager.check_rate_limit(user_id) == False
+        assert security_manager.check_rate_limit(user_id) is False
 
     def test_anomaly_detection_large_order(self, security_config, test_order):
         """異常検知：大額注文テスト"""
@@ -145,7 +146,7 @@ class TestSecurityManagerIntegration:
 
         is_anomalous = security_manager.check_for_anomalies(large_order, user_id, portfolio_value)
 
-        assert is_anomalous == True  # 10%制限を超えているため異常
+        assert is_anomalous is True  # 10%制限を超えているため異常
 
 
 class TestOrderValidatorIntegration:
@@ -166,7 +167,7 @@ class TestOrderValidatorIntegration:
 
         is_valid, error_msg = await validator.validate(test_order)
 
-        assert is_valid == True
+        assert is_valid is True
         assert error_msg is None
 
     @pytest.mark.asyncio
@@ -186,7 +187,7 @@ class TestOrderValidatorIntegration:
 
         is_valid, error_msg = await validator.validate(invalid_order)
 
-        assert is_valid == False
+        assert is_valid is False
         assert "not available" in error_msg
 
     @pytest.mark.asyncio
@@ -206,16 +207,19 @@ class TestOrderValidatorIntegration:
 
         is_valid, error_msg = await validator.validate(high_price_order)
 
-        assert is_valid == False
+        assert is_valid is False
         assert "deviates" in error_msg
 
 
 class TestOrderCommandFactoryIntegration:
     """OrderCommandFactoryの統合テスト"""
 
-    def test_factory_initialization_with_security(self, security_config):
+    def test_factory_initialization_with_security(self, security_config, mock_exchange_adapter):
         """セキュリティ設定付きファクトリ初期化テスト"""
-        factory = OrderCommandFactory(security_config)
+        from src.backend.exchanges.factory import ExchangeFactory
+
+        adapter_factory = ExchangeFactory()
+        factory = OrderCommandFactory(adapter_factory, security_config)
 
         assert factory._security_manager is not None
         assert isinstance(factory._security_manager, SecurityManager)
@@ -223,8 +227,11 @@ class TestOrderCommandFactoryIntegration:
     @pytest.mark.asyncio
     async def test_create_command_with_security(self, security_config, test_order, mock_exchange_adapter):
         """セキュリティ機能付きコマンド作成テスト"""
+        from src.backend.exchanges.factory import ExchangeFactory
+
         # モックファクトリを作成（実際の取引所接続を避けるため）
-        factory = OrderCommandFactory(security_config)
+        adapter_factory = ExchangeFactory()
+        factory = OrderCommandFactory(adapter_factory, security_config)
         factory._exchange_adapters["binance_False"] = mock_exchange_adapter
 
         # バリデータも手動で設定
@@ -263,7 +270,7 @@ class TestFullIntegrationScenarios:
             Decimal("100000"),  # $100,000ポートフォリオ
         )
 
-        assert is_valid == True
+        assert is_valid is True
         assert error_msg is None
 
     @pytest.mark.asyncio
@@ -301,7 +308,7 @@ class TestFullIntegrationScenarios:
             Decimal("100000"),  # $100,000ポートフォリオ
         )
 
-        assert is_valid == False
+        assert is_valid is False
         assert "not allowed" in error_msg or "anomaly" in error_msg.lower()
 
     @pytest.mark.asyncio
@@ -322,12 +329,12 @@ class TestFullIntegrationScenarios:
         # 制限以内の注文
         for i in range(5):
             is_valid, error_msg = await command.validate(test_request_context, Decimal("100000"))
-            assert is_valid == True
+            assert is_valid is True
 
         # 制限超過
         is_valid, error_msg = await command.validate(test_request_context, Decimal("100000"))
 
-        assert is_valid == False
+        assert is_valid is False
         assert "rate limit" in error_msg.lower()
 
 
