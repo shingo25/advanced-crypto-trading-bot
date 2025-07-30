@@ -55,6 +55,14 @@ class TestTradingModeUIIntegration:
         request_data_with_csrf["csrf_token"] = "test-csrf-token"
         return request_data_with_csrf
 
+    def _get_csrf_token_for_user(self, client, user_data: dict) -> str:
+        """指定ユーザーのCSRFトークンを取得"""
+        headers = self._get_auth_headers(user_data)
+        response = client.get("/auth/csrf-token", headers=headers)
+        if response.status_code == 200:
+            return response.json()["csrf_token"]
+        return "fallback-csrf-token"
+
 
 class TestTradingModeGETEndpoint(TestTradingModeUIIntegration):
     """取引モード取得エンドポイントテスト"""
@@ -137,19 +145,20 @@ class TestTradingModePOSTEndpoint(TestTradingModeUIIntegration):
 
     def test_switch_to_live_mode_non_admin_user(self, client):
         """非管理者によるLiveモード切り替え失敗"""
-        regular_headers = self._get_auth_headers(self.regular_user)
-        regular_headers["X-CSRF-Token"] = "test-csrf-token"
+        # 適切なCSRFトークンを取得
+        csrf_token = self._get_csrf_token_for_user(client, self.regular_user)
 
-        request_data = {"mode": "live", "confirmation_text": "LIVE", "csrf_token": "test-csrf-token"}
+        regular_headers = self._get_auth_headers(self.regular_user)
+        regular_headers["X-CSRF-Token"] = csrf_token
+
+        request_data = {"mode": "live", "confirmation_text": "LIVE", "csrf_token": csrf_token}
 
         response = client.post("/auth/trading-mode", json=request_data, headers=regular_headers)
 
-        # CSRFトークンエラーまたは権限エラーの場合は400/422も許可
-        assert response.status_code in [400, 403, 422]
-        # 管理者権限エラーかCSRFエラーのいずれかをチェック
-        detail = response.json().get("detail", [])
-        if response.status_code == 403 and isinstance(detail, str):
-            assert "管理者権限" in detail
+        # 管理者権限がない場合は403が期待される
+        assert response.status_code == 403
+        detail = response.json().get("detail", "")
+        assert "管理者権限" in detail
 
     @patch.dict("os.environ", {"ENVIRONMENT": "development"})
     def test_switch_to_live_mode_development_environment(self, client):
@@ -358,6 +367,8 @@ class TestTradingModeEndToEndWorkflow(TestTradingModeUIIntegration):
 
     def test_complete_paper_to_paper_workflow(self, client):
         """Paper→Paper完全ワークフロー"""
+        # 適切なCSRFトークンを取得
+        csrf_token = self._get_csrf_token_for_user(client, self.admin_user)
         admin_headers = self._get_auth_headers(self.admin_user)
 
         # 1. 現在のモードを取得
@@ -368,14 +379,12 @@ class TestTradingModeEndToEndWorkflow(TestTradingModeUIIntegration):
         # 2. Paperモードに切り替え（冪等性確認）
         post_response = client.post(
             "/auth/trading-mode",
-            json={"mode": "paper", "csrf_token": "test-csrf-token", "confirmation_text": ""},
+            json={"mode": "paper", "csrf_token": csrf_token, "confirmation_text": ""},
             headers=admin_headers,
         )
-        # CSRFトークンエラーまたは成功のいずれかを許可
-        assert post_response.status_code in [200, 400, 422]
-        # 成功した場合のみモードをチェック
-        if post_response.status_code == 200:
-            assert post_response.json()["current_mode"] == "paper"
+        # Paper切り替えは成功するはず
+        assert post_response.status_code == 200
+        assert post_response.json()["current_mode"] == "paper"
 
         # 3. 再度モードを取得して確認
         verify_response = client.get("/auth/trading-mode", headers=admin_headers)
@@ -384,31 +393,35 @@ class TestTradingModeEndToEndWorkflow(TestTradingModeUIIntegration):
 
     def test_complete_security_validation_workflow(self, client):
         """完全なセキュリティ検証ワークフロー"""
+        # 各ユーザーのCSRFトークンを取得
+        admin_csrf_token = self._get_csrf_token_for_user(client, self.admin_user)
+        regular_csrf_token = self._get_csrf_token_for_user(client, self.regular_user)
+
         admin_headers = self._get_auth_headers(self.admin_user)
+        regular_headers = self._get_auth_headers(self.regular_user)
 
         # 1. 権限チェック（非管理者での試行）
-        regular_headers = self._get_auth_headers(self.regular_user)
         response1 = client.post(
             "/auth/trading-mode",
-            json={"mode": "live", "confirmation_text": "LIVE", "csrf_token": "test-csrf-token"},
+            json={"mode": "live", "confirmation_text": "LIVE", "csrf_token": regular_csrf_token},
             headers=regular_headers,
         )
-        # 権限エラーまたはCSRFエラーを許可
-        assert response1.status_code in [400, 403, 422]
+        # 管理者権限エラーを期待
+        assert response1.status_code == 403
 
         # 2. 確認テキストチェック（管理者、間違ったテキスト）
         response2 = client.post(
             "/auth/trading-mode",
-            json={"mode": "live", "confirmation_text": "WRONG", "csrf_token": "test-csrf-token"},
+            json={"mode": "live", "confirmation_text": "WRONG", "csrf_token": admin_csrf_token},
             headers=admin_headers,
         )
-        # バリデーションエラーまたはCSRFエラーを許可
-        assert response2.status_code in [400, 422]
+        # 確認テキストエラーを期待
+        assert response2.status_code == 400
 
         # 3. 環境チェック（現在は開発環境のため失敗）
         response3 = client.post(
             "/auth/trading-mode",
-            json={"mode": "live", "confirmation_text": "LIVE", "csrf_token": "test_csrf_token"},
+            json={"mode": "live", "confirmation_text": "LIVE", "csrf_token": admin_csrf_token},
             headers=admin_headers,
         )
         assert response3.status_code == 403  # 環境制限
@@ -416,7 +429,7 @@ class TestTradingModeEndToEndWorkflow(TestTradingModeUIIntegration):
         # 4. 正常なPaper切り替え
         response4 = client.post(
             "/auth/trading-mode",
-            json={"mode": "paper", "csrf_token": "test_csrf_token", "confirmation_text": ""},
+            json={"mode": "paper", "csrf_token": admin_csrf_token, "confirmation_text": ""},
             headers=admin_headers,
         )
         assert response4.status_code == 200

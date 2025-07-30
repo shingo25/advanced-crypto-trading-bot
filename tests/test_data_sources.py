@@ -4,7 +4,7 @@
 
 import os
 from datetime import datetime, timezone
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -65,7 +65,6 @@ class TestDataSourceManager:
     def test_mode_switching(self):
         """実行時のモード切り替え"""
         manager = DataSourceManager()
-        initial_mode = manager.mode
 
         # ライブモードに切り替え
         manager.set_mode(DataSourceMode.LIVE)
@@ -207,7 +206,7 @@ class TestCachedDataSource:
     async def test_cache_hit(self):
         """キャッシュヒットのテスト"""
         # モックデータソースを作成
-        mock_source = MagicMock()
+        mock_source = AsyncMock()
         mock_ticker = MagicMock()
         mock_ticker.timestamp = datetime.now(timezone.utc)
         mock_ticker.symbol = "BTC/USDT"
@@ -222,7 +221,7 @@ class TestCachedDataSource:
         cached_source = CachedDataSource(mock_source)
 
         # 1回目の呼び出し（キャッシュミス）
-        ticker1 = await cached_source.get_ticker("binance", "BTC/USDT")
+        await cached_source.get_ticker("binance", "BTC/USDT")
         assert mock_source.get_ticker.call_count == 1
 
         # 2回目の呼び出し（キャッシュヒット）

@@ -4,6 +4,7 @@ Paper Trading用ウォレットサービス
 """
 
 import logging
+import threading
 from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Dict, List
@@ -26,6 +27,9 @@ class PaperWalletService:
 
     def __init__(self, db_manager: DatabaseManager):
         self.db_manager = db_manager
+        # ユーザー・アセット組み合わせごとのロック管理
+        self._locks = {}
+        self._locks_lock = threading.Lock()
 
     def initialize_user_wallet(
         self, user_id: UUID, default_setting: str = "beginner", force_reset: bool = False
@@ -186,6 +190,14 @@ class PaperWalletService:
         finally:
             session.close()
 
+    def _get_user_asset_lock(self, user_id: UUID, asset: str) -> threading.Lock:
+        """ユーザー・アセット組み合わせごとのロックを取得"""
+        key = f"{user_id}_{asset}"
+        with self._locks_lock:
+            if key not in self._locks:
+                self._locks[key] = threading.Lock()
+            return self._locks[key]
+
     def update_balance(
         self,
         user_id: UUID,
@@ -209,63 +221,70 @@ class PaperWalletService:
         Returns:
             bool: 更新成功フラグ
         """
-        session = self.db_manager.get_session()
-        try:
-            # ウォレットを取得（行ロック）
-            wallet = (
-                session.query(PaperWalletModel)
-                .filter(and_(PaperWalletModel.user_id == user_id, PaperWalletModel.asset == asset))
-                .with_for_update()
-                .first()
-            )
+        # ユーザー・アセット固有のロックを取得
+        asset_lock = self._get_user_asset_lock(user_id, asset)
 
-            # ウォレットが存在しない場合は作成
-            if not wallet:
-                wallet = PaperWalletModel(
-                    user_id=user_id, asset=asset, balance=Decimal("0"), locked_balance=Decimal("0")
+        with asset_lock:
+            session = self.db_manager.get_session()
+            try:
+                # ウォレットを取得（行ロック）
+                wallet = (
+                    session.query(PaperWalletModel)
+                    .filter(and_(PaperWalletModel.user_id == user_id, PaperWalletModel.asset == asset))
+                    .with_for_update()
+                    .first()
                 )
-                session.add(wallet)
-                session.flush()  # IDを取得するため
 
-            # 新しい残高を計算
-            old_balance = wallet.balance
-            new_balance = old_balance + amount
+                # ウォレットが存在しない場合は作成
+                if not wallet:
+                    wallet = PaperWalletModel(
+                        user_id=user_id, asset=asset, balance=Decimal("0"), locked_balance=Decimal("0")
+                    )
+                    session.add(wallet)
+                    session.flush()  # IDを取得するため
 
-            # 残高が負になる場合はエラー
-            if new_balance < 0:
-                logger.warning(
-                    f"Insufficient balance: user={user_id}, asset={asset}, current={old_balance}, requested={amount}"
+                # 新しい残高を計算
+                old_balance = wallet.balance
+                new_balance = old_balance + amount
+
+                # 残高が負になる場合はエラー
+                if new_balance < 0:
+                    logger.warning(
+                        f"Insufficient balance: user={user_id}, asset={asset}, current={old_balance}, requested={amount}"
+                    )
+                    session.rollback()
+                    return False
+
+                # 残高を更新
+                wallet.balance = new_balance
+                wallet.updated_at = datetime.now(timezone.utc)
+
+                # 取引ログを作成
+                transaction = PaperWalletTransactionModel(
+                    wallet_id=wallet.id,
+                    user_id=user_id,
+                    asset=asset,
+                    transaction_type=transaction_type,
+                    amount=amount,
+                    balance_before=old_balance,
+                    balance_after=new_balance,
+                    related_order_id=related_order_id,
+                    description=description,
                 )
+                session.add(transaction)
+
+                session.commit()
+                logger.debug(
+                    f"Balance updated: user={user_id}, asset={asset}, amount={amount}, new_balance={new_balance}"
+                )
+                return True
+
+            except SQLAlchemyError as e:
+                session.rollback()
+                logger.error(f"Failed to update balance: user={user_id}, asset={asset}, amount={amount}, error={e}")
                 return False
-
-            # 残高を更新
-            wallet.balance = new_balance
-            wallet.updated_at = datetime.now(timezone.utc)
-
-            # 取引ログを作成
-            transaction = PaperWalletTransactionModel(
-                wallet_id=wallet.id,
-                user_id=user_id,
-                asset=asset,
-                transaction_type=transaction_type,
-                amount=amount,
-                balance_before=old_balance,
-                balance_after=new_balance,
-                related_order_id=related_order_id,
-                description=description,
-            )
-            session.add(transaction)
-
-            session.commit()
-            logger.debug(f"Balance updated: user={user_id}, asset={asset}, amount={amount}, new_balance={new_balance}")
-            return True
-
-        except SQLAlchemyError as e:
-            session.rollback()
-            logger.error(f"Failed to update balance: user={user_id}, asset={asset}, amount={amount}, error={e}")
-            return False
-        finally:
-            session.close()
+            finally:
+                session.close()
 
     def lock_balance(self, user_id: UUID, asset: str, amount: Decimal, related_order_id: str = None) -> bool:
         """

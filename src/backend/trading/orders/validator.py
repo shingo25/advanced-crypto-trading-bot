@@ -165,9 +165,12 @@ class OrderValidator:
                         f"(max allowed: {max_deviation:.2%})"
                     )
 
+        except ValidationError:
+            # ValidationErrorは再度raiseしてバリデーション失敗として扱う
+            raise
         except Exception as e:
             logger.warning(f"Could not validate price for {order.symbol}: {e}")
-            # 価格検証失敗は警告のみ
+            # その他のエラーは警告のみ（取引所接続エラーの可能性）
 
     async def _validate_precision(self, order: Order):
         """数量・価格の精度検証"""

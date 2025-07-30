@@ -48,6 +48,7 @@ class TestExchangeFactoryPaperTrading:
         assert adapter.user_id == test_user_id
         assert adapter.exchange_name == "paper_trading"
 
+    @patch.dict("os.environ", {"ENVIRONMENT": "production"})
     @patch("src.backend.exchanges.factory.config.settings")
     @patch("src.backend.exchanges.factory.settings")
     def test_live_trading_adapter_creation(self, mock_main_settings, mock_config_settings):

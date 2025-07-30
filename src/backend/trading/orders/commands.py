@@ -58,7 +58,15 @@ class OrderCommand(ABC):
             tuple[bool, Optional[str]]: (検証成功, エラーメッセージ)
         """
         try:
-            # 1. OrderValidatorによる詳細バリデーション
+            # 1. SecurityManagerによるセキュリティチェック（IPアドレス、レート制限、異常検知）
+            if self.security_manager and request_context:
+                is_secure, error_msg = self.security_manager.execute_security_checks(
+                    self.order, request_context, portfolio_value
+                )
+                if not is_secure:
+                    return False, f"Security check failed: {error_msg}"
+
+            # 2. OrderValidatorによる詳細バリデーション（市場ルール、残高など）
             if self.validator:
                 is_valid, error_msg = await self.validator.validate(self.order, request_context)
                 if not is_valid:
@@ -68,14 +76,6 @@ class OrderCommand(ABC):
                 basic_validation = await self._basic_validation()
                 if not basic_validation[0]:
                     return basic_validation
-
-            # 2. SecurityManagerによるセキュリティチェック
-            if self.security_manager and request_context:
-                is_secure, error_msg = self.security_manager.execute_security_checks(
-                    self.order, request_context, portfolio_value
-                )
-                if not is_secure:
-                    return False, f"Security check failed: {error_msg}"
 
             return True, None
 

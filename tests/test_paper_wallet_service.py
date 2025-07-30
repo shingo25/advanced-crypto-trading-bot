@@ -432,12 +432,10 @@ class TestPaperWalletServiceDataIntegrity:
         """同時操作の安全性テスト（簡易版）"""
         import threading
 
-        # 初期残高を設定（メソッドが存在しない場合は残高を直接更新）
-        try:
-            self.wallet_service.set_initial_balance(self.test_user_id, {"USDT": 100000.0})
-        except AttributeError:
-            # set_initial_balanceメソッドが存在しない場合は手動で初期残高を設定
-            self.wallet_service.update_balance(self.test_user_id, "USDT", Decimal("100000"), "deposit")
+        # setup_methodで既にbeginnerプロファイルで初期化済み（100000 USDT）
+        # 初期残高を確認
+        initial_balance = self.wallet_service.get_asset_balance(self.test_user_id, "USDT")
+        assert initial_balance["total"] == 100000.0  # beginnerプロファイルの初期残高
 
         results = []
 

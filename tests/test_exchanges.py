@@ -18,7 +18,7 @@ class TestExchangeAdapters:
     @pytest.fixture
     def mock_settings(self):
         """モック設定"""
-        with patch("src.backend.exchanges.factory.settings") as mock:
+        with patch("src.backend.core.config.settings") as mock:
             # 各取引所のモックAPIキー
             mock.BINANCE_API_KEY = "test_binance_key"
             mock.BINANCE_SECRET = "test_binance_secret"
@@ -71,8 +71,10 @@ class TestExchangeAdapters:
         """認証情報が不足している場合のエラーテスト"""
         mock_settings.BINANCE_API_KEY = ""
         factory = ExchangeFactory()
-        with pytest.raises(ValueError, match="API credentials not configured"):
-            factory.create_adapter("binance")
+        # 本番環境をモックしてライブトレーディングを許可
+        with patch.dict("os.environ", {"ENVIRONMENT": "production"}):
+            with pytest.raises(ValueError, match="API credentials not configured"):
+                factory.create_adapter("binance", trading_mode="live")
 
     @pytest.mark.asyncio
     async def test_symbol_normalization(self, mock_settings):
@@ -100,8 +102,10 @@ class TestSecurityFeatures:
             mock_settings.HYPERLIQUID_PRIVATE_KEY = "invalid_key"
 
             factory = ExchangeFactory()
-            with pytest.raises(Exception):  # 無効な秘密鍵でエラー
-                factory.create_adapter("hyperliquid", sandbox=True)
+            # 本番環境をモックしてライブトレーディングを許可
+            with patch.dict("os.environ", {"ENVIRONMENT": "production"}):
+                with pytest.raises(Exception):  # 無効な秘密鍵でエラー
+                    factory.create_adapter("hyperliquid", sandbox=True, trading_mode="live")
 
     @pytest.mark.asyncio
     async def test_error_sanitization(self):
@@ -140,56 +144,94 @@ class TestSecurityFeatures:
 class TestRateLimiting:
     """レート制限のテスト"""
 
+    @pytest.fixture
+    def mock_settings(self):
+        """モック設定"""
+        with patch("src.backend.core.config.settings") as mock:
+            # 各取引所のモックAPIキー
+            mock.BINANCE_API_KEY = "test_binance_key"
+            mock.BINANCE_SECRET = "test_binance_secret"
+            mock.BYBIT_API_KEY = "test_bybit_key"
+            mock.BYBIT_SECRET = "test_bybit_secret"
+            mock.BITGET_API_KEY = "test_bitget_key"
+            mock.BITGET_SECRET = "test_bitget_secret"
+            mock.HYPERLIQUID_ADDRESS = "0x1234567890123456789012345678901234567890"
+            mock.HYPERLIQUID_PRIVATE_KEY = "0x1234567890123456789012345678901234567890123456789012345678901234"
+            mock.BACKPACK_API_KEY = "test_backpack_key"
+            mock.BACKPACK_SECRET = "test_backpack_secret"
+            yield mock
+
     @pytest.mark.asyncio
     async def test_retry_on_rate_limit(self, mock_settings):
         """レート制限時のリトライテスト"""
         factory = ExchangeFactory()
-        adapter = factory.create_adapter("binance", sandbox=True, trading_mode="live")
+        # 本番環境をモックしてライブトレーディングを許可
+        with patch.dict("os.environ", {"ENVIRONMENT": "production"}):
+            adapter = factory.create_adapter("binance", sandbox=True, trading_mode="live")
 
-        # CCXTのfetch_ohlcvをモック
-        with patch.object(adapter.exchange, "fetch_ohlcv") as mock_fetch:
-            # 最初の2回はレート制限エラー、3回目は成功
-            mock_fetch.side_effect = [
-                Exception("Rate limit exceeded"),
-                Exception("Rate limit exceeded"),
-                [[1234567890000, 100, 105, 99, 102, 1000]],  # 成功レスポンス
-            ]
+            # CCXTのfetch_ohlcvをモック
+            with patch.object(adapter.exchange, "fetch_ohlcv") as mock_fetch:
+                # 最初の2回はレート制限エラー、3回目は成功
+                mock_fetch.side_effect = [
+                    Exception("Rate limit exceeded"),
+                    Exception("Rate limit exceeded"),
+                    [[1234567890000, 100, 105, 99, 102, 1000]],  # 成功レスポンス
+                ]
 
-            # リトライが動作することを確認
-            result = await adapter.fetch_ohlcv("BTC/USDT", TimeFrame.HOUR_1)
-            assert len(result) == 1
-            assert mock_fetch.call_count == 3
+                # リトライが動作することを確認
+                result = await adapter.fetch_ohlcv("BTC/USDT", TimeFrame.HOUR_1)
+                assert len(result) == 1
+                assert mock_fetch.call_count == 3
 
 
 class TestDataIntegrity:
     """データ整合性のテスト"""
 
+    @pytest.fixture
+    def mock_settings(self):
+        """モック設定"""
+        with patch("src.backend.core.config.settings") as mock:
+            # 各取引所のモックAPIキー
+            mock.BINANCE_API_KEY = "test_binance_key"
+            mock.BINANCE_SECRET = "test_binance_secret"
+            mock.BYBIT_API_KEY = "test_bybit_key"
+            mock.BYBIT_SECRET = "test_bybit_secret"
+            mock.BITGET_API_KEY = "test_bitget_key"
+            mock.BITGET_SECRET = "test_bitget_secret"
+            mock.HYPERLIQUID_ADDRESS = "0x1234567890123456789012345678901234567890"
+            mock.HYPERLIQUID_PRIVATE_KEY = "0x1234567890123456789012345678901234567890123456789012345678901234"
+            mock.BACKPACK_API_KEY = "test_backpack_key"
+            mock.BACKPACK_SECRET = "test_backpack_secret"
+            yield mock
+
     @pytest.mark.asyncio
     async def test_ohlcv_data_validation(self, mock_settings):
         """OHLCVデータの検証テスト"""
         factory = ExchangeFactory()
-        adapter = factory.create_adapter("binance", sandbox=True, trading_mode="live")
+        # 本番環境をモックしてライブトレーディングを許可
+        with patch.dict("os.environ", {"ENVIRONMENT": "production"}):
+            adapter = factory.create_adapter("binance", sandbox=True, trading_mode="live")
 
-        # モックデータ
-        mock_ohlcv = [
-            [1234567890000, 100, 105, 99, 102, 1000],  # 正常
-            [1234567891000, 102, 108, 101, 106, 1100],  # 正常
-        ]
+            # モックデータ
+            mock_ohlcv = [
+                [1234567890000, 100, 105, 99, 102, 1000],  # 正常
+                [1234567891000, 102, 108, 101, 106, 1100],  # 正常
+            ]
 
-        with patch.object(adapter.exchange, "fetch_ohlcv", return_value=mock_ohlcv):
-            result = await adapter.fetch_ohlcv("BTC/USDT", TimeFrame.HOUR_1)
+            with patch.object(adapter.exchange, "fetch_ohlcv", return_value=mock_ohlcv):
+                result = await adapter.fetch_ohlcv("BTC/USDT", TimeFrame.HOUR_1)
 
-            # データ件数の確認
-            assert len(result) == 2
+                # データ件数の確認
+                assert len(result) == 2
 
-            # 各OHLCVデータの検証
-            for ohlcv in result:
-                assert ohlcv.high >= ohlcv.low  # 高値 >= 安値
-                assert ohlcv.high >= ohlcv.open  # 高値 >= 始値
-                assert ohlcv.high >= ohlcv.close  # 高値 >= 終値
-                assert ohlcv.low <= ohlcv.open  # 安値 <= 始値
-                assert ohlcv.low <= ohlcv.close  # 安値 <= 終値
-                assert ohlcv.volume >= 0  # ボリューム >= 0
+                # 各OHLCVデータの検証
+                for ohlcv in result:
+                    assert ohlcv.high >= ohlcv.low  # 高値 >= 安値
+                    assert ohlcv.high >= ohlcv.open  # 高値 >= 始値
+                    assert ohlcv.high >= ohlcv.close  # 高値 >= 終値
+                    assert ohlcv.low <= ohlcv.open  # 安値 <= 始値
+                    assert ohlcv.low <= ohlcv.close  # 安値 <= 終値
+                    assert ohlcv.volume >= 0  # ボリューム >= 0
 
 
 class TestBackpackSignature:

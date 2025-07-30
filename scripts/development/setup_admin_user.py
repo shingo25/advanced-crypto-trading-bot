@@ -2,14 +2,15 @@
 """
 Supabase Authに管理者ユーザーを作成するスクリプト
 """
-import sys
 import os
+import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from backend.core.supabase_db import get_supabase_connection
-from backend.core.config import settings
 from dotenv import load_dotenv
+
+from backend.core.config import settings
+from backend.core.supabase_db import get_supabase_connection
 
 
 def create_admin_user():
@@ -52,9 +53,7 @@ def create_admin_user():
 
             profiles_model = get_profiles_model()
 
-            profile = profiles_model.create_profile(
-                user_id=user_id, username=settings.ADMIN_USERNAME
-            )
+            profile = profiles_model.create_profile(user_id=user_id, username=settings.ADMIN_USERNAME)
 
             if profile:
                 print(f"   ✅ プロファイル作成成功: {profile['username']}")
@@ -88,9 +87,7 @@ def check_existing_user():
         admin_email = f"{settings.ADMIN_USERNAME}@example.com"
 
         # メールアドレスでサインインを試行
-        response = client.auth.sign_in_with_password(
-            {"email": admin_email, "password": settings.ADMIN_PASSWORD}
-        )
+        response = client.auth.sign_in_with_password({"email": admin_email, "password": settings.ADMIN_PASSWORD})
 
         if response.user:
             print("   ✅ 既存の管理者ユーザーが見つかりました")

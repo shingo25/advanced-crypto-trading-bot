@@ -73,7 +73,7 @@ class OrderFactory:
 class OrderCommandFactory:
     """注文コマンドの生成を担当するファクトリー"""
 
-    def __init__(self, adapter_factory: AbstractAdapterFactory, security_config: Dict = None):
+    def __init__(self, adapter_factory: AbstractAdapterFactory = None, security_config: Dict = None):
         self._adapter_factory = adapter_factory
         self._exchange_adapters: Dict[str, object] = {}
         self._validators: Dict[str, OrderValidator] = {}

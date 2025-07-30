@@ -8,7 +8,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Dict
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel, field_validator
 
@@ -350,7 +350,7 @@ async def logout(response: Response):
 
 
 @router.get("/me", response_model=UserResponse)
-async def get_current_user_info(current_user: dict = Depends(get_current_user)):
+async def get_current_user_info(request: Request, current_user: dict = Depends(get_current_user)):
     """現在のユーザー情報を取得"""
     return UserResponse(
         id=current_user["id"],
@@ -361,7 +361,7 @@ async def get_current_user_info(current_user: dict = Depends(get_current_user)):
 
 
 @router.post("/refresh")
-async def refresh_token(response: Response, current_user: dict = Depends(get_current_user)):
+async def refresh_token(request: Request, response: Response, current_user: dict = Depends(get_current_user)):
     """トークンを更新"""
     access_token_expires = timedelta(hours=settings.JWT_EXPIRATION_HOURS)
     access_token = create_access_token(
@@ -431,7 +431,7 @@ async def register(request: RegisterRequest):
 
 
 @router.get("/csrf-token")
-async def get_csrf_token(current_user: dict = Depends(get_current_user)):
+async def get_csrf_token(request: Request, current_user: dict = Depends(get_current_user)):
     """CSRFトークンを取得"""
     try:
         user_id = current_user.get("id", current_user.get("username", "unknown"))
@@ -453,7 +453,7 @@ async def get_csrf_token(current_user: dict = Depends(get_current_user)):
 
 
 @router.get("/trading-mode")
-async def get_trading_mode(current_user: dict = Depends(get_current_user)):
+async def get_trading_mode(request: Request, current_user: dict = Depends(get_current_user)):
     """現在の取引モードを取得"""
     try:
         # デフォルトではPaperモードを返す（セキュリティ優先）
@@ -466,13 +466,15 @@ async def get_trading_mode(current_user: dict = Depends(get_current_user)):
 
 
 @router.post("/trading-mode", response_model=TradingModeResponse)
-async def set_trading_mode(request: TradingModeRequest, current_user: dict = Depends(get_current_user)):
+async def set_trading_mode(
+    trading_request: TradingModeRequest, request: Request, current_user: dict = Depends(get_current_user)
+):
     """取引モードを変更（セキュリティ重視）"""
     user_id = current_user.get("id", current_user.get("username", "unknown"))
 
     try:
         # CSRFトークン検証
-        if not verify_csrf_token(user_id, request.csrf_token):
+        if not verify_csrf_token(user_id, trading_request.csrf_token):
             logger.warning(f"CSRF token validation failed for user {user_id}")
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -480,19 +482,19 @@ async def set_trading_mode(request: TradingModeRequest, current_user: dict = Dep
             )
 
         # レート制限チェック（Live切り替えの場合）
-        if request.mode == "live":
+        if trading_request.mode == "live":
             check_trading_mode_rate_limit(user_id, "live_switch")
 
         # ログ記録（セキュリティ監査用）
         logger.warning(
             f"Trading mode change request: user={current_user['username']}, "
-            f"user_id={user_id}, from_mode=paper, to_mode={request.mode}, "
-            f"confirmation_text='{request.confirmation_text}', "
+            f"user_id={user_id}, from_mode=paper, to_mode={trading_request.mode}, "
+            f"confirmation_text='{trading_request.confirmation_text}', "
             f"csrf_verified=True, timestamp={datetime.now().isoformat()}"
         )
 
         # Live Mode切り替えの厳格な検証
-        if request.mode == "live":
+        if trading_request.mode == "live":
             # 1. 管理者権限チェック
             if current_user.get("role") != "admin":
                 logger.warning(
@@ -504,9 +506,9 @@ async def set_trading_mode(request: TradingModeRequest, current_user: dict = Dep
                 )
 
             # 2. 確認テキスト検証
-            if request.confirmation_text != "LIVE":
+            if trading_request.confirmation_text != "LIVE":
                 logger.warning(
-                    f"Invalid confirmation text for live mode: {request.confirmation_text} "
+                    f"Invalid confirmation text for live mode: {trading_request.confirmation_text} "
                     f"by user: {current_user['username']}"
                 )
                 raise HTTPException(
@@ -537,8 +539,8 @@ async def set_trading_mode(request: TradingModeRequest, current_user: dict = Dep
                 )
 
         # 成功時のレスポンス
-        success_message = f"取引モードを {request.mode.upper()} に変更しました"
-        if request.mode == "live":
+        success_message = f"取引モードを {trading_request.mode.upper()} に変更しました"
+        if trading_request.mode == "live":
             success_message += " (⚠️ 実際の資金での取引になります)"
 
         # 成功記録（失敗カウントリセット）
@@ -550,7 +552,7 @@ async def set_trading_mode(request: TradingModeRequest, current_user: dict = Dep
         user_name = current_user.get("username", "Unknown User")
 
         try:
-            send_trading_mode_notification_email(user_email, user_name, request.mode, current_timestamp)
+            send_trading_mode_notification_email(user_email, user_name, trading_request.mode, current_timestamp)
         except Exception as email_error:
             # メール送信エラーは主処理を妨げない
             logger.warning(f"Email notification failed (non-critical): {email_error}")
@@ -558,20 +560,22 @@ async def set_trading_mode(request: TradingModeRequest, current_user: dict = Dep
         # セキュリティ監査ログ
         logger.info(
             f"Trading mode successfully changed: user={current_user['username']}, "
-            f"user_id={user_id}, new_mode={request.mode}, email_sent=True, "
+            f"user_id={user_id}, new_mode={trading_request.mode}, email_sent=True, "
             f"timestamp={current_timestamp}"
         )
 
-        return TradingModeResponse(current_mode=request.mode, message=success_message, timestamp=current_timestamp)
+        return TradingModeResponse(
+            current_mode=trading_request.mode, message=success_message, timestamp=current_timestamp
+        )
 
     except HTTPException:
         # HTTPExceptionはそのまま再発生（レート制限含む）
-        if request.mode == "live":
+        if trading_request.mode == "live":
             record_trading_mode_failure(user_id)
         raise
     except Exception as e:
         # 予期しないエラーの場合も失敗として記録
-        if request.mode == "live":
+        if trading_request.mode == "live":
             record_trading_mode_failure(user_id)
         logger.error(f"Unexpected error in trading mode change: {e}")
         raise HTTPException(

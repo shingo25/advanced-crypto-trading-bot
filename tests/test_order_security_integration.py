@@ -255,7 +255,7 @@ class TestFullIntegrationScenarios:
     ):
         """正常な注文作成フローテスト"""
         # ファクトリを設定
-        factory = OrderCommandFactory(security_config)
+        factory = OrderCommandFactory(security_config=security_config)
         factory._exchange_adapters["binance_False"] = mock_exchange_adapter
 
         validator = OrderValidator(mock_exchange_adapter, mock_account_service)
@@ -293,7 +293,7 @@ class TestFullIntegrationScenarios:
         )
 
         # ファクトリを設定
-        factory = OrderCommandFactory(security_config)
+        factory = OrderCommandFactory(security_config=security_config)
         factory._exchange_adapters["binance_False"] = mock_exchange_adapter
 
         validator = OrderValidator(mock_exchange_adapter, mock_account_service)
@@ -317,7 +317,7 @@ class TestFullIntegrationScenarios:
     ):
         """レート制限実施テスト"""
         # ファクトリを設定
-        factory = OrderCommandFactory(security_config)
+        factory = OrderCommandFactory(security_config=security_config)
         factory._exchange_adapters["binance_False"] = mock_exchange_adapter
 
         validator = OrderValidator(mock_exchange_adapter, mock_account_service)

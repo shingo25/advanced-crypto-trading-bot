@@ -47,6 +47,14 @@ class TestTradingModeRateLimiting:
         """認証ヘッダーを取得"""
         return {"Authorization": self._create_auth_token(user_data)}
 
+    def _get_csrf_token_for_user(self, client, user_data: dict) -> str:
+        """指定ユーザーのCSRFトークンを取得"""
+        headers = self._get_auth_headers(user_data)
+        response = client.get("/auth/csrf-token", headers=headers)
+        if response.status_code == 200:
+            return response.json()["csrf_token"]
+        return "fallback-csrf-token"
+
 
 class TestRateLimitFunctions(TestTradingModeRateLimiting):
     """レート制限関数の単体テスト"""
@@ -193,28 +201,24 @@ class TestRateLimitIntegration(TestTradingModeRateLimiting):
 
     def test_failure_accumulation_across_requests(self, client):
         """リクエスト間での失敗蓄積"""
-        self.client = client  # テスト用にクライアントを設定
+        # 適切なCSRFトークンを取得
+        csrf_token = self._get_csrf_token_for_user(client, self.admin_user)
         admin_headers = self._get_auth_headers(self.admin_user)
 
-        # 間違った確認テキストで5回失敗
-        request_data = {"mode": "live", "confirmation_text": "WRONG", "csrf_token": "test-csrf-token"}
+        # 間違った確認テキストで3回失敗（Live切り替え試行回数制限）
+        request_data = {"mode": "live", "confirmation_text": "WRONG", "csrf_token": csrf_token}
 
-        for i in range(5):
+        for i in range(3):
             response = client.post("/auth/trading-mode", json=request_data, headers=admin_headers)
-            assert response.status_code in [400, 422]  # 確認テキスト不正
+            assert response.status_code == 400  # 確認テキスト不正
 
-        # 6回目は正しい確認テキストでもロックアウト
-        correct_request = {"mode": "live", "confirmation_text": "LIVE", "csrf_token": "test_csrf_token"}
+        # 4回目はLive切り替え試行回数制限に達してレート制限エラー
+        response = client.post("/auth/trading-mode", json=request_data, headers=admin_headers)
+        assert response.status_code == 429
 
-        response = self.client.post("/auth/trading-mode", json=correct_request, headers=admin_headers)
-
-        # レート制限によるロックアウト（429）または環境制限（403）
-        assert response.status_code in [403, 422, 429]  # 422も許容
-
-        # 429の場合はレート制限メッセージを確認
-        if response.status_code == 429:
-            error_detail = response.json().get("detail", "")
-            assert any(keyword in error_detail for keyword in ["制限", "時間", "多すぎ"])
+        # レート制限メッセージを確認
+        error_detail = response.json().get("detail", "")
+        assert any(keyword in error_detail for keyword in ["制限", "時間", "3回"])
 
 
 class TestRateLimitSecurity(TestTradingModeRateLimiting):

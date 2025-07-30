@@ -69,9 +69,7 @@ async def test_basic_data_collection():
 
             # Supabaseへの保存テスト
             print("💾 Supabaseへの保存をテスト中...")
-            await collector._save_ohlcv_to_supabase(
-                symbol=test_symbol, timeframe=test_timeframe, ohlcv_data=ohlcv_data
-            )
+            await collector._save_ohlcv_to_supabase(symbol=test_symbol, timeframe=test_timeframe, ohlcv_data=ohlcv_data)
             print("✅ Supabaseへの保存完了")
 
         print("\n🎉 基本的なデータ収集テスト完了")
@@ -100,15 +98,11 @@ async def test_batch_collection():
         test_symbols = ["BTC/USDT", "ETH/USDT"]
         test_timeframes = [TimeFrame.HOUR_1, TimeFrame.HOUR_4]
 
-        print(
-            f"📊 {len(test_symbols)}シンボル × {len(test_timeframes)}タイムフレームでバッチ収集"
-        )
+        print(f"📊 {len(test_symbols)}シンボル × {len(test_timeframes)}タイムフレームでバッチ収集")
 
         since = datetime.now(timezone.utc) - timedelta(hours=12)
 
-        results = await collector.collect_batch_ohlcv(
-            symbols=test_symbols, timeframes=test_timeframes, since=since
-        )
+        results = await collector.collect_batch_ohlcv(symbols=test_symbols, timeframes=test_timeframes, since=since)
 
         print("✅ バッチ収集完了")
 
@@ -144,9 +138,7 @@ async def test_error_handling():
         print("📊 存在しないシンボルでエラーハンドリングをテスト")
 
         try:
-            await collector.collect_ohlcv(
-                symbol="INVALID/PAIR", timeframe=TimeFrame.HOUR_1, limit=1
-            )
+            await collector.collect_ohlcv(symbol="INVALID/PAIR", timeframe=TimeFrame.HOUR_1, limit=1)
             print("❌ エラーが発生しなかった（想定外）")
             return False
 

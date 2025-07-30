@@ -1,4 +1,5 @@
 import logging
+import os
 from typing import Dict, List, Optional, Type
 
 from src.backend.core import config
@@ -66,9 +67,11 @@ class ExchangeFactory(AbstractAdapterFactory):
             raise ValueError(f"Invalid trading mode: {trading_mode}. Must be 'live' or 'paper'")
 
         # 非本番環境でのライブトレーディング禁止
-        if settings.ENVIRONMENT.lower() in ["development", "dev", "staging", "test"]:
+        # テスト時の環境変数パッチに対応するため、os.environから直接読み取る
+        current_environment = os.environ.get("ENVIRONMENT", settings.ENVIRONMENT).lower()
+        if current_environment in ["development", "dev", "staging", "test"]:
             raise ValueError(
-                f"Live trading is not allowed in {settings.ENVIRONMENT} environment. "
+                f"Live trading is not allowed in {current_environment} environment. "
                 f"Use 'paper' mode for non-production environments."
             )
 
@@ -125,11 +128,9 @@ class ExchangeFactory(AbstractAdapterFactory):
 
         # Paper Trading専用設定
         # CI環境またはテスト環境では常にSQLiteを使用
-        import os
-
-        environment = settings.ENVIRONMENT.lower() if hasattr(settings, "ENVIRONMENT") else "test"
+        current_environment = os.environ.get("ENVIRONMENT", settings.ENVIRONMENT).lower()
         is_ci = os.environ.get("CI") == "true"
-        is_test_env = environment in ["test", "ci", "testing", "development", "dev"]
+        is_test_env = current_environment in ["test", "ci", "testing", "development", "dev"]
 
         if is_ci or is_test_env:
             default_db_url = "sqlite:///:memory:"

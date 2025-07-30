@@ -615,10 +615,39 @@ class DatabaseManager:
     """データベース管理クラス"""
 
     def __init__(self, database_url: str):
-        from sqlalchemy import create_engine
+        from sqlalchemy import create_engine, event
         from sqlalchemy.orm import sessionmaker
 
-        self.engine = create_engine(database_url, echo=False)
+        # SQLiteの同時実行制御を改善する設定
+        engine_kwargs = {"echo": False}
+
+        if "sqlite" in database_url:
+            # SQLiteの場合、WALモードとタイムアウト設定を追加
+            engine_kwargs.update(
+                {
+                    "pool_timeout": 20,
+                    "pool_recycle": -1,
+                    "pool_pre_ping": True,
+                    "connect_args": {"timeout": 20, "check_same_thread": False},
+                }
+            )
+
+        self.engine = create_engine(database_url, **engine_kwargs)
+
+        # SQLiteの場合、WALモードを有効化
+        if "sqlite" in database_url:
+
+            @event.listens_for(self.engine, "connect")
+            def set_sqlite_pragma(dbapi_connection, connection_record):
+                cursor = dbapi_connection.cursor()
+                # WALモードで同時読み書きを改善
+                cursor.execute("PRAGMA journal_mode=WAL")
+                # 書き込み同期を改善
+                cursor.execute("PRAGMA synchronous=NORMAL")
+                # ビジー時のタイムアウト設定
+                cursor.execute("PRAGMA busy_timeout=30000")
+                cursor.close()
+
         self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
 
     def create_tables(self):
