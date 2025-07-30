@@ -68,13 +68,45 @@ async def get_current_user(
 ) -> Dict[str, Any]:
     """現在のユーザーを取得
 
-    テスト環境では固定ユーザーを返し、
+    テスト環境ではJWTトークンをデコードして実ユーザーを返し、
     本番環境では個人用途のため固定ユーザーを返す
     """
     import os
 
-    # テスト環境の場合、統一された固定ユーザーを返す（conftest.pyのモックと一致）
+    # テスト環境でもJWTトークンを検証する（CSRF分離テスト用）
     if os.getenv("PYTEST_CURRENT_TEST") is not None or os.getenv("ENVIRONMENT") in ["test", "ci", "testing"]:
+        # JWTトークンが提供されている場合は実際にデコード
+        if token:
+            test_token = get_token_from_request(request, token)
+            if test_token:
+                # Bearerプレフィックスを除去
+                if test_token.startswith("Bearer "):
+                    test_token = test_token.replace("Bearer ", "")
+
+                try:
+                    # JWTトークンをデコード
+                    payload = decode_token(test_token)
+
+                    # トークンからユーザー情報を構築
+                    user_id = payload.get("sub")
+                    role = payload.get("role", "admin")
+
+                    # ユーザーIDから他の情報を推定
+                    username = f"test-user-{user_id[-8:]}" if user_id else "test-user"
+
+                    return {
+                        "id": user_id,
+                        "username": username,
+                        "email": f"{username}@test.local",
+                        "role": role,
+                        "is_active": True,
+                        "created_at": "2024-01-01T00:00:00Z",
+                    }
+                except Exception:
+                    # JWTデコードが失敗した場合はデフォルトを返す
+                    pass
+
+        # JWTトークンがない場合やデコードに失敗した場合のデフォルト
         return {
             "id": "personal-user",
             "username": "personal-bot-user",

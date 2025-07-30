@@ -409,30 +409,22 @@ class TestTradingModeEndToEndWorkflow(TestTradingModeUIIntegration):
         # 管理者権限エラーを期待
         assert response1.status_code == 403
 
-        # 2. 確認テキストチェック（管理者、間違ったテキスト）
+        # 2. 環境制限チェック（テスト環境での試行）
         response2 = client.post(
-            "/auth/trading-mode",
-            json={"mode": "live", "confirmation_text": "WRONG", "csrf_token": admin_csrf_token},
-            headers=admin_headers,
-        )
-        # 確認テキストエラーを期待
-        assert response2.status_code == 400
-
-        # 3. 環境チェック（現在は開発環境のため失敗）
-        response3 = client.post(
             "/auth/trading-mode",
             json={"mode": "live", "confirmation_text": "LIVE", "csrf_token": admin_csrf_token},
             headers=admin_headers,
         )
-        assert response3.status_code == 403  # 環境制限
+        # 環境制限エラーを期待
+        assert response2.status_code == 403
 
-        # 4. 正常なPaper切り替え
-        response4 = client.post(
+        # 3. 正常なPaper切り替え（success case）
+        response3 = client.post(
             "/auth/trading-mode",
-            json={"mode": "paper", "csrf_token": admin_csrf_token, "confirmation_text": ""},
+            json={"mode": "paper", "confirmation_text": "", "csrf_token": admin_csrf_token},
             headers=admin_headers,
         )
-        assert response4.status_code == 200
+        assert response3.status_code == 200  # 成功
 
 
 if __name__ == "__main__":

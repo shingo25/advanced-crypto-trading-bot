@@ -492,31 +492,27 @@ def mock_paper_trading_adapter(monkeypatch):
 def mock_auth_dependency(monkeypatch, test_user):
     """Mock authentication dependency for all tests"""
 
-    async def mock_get_current_user(*args, **kwargs):
-        # For tests that expect personal-bot-user (like test_auth_security.py)
-        # Return the expected fixed user for backward compatibility
-        return {
-            "id": "personal-user",
-            "username": "personal-bot-user",
-            "email": "user@personal-bot.local",
-            "role": "admin",
-            "is_active": True,
-            "created_at": "2024-01-01T00:00:00Z",
-        }
+    # このモックは無効化し、実際のJWT認証を使用する
+    # CSRFテストなどでユーザー分離が必要なため
+    return None
 
-    # Mock in multiple places to ensure coverage
+
+@pytest.fixture(autouse=True)
+def reset_auth_state():
+    """各テスト前にauth状態をリセット（CSRFトークン、レート制限等）"""
     try:
-        from src.backend.api import auth
+        from src.backend.api.auth import reset_test_state
 
-        monkeypatch.setattr(auth, "get_current_user", mock_get_current_user)
+        reset_test_state()
     except ImportError:
         pass
 
-    try:
-        from src.backend.core import security
+    yield
 
-        monkeypatch.setattr(security, "get_current_user", mock_get_current_user)
+    # テスト後もクリーンアップ
+    try:
+        from src.backend.api.auth import reset_test_state
+
+        reset_test_state()
     except ImportError:
         pass
-
-    return mock_get_current_user

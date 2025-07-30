@@ -106,41 +106,80 @@ def record_trading_mode_success(user_id: str) -> None:
 
 
 def generate_csrf_token(user_id: str) -> str:
-    """ユーザー専用のCSRFトークンを生成"""
+    """ユーザー専用のCSRFトークンを生成（強化版）"""
+    # ユーザーIDの正規化と検証
+    normalized_user_id = str(user_id).strip()
+    if not normalized_user_id:
+        raise ValueError(f"Invalid user_id for CSRF token generation: {user_id}")
+
+    # 古いトークンをクリーンアップ
+    cleanup_expired_csrf_tokens()
+
+    # 既存のトークンがある場合は警告
+    if normalized_user_id in _csrf_tokens:
+        logger.warning(f"CSRF: Overwriting existing token for user {normalized_user_id}")
+
+    # 新しいトークンを生成（より強力な32バイト）
     token = secrets.token_urlsafe(32)
     current_time = time.time()
 
-    _csrf_tokens[user_id] = {
+    _csrf_tokens[normalized_user_id] = {
         "token": token,
         "created_at": current_time,
         "expires_at": current_time + 3600,  # 1時間有効
+        "user_id": normalized_user_id,  # 追加検証用
     }
 
-    logger.info(f"CSRF token generated for user {user_id}")
+    logger.info(
+        f"CSRF token generated for user {normalized_user_id}, expires at: {datetime.fromtimestamp(current_time + 3600).isoformat()}"
+    )
     return token
 
 
 def verify_csrf_token(user_id: str, provided_token: str) -> bool:
-    """CSRFトークンを検証"""
-    if user_id not in _csrf_tokens:
-        logger.warning(f"CSRF: No token found for user {user_id}")
+    """CSRFトークンを検証（強化版）"""
+    logger.info(f"CSRF: Starting verification for user {user_id}")
+
+    # 空トークンチェック
+    if not provided_token or not provided_token.strip():
+        logger.warning(f"CSRF: Empty token provided for user {user_id}")
         return False
 
-    token_data = _csrf_tokens[user_id]
+    # ユーザーIDの正規化
+    normalized_user_id = str(user_id).strip()
+    if not normalized_user_id:
+        logger.warning(f"CSRF: Invalid user_id: {user_id}")
+        return False
+
+    # 期限切れトークンをクリーンアップ
+    cleanup_expired_csrf_tokens()
+
+    if normalized_user_id not in _csrf_tokens:
+        logger.warning(f"CSRF: No token found for user {normalized_user_id}")
+        logger.info(f"CSRF: Available users in storage: {list(_csrf_tokens.keys())}")
+        return False
+
+    token_data = _csrf_tokens[normalized_user_id]
     current_time = time.time()
 
-    # トークン期限切れチェック
+    # トークン期限切れチェック（二重確認）
     if current_time > token_data["expires_at"]:
-        logger.warning(f"CSRF: Token expired for user {user_id}")
-        del _csrf_tokens[user_id]
+        logger.warning(
+            f"CSRF: Token expired for user {normalized_user_id} (expired at: {token_data['expires_at']}, current: {current_time})"
+        )
+        del _csrf_tokens[normalized_user_id]
         return False
 
-    # トークン一致チェック
-    if not secrets.compare_digest(token_data["token"], provided_token):
-        logger.warning(f"CSRF: Token mismatch for user {user_id}")
+    # トークン一致チェック（時間安全な比較）
+    stored_token = token_data["token"]
+    if not secrets.compare_digest(stored_token, provided_token.strip()):
+        logger.warning(f"CSRF: Token mismatch for user {normalized_user_id}")
+        logger.debug(
+            f"CSRF: Expected token length: {len(stored_token)}, provided length: {len(provided_token.strip())}"
+        )
         return False
 
-    logger.info(f"CSRF: Token verified for user {user_id}")
+    logger.info(f"CSRF: Token verified successfully for user {normalized_user_id}")
     return True
 
 
@@ -159,6 +198,29 @@ def cleanup_expired_csrf_tokens() -> None:
 
     if expired_users:
         logger.info(f"CSRF: Cleaned up {len(expired_users)} expired tokens")
+
+
+def clear_all_csrf_tokens() -> None:
+    """全てのCSRFトークンをクリア（テスト用）"""
+    global _csrf_tokens
+    token_count = len(_csrf_tokens)
+    _csrf_tokens.clear()
+    logger.info(f"CSRF: Cleared all {token_count} tokens")
+
+
+def clear_all_rate_limits() -> None:
+    """全てのレート制限をクリア（テスト用）"""
+    global _trading_mode_rate_limits
+    limit_count = len(_trading_mode_rate_limits)
+    _trading_mode_rate_limits.clear()
+    logger.info(f"Rate limit: Cleared all {limit_count} rate limit records")
+
+
+def reset_test_state() -> None:
+    """テスト状態をリセット（テスト間での状態初期化）"""
+    clear_all_csrf_tokens()
+    clear_all_rate_limits()
+    logger.info("Test state reset completed")
 
 
 def send_trading_mode_notification_email(user_email: str, user_name: str, mode: str, timestamp: str) -> bool:
@@ -473,29 +535,9 @@ async def set_trading_mode(
     user_id = current_user.get("id", current_user.get("username", "unknown"))
 
     try:
-        # CSRFトークン検証
-        if not verify_csrf_token(user_id, trading_request.csrf_token):
-            logger.warning(f"CSRF token validation failed for user {user_id}")
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="不正なリクエストです。ページを再読み込みして再試行してください。",
-            )
-
-        # レート制限チェック（Live切り替えの場合）
+        # Live Mode切り替えの厳格な検証（セキュリティ優先順序）
         if trading_request.mode == "live":
-            check_trading_mode_rate_limit(user_id, "live_switch")
-
-        # ログ記録（セキュリティ監査用）
-        logger.warning(
-            f"Trading mode change request: user={current_user['username']}, "
-            f"user_id={user_id}, from_mode=paper, to_mode={trading_request.mode}, "
-            f"confirmation_text='{trading_request.confirmation_text}', "
-            f"csrf_verified=True, timestamp={datetime.now().isoformat()}"
-        )
-
-        # Live Mode切り替えの厳格な検証
-        if trading_request.mode == "live":
-            # 1. 管理者権限チェック
+            # 1. 管理者権限チェック（最優先）
             if current_user.get("role") != "admin":
                 logger.warning(
                     f"Unauthorized live trading access attempt by user: {current_user['username']} "
@@ -505,7 +547,27 @@ async def set_trading_mode(
                     status_code=status.HTTP_403_FORBIDDEN, detail="Live Trading アクセスには管理者権限が必要です"
                 )
 
-            # 2. 確認テキスト検証
+            # 2. 環境制限チェック（二番目）
+            if settings.ENVIRONMENT.lower() in ["development", "dev", "staging", "test"]:
+                logger.error(
+                    f"Live trading blocked in {settings.ENVIRONMENT} environment for user: {current_user['username']}"
+                )
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f"Live Trading は {settings.ENVIRONMENT} 環境では利用できません",
+                )
+
+        # CSRFトークン検証（全てのリクエストに適用）
+        if not verify_csrf_token(user_id, trading_request.csrf_token):
+            logger.warning(f"CSRF token validation failed for user {user_id}")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="不正なリクエストです。ページを再読み込みして再試行してください。",
+            )
+
+        # Live Mode切り替えの追加検証
+        if trading_request.mode == "live":
+            # 3. 確認テキスト検証
             if trading_request.confirmation_text != "LIVE":
                 logger.warning(
                     f"Invalid confirmation text for live mode: {trading_request.confirmation_text} "
@@ -516,17 +578,20 @@ async def set_trading_mode(
                     detail="Live Trading確認のため 'LIVE' と正確に入力してください",
                 )
 
-            # 3. 環境制限チェック
-            if settings.ENVIRONMENT.lower() in ["development", "dev", "staging", "test"]:
-                logger.error(
-                    f"Live trading blocked in {settings.ENVIRONMENT} environment for user: {current_user['username']}"
-                )
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail=f"Live Trading は {settings.ENVIRONMENT} 環境では利用できません",
-                )
+            # 4. レート制限チェック（最後に実行）
+            check_trading_mode_rate_limit(user_id, "live_switch")
 
-            # 4. ExchangeFactory経由での検証
+        # ログ記録（セキュリティ監査用）
+        logger.warning(
+            f"Trading mode change request: user={current_user['username']}, "
+            f"user_id={user_id}, from_mode=paper, to_mode={trading_request.mode}, "
+            f"confirmation_text='{trading_request.confirmation_text}', "
+            f"csrf_verified=True, timestamp={datetime.now().isoformat()}"
+        )
+
+        # Live Mode切り替えの最終検証
+        if trading_request.mode == "live":
+            # 5. ExchangeFactory経由での検証
             try:
                 factory = ExchangeFactory()
                 # Liveモード切り替えテスト（実際の切り替えは行わない）
