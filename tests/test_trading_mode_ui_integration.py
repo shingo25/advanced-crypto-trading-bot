@@ -415,7 +415,7 @@ class TestTradingModeEndToEndWorkflow(TestTradingModeUIIntegration):
             json={"mode": "live", "confirmation_text": "LIVE", "csrf_token": admin_csrf_token},
             headers=admin_headers,
         )
-        # 環境制限エラーを期待
+        # 環境制限エラーを期待（セキュリティ検証順序により最初にチェックされる）
         assert response2.status_code == 403
 
         # 3. 正常なPaper切り替え（success case）

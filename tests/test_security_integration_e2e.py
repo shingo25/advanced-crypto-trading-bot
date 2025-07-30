@@ -67,9 +67,11 @@ class TestAuthenticationAuthorizationFlow(TestSecurityIntegrationE2E):
         response = self.client.get("/auth/me", headers=admin_headers)
         assert response.status_code == 200
 
-        # 現在の実装では認証が無効化されているため、固定ユーザーが返される
+        # JWT認証が有効化されているため、トークンから動的に生成されたユーザー名が返される
         data = response.json()
-        assert data["username"] == "personal-bot-user"
+        # ユーザーIDの末尾8文字から生成されたユーザー名をチェック
+        assert data["username"].startswith("test-user-")
+        assert len(data["username"]) == len("test-user-") + 8  # "test-user-" + 8文字
         assert data["role"] == "admin"
 
     def test_token_validation_across_services(self):
@@ -135,8 +137,11 @@ class TestDataIsolationIntegration(TestSecurityIntegrationE2E):
         data1 = response1.json()
         data2 = response2.json()
 
-        # 現在は同じ固定ユーザーが返される
-        assert data1["username"] == data2["username"] == "personal-bot-user"
+        # JWTトークンから生成された異なるユーザー名が返される
+        assert data1["username"].startswith("test-user-")
+        assert data2["username"].startswith("test-user-")
+        # 異なるユーザーIDから生成されているため、ユーザー名も異なる
+        assert data1["username"] != data2["username"]
 
     @patch_database_manager_for_tests()
     def test_paper_live_data_isolation(self):

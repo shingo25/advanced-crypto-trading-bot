@@ -183,8 +183,9 @@ class TestAPISecurityEndpoints:
         response = self.client.get("/auth/me")
         # 現在の実装では認証無効化されているため200が返される
         assert response.status_code == status.HTTP_200_OK
-        # 固定ユーザー情報が返されることを確認
+        # JWT認証無効時はデフォルトユーザー情報が返されることを確認
         data = response.json()
+        # トークンなしの場合はデフォルトの固定ユーザーが返される
         assert data["username"] == "personal-bot-user"
         assert data["role"] == "admin"
 
@@ -192,9 +193,10 @@ class TestAPISecurityEndpoints:
         """無効なトークンでの保護されたエンドポイントアクセステスト"""
         headers = {"Authorization": "Bearer invalid_token"}
         response = self.client.get("/auth/me", headers=headers)
-        # 現在の実装では認証無効化されているため、無効なトークンでも固定ユーザーを返す
+        # JWT認証有効化により、無効なトークンでもデフォルトユーザーを返す
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
+        # 無効トークンの場合はデフォルト固定ユーザーが返される
         assert data["username"] == "personal-bot-user"
 
     @patch("src.backend.api.auth.authenticate_user")
