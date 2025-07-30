@@ -3,8 +3,9 @@
 SQLAlchemyでSupabase接続をテストするスクリプト
 """
 import os
-from sqlalchemy import create_engine, text
+
 from dotenv import load_dotenv
+from sqlalchemy import create_engine, text
 
 
 def test_supabase_connection():
@@ -29,9 +30,7 @@ def test_supabase_connection():
     # Direct connection (より確実)
     db_url = f"postgresql://postgres:{supabase_service_key}@db.{project_id}.supabase.co:5432/postgres"
 
-    print(
-        f"🔗 接続URL: postgresql://postgres:***@db.{project_id}.supabase.co:5432/postgres"
-    )
+    print(f"🔗 接続URL: postgresql://postgres:***@db.{project_id}.supabase.co:5432/postgres")
 
     try:
         # SQLAlchemyエンジンを作成
@@ -40,9 +39,7 @@ def test_supabase_connection():
         # 接続テスト
         with engine.connect() as connection:
             # 簡単なクエリを実行
-            result = connection.execute(
-                text("SELECT current_database(), current_user, version()")
-            )
+            result = connection.execute(text("SELECT current_database(), current_user, version()"))
             row = result.fetchone()
 
             print("✅ Supabase接続成功！")

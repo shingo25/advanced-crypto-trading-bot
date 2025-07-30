@@ -2,8 +2,8 @@
 """
 Phase 1 の基本的なテスト（依存関係を最小限に）
 """
-import sys
 import os
+import sys
 from pathlib import Path
 
 # テスト用のパスを追加

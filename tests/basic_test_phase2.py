@@ -2,8 +2,8 @@
 """
 Phase 2 の基本的なテスト（バックテスト基盤）
 """
-import sys
 import os
+import sys
 from pathlib import Path
 
 # テスト用のパスを追加

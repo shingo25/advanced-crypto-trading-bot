@@ -439,7 +439,7 @@ class PaperTradingAdapter(AbstractTradingAdapter):
 
     def _format_order_response(self, order: Order) -> Dict[str, Any]:
         """注文レスポンスを整形"""
-        return {
+        response = {
             "id": order.exchange_order_id,
             "symbol": order.symbol,
             "type": order.order_type.value,
@@ -455,6 +455,12 @@ class PaperTradingAdapter(AbstractTradingAdapter):
             "datetime": order.submitted_at.isoformat() if order.submitted_at else None,
             "info": {"paper_trading": True, "user_id": self.user_id},
         }
+
+        # エラーメッセージがある場合は追加
+        if order.error_message:
+            response["info"]["error"] = order.error_message
+
+        return response
 
     # AbstractExchangeAdapterの抽象メソッド実装
     async def connect(self) -> bool:

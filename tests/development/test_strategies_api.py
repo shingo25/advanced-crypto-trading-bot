@@ -2,17 +2,19 @@
 """
 戦略APIのSupabase SDK対応をテストするスクリプト
 """
-import sys
 import os
+import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from src.backend.core.security import authenticate_user
-from src.backend.models.trading import get_strategies_model
-from src.backend.core.config import settings
-from dotenv import load_dotenv
 import asyncio
 import uuid
+
+from dotenv import load_dotenv
+
+from src.backend.core.config import settings
+from src.backend.core.security import authenticate_user
+from src.backend.models.trading import get_strategies_model
 
 
 async def setup_test_user():
@@ -121,12 +123,13 @@ async def test_api_simulation():
 
         # strategies.pyの関数を直接呼び出してテスト
         from src.backend.api.strategies import (
-            get_strategies,
+            StrategyCreate,
+            StrategyUpdate,
             create_strategy,
+            get_strategies,
             get_strategy,
             update_strategy,
         )
-        from src.backend.api.strategies import StrategyCreate, StrategyUpdate
 
         # 1. 戦略一覧取得のシミュレーション
         print("   📋 GET /strategies/ のシミュレーション...")
@@ -162,13 +165,9 @@ async def test_api_simulation():
 
             # 4. 戦略更新のシミュレーション
             print("   📝 PATCH /strategies/{strategy_id} のシミュレーション...")
-            update_data = StrategyUpdate(
-                description="APIで更新されたテスト戦略", is_active=True
-            )
+            update_data = StrategyUpdate(description="APIで更新されたテスト戦略", is_active=True)
 
-            updated_strategy = await update_strategy(
-                strategy_id, update_data, current_user
-            )
+            updated_strategy = await update_strategy(strategy_id, update_data, current_user)
             if updated_strategy and updated_strategy.is_active:
                 print("   ✅ 戦略更新成功")
             else:
@@ -216,9 +215,7 @@ async def main():
 
     if passed == total:
         print("🎉 Phase1-1.5 戦略API更新が完了しました！")
-        print(
-            "🔄 次のステップ: trades.py と backtest.py の更新、またはAPIサーバーデプロイ"
-        )
+        print("🔄 次のステップ: trades.py と backtest.py の更新、またはAPIサーバーデプロイ")
         return True
     else:
         print("⚠️ 一部のテストで問題が発生しました")

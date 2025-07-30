@@ -1,6 +1,7 @@
 import os
-from supabase import create_client, Client
+
 from dotenv import load_dotenv
+from supabase import Client, create_client
 
 # .envファイルから環境変数を読み込む
 load_dotenv()

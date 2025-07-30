@@ -1,17 +1,18 @@
 """高度なリスク管理システムのテスト"""
 
-import pytest
-import numpy as np
 from datetime import datetime
+
+import numpy as np
+import pytest
 
 from src.backend.risk.advanced_risk_manager import (
     AdvancedRiskManager,
-    RiskLevel,
     AlertType,
     RiskAlert,
-    VaRResult,
-    StressTestResult,
+    RiskLevel,
     RiskMetrics,
+    StressTestResult,
+    VaRResult,
 )
 
 
@@ -167,13 +168,9 @@ class TestAdvancedRiskManager:
         assert var_result.expected_shortfall_95 == 0
         assert var_result.expected_shortfall_99 == 0
 
-    def test_perform_stress_test_market_crash(
-        self, risk_manager, sample_portfolio_positions
-    ):
+    def test_perform_stress_test_market_crash(self, risk_manager, sample_portfolio_positions):
         """ストレステスト（市場クラッシュ）のテスト"""
-        stress_result = risk_manager.perform_stress_test(
-            sample_portfolio_positions, "market_crash"
-        )
+        stress_result = risk_manager.perform_stress_test(sample_portfolio_positions, "market_crash")
 
         assert isinstance(stress_result, StressTestResult)
         assert stress_result.scenario_name == "market_crash"
@@ -187,22 +184,16 @@ class TestAdvancedRiskManager:
             assert strategy in stress_result.strategy_impacts
             assert stress_result.strategy_impacts[strategy] < 0  # 負の影響
 
-    def test_perform_stress_test_flash_crash(
-        self, risk_manager, sample_portfolio_positions
-    ):
+    def test_perform_stress_test_flash_crash(self, risk_manager, sample_portfolio_positions):
         """ストレステスト（フラッシュクラッシュ）のテスト"""
-        stress_result = risk_manager.perform_stress_test(
-            sample_portfolio_positions, "flash_crash"
-        )
+        stress_result = risk_manager.perform_stress_test(sample_portfolio_positions, "flash_crash")
 
         assert stress_result.scenario_name == "flash_crash"
         assert stress_result.recovery_time_estimate < 10  # 短期回復
 
     def test_calculate_correlation_matrix(self, risk_manager, sample_strategy_returns):
         """相関行列計算のテスト"""
-        correlation_matrix = risk_manager.calculate_correlation_matrix(
-            sample_strategy_returns
-        )
+        correlation_matrix = risk_manager.calculate_correlation_matrix(sample_strategy_returns)
 
         assert not correlation_matrix.empty
         assert correlation_matrix.shape == (3, 3)  # 3戦略なので3x3
@@ -224,9 +215,7 @@ class TestAdvancedRiskManager:
             "Strategy_B": [0.02, 0.001],
         }
 
-        correlation_matrix = risk_manager.calculate_correlation_matrix(
-            insufficient_data
-        )
+        correlation_matrix = risk_manager.calculate_correlation_matrix(insufficient_data)
         assert correlation_matrix.empty  # データ不足時は空のDataFrame
 
     def test_calculate_portfolio_risk_metrics(
@@ -325,9 +314,7 @@ class TestAdvancedRiskManager:
         assert AlertType.VOLATILITY in alert_types
 
         # クリティカルレベルのアラート確認
-        critical_alerts = [
-            alert for alert in alerts if alert.risk_level == RiskLevel.CRITICAL
-        ]
+        critical_alerts = [alert for alert in alerts if alert.risk_level == RiskLevel.CRITICAL]
         assert len(critical_alerts) >= 1  # VaR 99%違反はクリティカル
 
     def test_generate_risk_report(
@@ -341,9 +328,7 @@ class TestAdvancedRiskManager:
         # 履歴データを設定
         risk_manager.returns_history = sample_returns
 
-        report = risk_manager.generate_risk_report(
-            sample_returns, sample_strategy_returns, sample_portfolio_positions
-        )
+        report = risk_manager.generate_risk_report(sample_returns, sample_strategy_returns, sample_portfolio_positions)
 
         # レポート構造の確認
         assert "timestamp" in report
@@ -470,26 +455,18 @@ class TestAdvancedRiskManager:
         # 高リスクアラート
         alerts = [
             RiskAlert(AlertType.VAR_BREACH, RiskLevel.HIGH, "High VaR"),
-            RiskAlert(
-                AlertType.CONCENTRATION, RiskLevel.CRITICAL, "High concentration"
-            ),
+            RiskAlert(AlertType.CONCENTRATION, RiskLevel.CRITICAL, "High concentration"),
         ]
 
-        recommendations = risk_manager._generate_risk_recommendations(
-            problematic_metrics, alerts
-        )
+        recommendations = risk_manager._generate_risk_recommendations(problematic_metrics, alerts)
 
         assert isinstance(recommendations, list)
         assert len(recommendations) > 0
 
         # 具体的な推奨事項の確認
         recommendation_text = " ".join(recommendations).lower()
-        assert (
-            "diversify" in recommendation_text or "concentration" in recommendation_text
-        )
-        assert (
-            "correlation" in recommendation_text or "volatility" in recommendation_text
-        )
+        assert "diversify" in recommendation_text or "concentration" in recommendation_text
+        assert "correlation" in recommendation_text or "volatility" in recommendation_text
 
 
 class TestAdvancedRiskManagerIntegration:
@@ -534,9 +511,7 @@ class TestAdvancedRiskManagerIntegration:
         positions = {"RSI": 0.4, "MACD": 0.35, "BB": 0.25}
 
         # リスクメトリクス計算
-        risk_metrics = risk_manager.calculate_portfolio_risk_metrics(
-            portfolio_returns, strategy_returns, positions
-        )
+        risk_metrics = risk_manager.calculate_portfolio_risk_metrics(portfolio_returns, strategy_returns, positions)
 
         # リスク制限チェック
         alerts = risk_manager.check_risk_limits(risk_metrics, positions)
@@ -551,14 +526,10 @@ class TestAdvancedRiskManagerIntegration:
         correlation_matrix = risk_manager.calculate_correlation_matrix(strategy_returns)
 
         # 動的ポジションサイジング
-        adjusted_size = risk_manager.get_dynamic_position_sizing(
-            "RSI", 0.10, 0.18, 0.02
-        )
+        adjusted_size = risk_manager.get_dynamic_position_sizing("RSI", 0.10, 0.18, 0.02)
 
         # 包括的レポート生成
-        report = risk_manager.generate_risk_report(
-            portfolio_returns, strategy_returns, positions
-        )
+        report = risk_manager.generate_risk_report(portfolio_returns, strategy_returns, positions)
 
         # 結果の妥当性確認
         assert isinstance(risk_metrics, RiskMetrics)

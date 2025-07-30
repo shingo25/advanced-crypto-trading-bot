@@ -1,9 +1,10 @@
 """データパイプライン機能の単体テスト"""
 
-import pytest
-from unittest.mock import Mock, AsyncMock, patch
 from datetime import datetime, timezone
 from decimal import Decimal
+from unittest.mock import AsyncMock, Mock, patch
+
+import pytest
 
 from src.backend.data_pipeline.collector import DataCollector
 from src.backend.exchanges.base import OHLCV, TimeFrame
@@ -53,9 +54,7 @@ class TestDataCollector:
         collector.adapter.fetch_ohlcv.return_value = sample_ohlcv_data
 
         # テスト実行
-        result = await collector.collect_ohlcv(
-            symbol="BTC/USDT", timeframe=TimeFrame.HOUR_1, limit=1000
-        )
+        result = await collector.collect_ohlcv(symbol="BTC/USDT", timeframe=TimeFrame.HOUR_1, limit=1000)
 
         # 検証
         assert len(result) == 2
@@ -88,9 +87,7 @@ class TestDataCollector:
 
     @pytest.mark.asyncio
     @patch("src.backend.data_pipeline.collector.get_supabase_client")
-    async def test_save_ohlcv_to_supabase_success(
-        self, mock_supabase, collector, sample_ohlcv_data
-    ):
+    async def test_save_ohlcv_to_supabase_success(self, mock_supabase, collector, sample_ohlcv_data):
         """Supabaseへのデータ保存成功テスト"""
         # Supabaseクライアントのモック
         mock_client = Mock()
@@ -123,9 +120,7 @@ class TestDataCollector:
 
     @pytest.mark.asyncio
     @patch("src.backend.data_pipeline.collector.get_supabase_client")
-    async def test_save_ohlcv_to_supabase_failure(
-        self, mock_supabase, collector, sample_ohlcv_data
-    ):
+    async def test_save_ohlcv_to_supabase_failure(self, mock_supabase, collector, sample_ohlcv_data):
         """Supabaseへのデータ保存失敗テスト"""
         # Supabaseクライアントでエラーを発生させる
         mock_supabase.side_effect = Exception("Supabase connection error")
@@ -170,9 +165,7 @@ class TestPriceDataModel:
             volume=123.456,
         )
 
-        price_data = PriceData.from_ohlcv(
-            exchange="binance", symbol="BTCUSDT", timeframe="1h", ohlcv_data=ohlcv
-        )
+        price_data = PriceData.from_ohlcv(exchange="binance", symbol="BTCUSDT", timeframe="1h", ohlcv_data=ohlcv)
 
         assert price_data.exchange == "binance"
         assert price_data.symbol == "BTCUSDT"

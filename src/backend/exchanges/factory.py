@@ -124,10 +124,22 @@ class ExchangeFactory(AbstractAdapterFactory):
             raise ValueError(f"Unsupported exchange: {real_exchange}")
 
         # Paper Trading専用設定
+        # CI環境またはテスト環境では常にSQLiteを使用
+        import os
+
+        environment = settings.ENVIRONMENT.lower() if hasattr(settings, "ENVIRONMENT") else "test"
+        is_ci = os.environ.get("CI") == "true"
+        is_test_env = environment in ["test", "ci", "testing", "development", "dev"]
+
+        if is_ci or is_test_env:
+            default_db_url = "sqlite:///:memory:"
+        else:
+            default_db_url = "postgresql://localhost/trading_bot_paper"
+
         safe_config = {
             "real_exchange": real_exchange,
             "user_id": user_id,
-            "database_url": paper_config.get("database_url", "postgresql://localhost/trading_bot_paper"),
+            "database_url": paper_config.get("database_url", default_db_url),
             "default_setting": paper_config.get("default_setting", "beginner"),
             "fee_rates": paper_config.get("fee_rates", {"maker": 0.001, "taker": 0.001}),
             "execution_delay": paper_config.get("execution_delay", 0.1),

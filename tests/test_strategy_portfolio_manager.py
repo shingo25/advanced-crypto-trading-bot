@@ -1,18 +1,19 @@
 """戦略統合ポートフォリオマネージャーのテスト"""
 
-import pytest
-import numpy as np
 from datetime import datetime, timedelta
+
+import numpy as np
+import pytest
 
 from src.backend.portfolio.strategy_portfolio_manager import (
     AdvancedPortfolioManager,
-    StrategyStatus,
     PerformanceMetrics,
+    StrategyStatus,
     TradeRecord,
 )
 from src.backend.strategies.base import BaseStrategy, Signal
-from src.backend.strategies.implementations.rsi_strategy import RSIStrategy
 from src.backend.strategies.implementations.macd_strategy import MACDStrategy
+from src.backend.strategies.implementations.rsi_strategy import RSIStrategy
 
 
 class MockStrategy(BaseStrategy):
@@ -94,9 +95,7 @@ class TestAdvancedPortfolioManager:
         assert allocation.allocated_capital == 30000.0  # 100000 * 0.3
         assert allocation.status == StrategyStatus.ACTIVE
 
-    def test_add_strategy_validation(
-        self, portfolio_manager, mock_strategy1, mock_strategy2
-    ):
+    def test_add_strategy_validation(self, portfolio_manager, mock_strategy1, mock_strategy2):
         """戦略追加の検証テスト"""
         # 無効な配分重み（0以下）
         result = portfolio_manager.add_strategy(mock_strategy1, 0.0)
@@ -108,9 +107,7 @@ class TestAdvancedPortfolioManager:
 
         # 合計重みが1を超える場合
         portfolio_manager.add_strategy(mock_strategy1, 0.8)
-        result = portfolio_manager.add_strategy(
-            mock_strategy2, 0.5
-        )  # 0.8 + 0.5 = 1.3 > 1.0
+        result = portfolio_manager.add_strategy(mock_strategy2, 0.5)  # 0.8 + 0.5 = 1.3 > 1.0
         assert result is False
 
     def test_remove_strategy(self, portfolio_manager, mock_strategy1):
@@ -132,23 +129,17 @@ class TestAdvancedPortfolioManager:
         portfolio_manager.add_strategy(mock_strategy1, 0.3)
 
         # 状態をPAUSEDに変更
-        result = portfolio_manager.update_strategy_status(
-            "Mock Strategy 1", StrategyStatus.PAUSED
-        )
+        result = portfolio_manager.update_strategy_status("Mock Strategy 1", StrategyStatus.PAUSED)
         assert result is True
 
         allocation = portfolio_manager.strategy_allocations["Mock Strategy 1"]
         assert allocation.status == StrategyStatus.PAUSED
 
         # 存在しない戦略の状態更新
-        result = portfolio_manager.update_strategy_status(
-            "Nonexistent", StrategyStatus.ACTIVE
-        )
+        result = portfolio_manager.update_strategy_status("Nonexistent", StrategyStatus.ACTIVE)
         assert result is False
 
-    def test_process_market_data(
-        self, portfolio_manager, mock_strategy1, sample_market_data
-    ):
+    def test_process_market_data(self, portfolio_manager, mock_strategy1, sample_market_data):
         """市場データ処理のテスト"""
         # 戦略を追加
         portfolio_manager.add_strategy(mock_strategy1, 0.3)
@@ -184,9 +175,7 @@ class TestAdvancedPortfolioManager:
             price=45000,
         )
 
-        position_size = portfolio_manager._calculate_position_size(
-            "Mock Strategy 1", signal
-        )
+        position_size = portfolio_manager._calculate_position_size("Mock Strategy 1", signal)
 
         # 基本ポジションサイズ = 30000 * 0.8 = 24000
         # 最大ポジション制限 = 100000 * 0.1 = 10000
@@ -234,10 +223,7 @@ class TestAdvancedPortfolioManager:
         assert result is True
 
         # 制限を超えるポジションサイズ
-        max_position = (
-            portfolio_manager.current_capital
-            * portfolio_manager.risk_limits["max_position_size"]
-        )
+        max_position = portfolio_manager.current_capital * portfolio_manager.risk_limits["max_position_size"]
         result = portfolio_manager._check_risk_limits(signal, max_position * 2)
         assert result is False
 
@@ -272,9 +258,7 @@ class TestAdvancedPortfolioManager:
 
         assert isinstance(performance, PerformanceMetrics)
         assert performance.trades_count == 2
-        assert (
-            performance.total_return == (1000 - 500) / 100000
-        )  # total_pnl / initial_capital
+        assert performance.total_return == (1000 - 500) / 100000  # total_pnl / initial_capital
         assert performance.win_rate == 0.5  # 1勝1敗
 
     def test_calculate_strategy_performance(self, portfolio_manager):
@@ -327,9 +311,7 @@ class TestAdvancedPortfolioManager:
         assert performance_b.total_return == 500.0
         assert performance_b.win_rate == 1.0
 
-    def test_strategy_correlation_matrix(
-        self, portfolio_manager, mock_strategy1, mock_strategy2
-    ):
+    def test_strategy_correlation_matrix(self, portfolio_manager, mock_strategy1, mock_strategy2):
         """戦略間相関行列のテスト"""
         portfolio_manager.add_strategy(mock_strategy1, 0.4)
         portfolio_manager.add_strategy(mock_strategy2, 0.4)
@@ -373,9 +355,7 @@ class TestAdvancedPortfolioManager:
             assert "Mock Strategy 2" in correlation_matrix.columns
             assert correlation_matrix.shape == (2, 2)
 
-    def test_rebalance_strategies(
-        self, portfolio_manager, mock_strategy1, mock_strategy2
-    ):
+    def test_rebalance_strategies(self, portfolio_manager, mock_strategy1, mock_strategy2):
         """戦略リバランシングのテスト"""
         portfolio_manager.add_strategy(mock_strategy1, 0.5)
         portfolio_manager.add_strategy(mock_strategy2, 0.3)
@@ -460,9 +440,7 @@ class TestAdvancedPortfolioManager:
         assert strategy_concentration["concentration"] == 1.0  # 唯一の戦略なので100%
         assert strategy_concentration["risk_level"] == "high"  # 40%以上なので高リスク
 
-    def test_portfolio_optimization(
-        self, portfolio_manager, mock_strategy1, mock_strategy2
-    ):
+    def test_portfolio_optimization(self, portfolio_manager, mock_strategy1, mock_strategy2):
         """ポートフォリオ最適化のテスト"""
         portfolio_manager.add_strategy(mock_strategy1, 0.6)  # 高い配分
         portfolio_manager.add_strategy(mock_strategy2, 0.3)
@@ -509,16 +487,12 @@ class TestAdvancedPortfolioManager:
 
         # 集中リスクの警告があるはず（60%配分）
         risk_reductions = optimization["risk_reduction"]
-        concentration_warnings = [
-            r for r in risk_reductions if r["type"] == "concentration_risk"
-        ]
+        concentration_warnings = [r for r in risk_reductions if r["type"] == "concentration_risk"]
         assert len(concentration_warnings) > 0
 
         # 低勝率の警告があるはず（33% < 40%）
         performance_improvements = optimization["performance_improvement"]
-        low_win_rate_warnings = [
-            p for p in performance_improvements if p["type"] == "low_win_rate"
-        ]
+        low_win_rate_warnings = [p for p in performance_improvements if p["type"] == "low_win_rate"]
         assert len(low_win_rate_warnings) > 0
 
 

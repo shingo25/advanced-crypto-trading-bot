@@ -2,14 +2,15 @@
 """
 認証APIのSupabase SDK対応をテストするスクリプト
 """
-import sys
 import os
+import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from src.backend.core.database import init_db, get_user_by_username
-from src.backend.core.security import authenticate_user, get_password_hash
 from dotenv import load_dotenv
+
+from src.backend.core.database import get_user_by_username, init_db
+from src.backend.core.security import authenticate_user, get_password_hash
 
 
 def test_database_auth_functions():
@@ -26,9 +27,7 @@ def test_database_auth_functions():
             print(f"   ✅ 管理者ユーザー取得成功: {admin_user['username']}")
             print(f"   📊 ユーザーID: {admin_user['id']}")
             print(f"   📊 ロール: {admin_user['role']}")
-            print(
-                f"   📊 パスワードハッシュ: {'有り' if admin_user.get('password_hash') else '無し'}"
-            )
+            print(f"   📊 パスワードハッシュ: {'有り' if admin_user.get('password_hash') else '無し'}")
         else:
             print("   ⚠️ 管理者ユーザーが見つかりません")
 

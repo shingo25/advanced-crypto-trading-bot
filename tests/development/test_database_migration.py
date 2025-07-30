@@ -2,21 +2,23 @@
 """
 database.pyのSupabase SDK移植をテストするスクリプト
 """
-import sys
 import os
+import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+import uuid
+
+from dotenv import load_dotenv
+
 from src.backend.core.database import (
-    init_db,
-    get_db,
-    get_user_by_username,
-    get_user_by_id,
     create_user,
+    get_db,
+    get_user_by_id,
+    get_user_by_username,
+    init_db,
     update_user,
 )
-from dotenv import load_dotenv
-import uuid
 
 
 def test_database_initialization():
@@ -77,9 +79,7 @@ def test_user_operations():
                     print("   ⚠️ 作成したユーザーのID検索に失敗")
 
                 # 4. ユーザー更新テスト
-                updated_user = update_user(
-                    test_user_id, username=f"updated_{test_username}"
-                )
+                updated_user = update_user(test_user_id, username=f"updated_{test_username}")
                 if updated_user:
                     print(f"   ✅ ユーザー更新成功: {updated_user['username']}")
                 else:

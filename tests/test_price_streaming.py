@@ -4,9 +4,9 @@
 包括的価格ストリーミング機能の動作確認
 """
 
+import asyncio
 import os
 import sys
-import asyncio
 from pathlib import Path
 
 # プロジェクトルートをPythonパスに追加
@@ -89,7 +89,7 @@ async def test_message_broadcasting():
         print("\n🔍 Testing message broadcasting...")
 
         from src.backend.streaming.price_streamer import PriceData, TradeData
-        from src.backend.websocket.manager import WebSocketMessage, MessageType, ChannelType
+        from src.backend.websocket.manager import ChannelType, MessageType, WebSocketMessage
 
         # 価格データメッセージ
         sample_price = PriceData(
@@ -155,11 +155,7 @@ async def test_streaming_routes_import():
         routes = []
         for route in router.routes:
             if hasattr(route, "path"):
-                routes.append(
-                    f"{route.methods} {route.path}"
-                    if hasattr(route, "methods")
-                    else route.path
-                )
+                routes.append(f"{route.methods} {route.path}" if hasattr(route, "methods") else route.path)
 
         print(f"✅ Found {len(routes)} routes:")
         for route in routes[:8]:  # 最初の8つだけ表示
@@ -236,8 +232,8 @@ async def test_websocket_integration():
         print("\n🔍 Testing WebSocket integration...")
 
         # WebSocketマネージャーが利用可能か確認
-        from src.backend.websocket.manager import websocket_manager
         from src.backend.streaming.price_streamer import price_stream_manager
+        from src.backend.websocket.manager import websocket_manager
 
         print("✅ WebSocket manager available")
         print("✅ Price stream manager available")

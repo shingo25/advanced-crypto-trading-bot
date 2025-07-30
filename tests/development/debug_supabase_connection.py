@@ -3,8 +3,9 @@
 Supabase接続のデバッグスクリプト
 """
 import os
-from supabase import create_client, Client
+
 from dotenv import load_dotenv
+from supabase import Client, create_client
 
 
 def debug_supabase():
@@ -20,11 +21,7 @@ def debug_supabase():
 
     print(f"📍 SUPABASE_URL: {url}")
     print(f"🔑 ANON_KEY: {key[:20]}..." if key else "🔑 ANON_KEY: None")
-    print(
-        f"🔒 SERVICE_KEY: {service_key[:20]}..."
-        if service_key
-        else "🔒 SERVICE_KEY: None"
-    )
+    print(f"🔒 SERVICE_KEY: {service_key[:20]}..." if service_key else "🔒 SERVICE_KEY: None")
 
     try:
         # Supabase SDKで接続テスト

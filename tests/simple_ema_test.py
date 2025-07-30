@@ -3,10 +3,10 @@
 EMA戦略のシンプルなテスト
 外部パッケージに依存しないテスト
 """
-import sys
-import os
-from datetime import datetime, timezone
 import logging
+import os
+import sys
+from datetime import datetime, timezone
 
 # テスト用のパスを追加
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))

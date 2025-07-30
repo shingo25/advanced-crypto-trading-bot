@@ -3,11 +3,9 @@
 APIエンドポイントの構造をテストするため
 """
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-
 # テスト用の簡易化されたルーター
-from fastapi import APIRouter
+from fastapi import APIRouter, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 # テスト用のヘルスチェックルーター
 health_router = APIRouter()
@@ -61,9 +59,7 @@ async def test_performance_summary():
     return {"message": "Performance summary endpoint (test mode)"}
 
 
-app.include_router(
-    performance_router, prefix="/api/performance", tags=["test-performance"]
-)
+app.include_router(performance_router, prefix="/api/performance", tags=["test-performance"])
 
 
 @app.get("/")
