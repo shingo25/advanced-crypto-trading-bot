@@ -79,6 +79,122 @@ Content-Type: application/json
 }
 ```
 
+## 🏦 取引所エンドポイント
+
+### GET /api/exchanges
+
+対応取引所一覧
+
+**レスポンス**:
+
+```json
+{
+  "exchanges": [
+    {
+      "id": "binance",
+      "name": "Binance",
+      "enabled": true,
+      "supports_paper_trading": true,
+      "supports_live_trading": true,
+      "status": "connected"
+    },
+    {
+      "id": "bybit",
+      "name": "Bybit",
+      "enabled": true,
+      "supports_paper_trading": true,
+      "supports_live_trading": true,
+      "status": "connected"
+    },
+    {
+      "id": "bitget",
+      "name": "Bitget",
+      "enabled": true,
+      "supports_paper_trading": true,
+      "supports_live_trading": true,
+      "status": "connected"
+    },
+    {
+      "id": "hyperliquid",
+      "name": "Hyperliquid",
+      "enabled": true,
+      "supports_paper_trading": true,
+      "supports_live_trading": true,
+      "status": "connected"
+    },
+    {
+      "id": "backpack",
+      "name": "BackPack",
+      "enabled": true,
+      "supports_paper_trading": true,
+      "supports_live_trading": true,
+      "status": "connected"
+    }
+  ]
+}
+```
+
+## 🎯 Trading Mode エンドポイント
+
+### GET /api/trading-mode/status
+
+現在のトレーディングモード確認
+
+**レスポンス**:
+
+```json
+{
+  "mode": "paper", // "paper" or "live"
+  "exchange": "binance",
+  "can_switch_to_live": true,
+  "last_switched": "2025-01-15T10:30:00Z",
+  "rate_limit": {
+    "remaining_switches": 2,
+    "reset_time": "2025-01-15T11:00:00Z"
+  }
+}
+```
+
+### POST /api/trading-mode/switch
+
+トレーディングモード切り替え
+
+**リクエスト**:
+
+```json
+{
+  "mode": "live", // "paper" or "live"
+  "exchange": "binance",
+  "csrf_token": "csrf_token_here",
+  "confirmation_text": "LIVE TRADING ENABLED"
+}
+```
+
+**レスポンス**:
+
+```json
+{
+  "success": true,
+  "mode": "live",
+  "exchange": "binance",
+  "message": "Live trading mode enabled",
+  "switched_at": "2025-01-15T10:30:00Z"
+}
+```
+
+### GET /api/auth/csrf-token
+
+CSRF トークン取得
+
+**レスポンス**:
+
+```json
+{
+  "csrf_token": "csrf_token_value_here",
+  "expires_at": "2025-01-15T11:30:00Z"
+}
+```
+
 ## 💹 取引エンドポイント
 
 ### GET /api/trades
@@ -90,6 +206,7 @@ Content-Type: application/json
 - `limit` (optional): 件数制限 (default: 100)
 - `offset` (optional): オフセット (default: 0)
 - `symbol` (optional): 通貨ペアフィルター
+- `mode` (optional): "paper" or "live" (default: all)
 
 **レスポンス**:
 
@@ -104,7 +221,9 @@ Content-Type: application/json
       "price": "45000.00",
       "fee": "0.045",
       "timestamp": "2025-01-15T10:30:00Z",
-      "strategy": "ema_crossover"
+      "strategy": "ema_crossover",
+      "mode": "paper",
+      "exchange": "binance"
     }
   ],
   "total": 150,
@@ -114,7 +233,7 @@ Content-Type: application/json
 
 ### POST /api/trades
 
-新規取引実行 (ライブ取引)
+新規取引実行
 
 **リクエスト**:
 
@@ -124,7 +243,27 @@ Content-Type: application/json
   "side": "buy",
   "amount": "0.001",
   "type": "market", // market, limit
-  "price": "45000.00" // limit注文時のみ
+  "price": "45000.00", // limit注文時のみ
+  "mode": "paper", // "paper" or "live"
+  "exchange": "binance",
+  "csrf_token": "csrf_token_here" // Live取引時のみ必須
+}
+```
+
+**レスポンス**:
+
+```json
+{
+  "trade_id": "trade_123456",
+  "status": "executed",
+  "symbol": "BTCUSDT",
+  "side": "buy",
+  "amount": "0.001",
+  "executed_price": "45200.00",
+  "fee": "0.0452",
+  "mode": "paper",
+  "exchange": "binance",
+  "timestamp": "2025-01-15T10:30:00Z"
 }
 ```
 
@@ -316,6 +455,71 @@ OHLCV価格データ取得
 }
 ```
 
+## 🛡️ セキュリティエンドポイント
+
+### POST /api/security/validate-live-trading
+
+Live Trading セキュリティ検証
+
+**リクエスト**:
+
+```json
+{
+  "action": "switch_to_live",
+  "exchange": "binance",
+  "csrf_token": "csrf_token_here",
+  "confirmation_text": "LIVE TRADING ENABLED"
+}
+```
+
+**レスポンス**:
+
+```json
+{
+  "validation_result": "passed",
+  "checks": {
+    "jwt_authority": true,
+    "environment_check": true,
+    "csrf_validation": true,
+    "rate_limit_check": true,
+    "confirmation_text": true
+  },
+  "message": "Security validation passed"
+}
+```
+
+### GET /api/security/audit-log
+
+セキュリティ監査ログ
+
+**パラメータ**:
+
+- `limit` (optional): 件数制限 (default: 50)
+- `event_type` (optional): イベントタイプフィルター
+
+**レスポンス**:
+
+```json
+{
+  "audit_logs": [
+    {
+      "id": 1,
+      "user_id": "user_123",
+      "event_type": "trading_mode_switch",
+      "event_data": {
+        "from_mode": "paper",
+        "to_mode": "live",
+        "exchange": "binance"
+      },
+      "ip_address": "192.168.1.100",
+      "user_agent": "Mozilla/5.0...",
+      "timestamp": "2025-01-15T10:30:00Z",
+      "result": "success"
+    }
+  ]
+}
+```
+
 ## 🚨 リスク管理エンドポイント
 
 ### GET /api/risk/limits
@@ -330,7 +534,12 @@ OHLCV価格データ取得
   "max_daily_loss": 0.05,
   "max_drawdown": 0.15,
   "allowed_symbols": ["BTCUSDT", "ETHUSDT"],
-  "trading_enabled": true
+  "trading_enabled": true,
+  "live_trading_rate_limit": {
+    "max_switches_per_hour": 3,
+    "current_switches": 1,
+    "reset_time": "2025-01-15T11:00:00Z"
+  }
 }
 ```
 
@@ -344,7 +553,30 @@ OHLCV価格データ取得
 {
   "max_position_size": 0.1,
   "max_daily_loss": 0.05,
-  "max_drawdown": 0.15
+  "max_drawdown": 0.15,
+  "csrf_token": "csrf_token_here"
+}
+```
+
+### GET /api/risk/portfolio-status
+
+ポートフォリオリスク状況
+
+**レスポンス**:
+
+```json
+{
+  "total_value": 10000.0,
+  "current_drawdown": 0.05,
+  "daily_pnl": 150.0,
+  "position_exposure": 0.75,
+  "risk_alerts": [
+    {
+      "type": "high_exposure",
+      "message": "Position exposure is above 70%",
+      "severity": "warning"
+    }
+  ]
 }
 ```
 
