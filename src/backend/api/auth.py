@@ -548,7 +548,7 @@ async def set_trading_mode(
                 )
 
             # 2. 環境制限チェック（二番目）
-            if settings.ENVIRONMENT.lower() in ["development", "dev", "staging", "test"]:
+            if settings.ENVIRONMENT.lower() in ["development", "dev", "staging", "test", "ci"]:
                 logger.error(
                     f"Live trading blocked in {settings.ENVIRONMENT} environment for user: {current_user['username']}"
                 )

@@ -116,7 +116,7 @@ class TestTradingModePOSTEndpoint(TestTradingModeUIIntegration):
             assert "PAPER" in data["message"]
 
     def test_switch_to_live_mode_without_confirmation(self, authenticated_client_with_csrf):
-        """確認テキストなしでのLiveモード切り替え失敗"""
+        """確認テキストなしでのLiveモード切り替え失敗（環境制限が先に適用される）"""
         request_data = {
             "mode": "live",
             "confirmation_text": "",
@@ -125,12 +125,14 @@ class TestTradingModePOSTEndpoint(TestTradingModeUIIntegration):
 
         response = authenticated_client_with_csrf.post("/auth/trading-mode", json=request_data)
 
-        assert response.status_code in [400, 422]
-        if response.status_code == 400:
-            assert "LIVE" in response.json()["detail"]
+        # セキュリティ検証順序により、テスト環境では環境制限エラーが優先される
+        assert response.status_code in [403, 422]
+        if response.status_code == 403:
+            error_detail = response.json()["detail"].lower()
+            assert any(keyword in error_detail for keyword in ["environment", "test", "環境"])
 
     def test_switch_to_live_mode_with_wrong_confirmation(self, authenticated_client_with_csrf):
-        """間違った確認テキストでのLiveモード切り替え失敗"""
+        """間違った確認テキストでのLiveモード切り替え失敗（環境制限が先に適用される）"""
         request_data = {
             "mode": "live",
             "confirmation_text": "WRONG",
@@ -139,9 +141,11 @@ class TestTradingModePOSTEndpoint(TestTradingModeUIIntegration):
 
         response = authenticated_client_with_csrf.post("/auth/trading-mode", json=request_data)
 
-        assert response.status_code in [400, 422]
-        if response.status_code == 400:
-            assert "LIVE" in response.json()["detail"]
+        # セキュリティ検証順序により、テスト環境では環境制限エラーが優先される
+        assert response.status_code in [403, 422]
+        if response.status_code == 403:
+            error_detail = response.json()["detail"].lower()
+            assert any(keyword in error_detail for keyword in ["environment", "test", "環境"])
 
     def test_switch_to_live_mode_non_admin_user(self, client):
         """非管理者によるLiveモード切り替え失敗"""
@@ -393,12 +397,31 @@ class TestTradingModeEndToEndWorkflow(TestTradingModeUIIntegration):
 
     def test_complete_security_validation_workflow(self, client):
         """完全なセキュリティ検証ワークフロー"""
-        # 各ユーザーのCSRFトークンを取得
-        admin_csrf_token = self._get_csrf_token_for_user(client, self.admin_user)
-        regular_csrf_token = self._get_csrf_token_for_user(client, self.regular_user)
+        # CI環境でも確実に動作するユーザーデータ
+        admin_user_ci = {
+            "id": "test-admin-ci-12345",
+            "username": "test_admin_ci",
+            "email": "admin-ci@test.com",
+            "role": "admin",
+            "is_active": True,
+            "created_at": "2024-01-01T00:00:00Z",
+        }
 
-        admin_headers = self._get_auth_headers(self.admin_user)
-        regular_headers = self._get_auth_headers(self.regular_user)
+        regular_user_ci = {
+            "id": "test-regular-ci-12345",
+            "username": "test_regular_ci",
+            "email": "regular-ci@test.com",
+            "role": "user",  # 明示的にuserロールを設定
+            "is_active": True,
+            "created_at": "2024-01-01T00:00:00Z",
+        }
+
+        # 各ユーザーのCSRFトークンを取得
+        admin_csrf_token = self._get_csrf_token_for_user(client, admin_user_ci)
+        regular_csrf_token = self._get_csrf_token_for_user(client, regular_user_ci)
+
+        admin_headers = self._get_auth_headers(admin_user_ci)
+        regular_headers = self._get_auth_headers(regular_user_ci)
 
         # 1. 権限チェック（非管理者での試行）
         response1 = client.post(
@@ -406,8 +429,12 @@ class TestTradingModeEndToEndWorkflow(TestTradingModeUIIntegration):
             json={"mode": "live", "confirmation_text": "LIVE", "csrf_token": regular_csrf_token},
             headers=regular_headers,
         )
-        # 管理者権限エラーを期待
-        assert response1.status_code == 403
+        # CI環境でも確実に管理者権限エラーで403が返される
+        assert (
+            response1.status_code == 403
+        ), f"Expected 403 for non-admin user, got {response1.status_code}. Response: {response1.json()}"
+        error1 = response1.json().get("detail", "")
+        assert "管理者権限" in error1 or "admin" in error1.lower()
 
         # 2. 環境制限チェック（テスト環境での試行）
         response2 = client.post(
@@ -416,7 +443,11 @@ class TestTradingModeEndToEndWorkflow(TestTradingModeUIIntegration):
             headers=admin_headers,
         )
         # 環境制限エラーを期待（セキュリティ検証順序により最初にチェックされる）
-        assert response2.status_code == 403
+        assert (
+            response2.status_code == 403
+        ), f"Expected 403 for test environment, got {response2.status_code}. Response: {response2.json()}"
+        error2 = response2.json().get("detail", "")
+        assert any(keyword in error2.lower() for keyword in ["environment", "test", "ci", "環境"])
 
         # 3. 正常なPaper切り替え（success case）
         response3 = client.post(
@@ -425,6 +456,7 @@ class TestTradingModeEndToEndWorkflow(TestTradingModeUIIntegration):
             headers=admin_headers,
         )
         assert response3.status_code == 200  # 成功
+        assert response3.json()["current_mode"] == "paper"
 
 
 if __name__ == "__main__":

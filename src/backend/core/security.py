@@ -94,7 +94,7 @@ async def get_current_user(
 
                         # トークンからユーザー情報を構築
                         user_id = payload.get("sub")
-                        role = payload.get("role", "admin")
+                        role = payload.get("role", "user")  # デフォルトは非admin
 
                         # ユーザーIDから他の情報を推定
                         username = f"test-user-{user_id[-8:]}" if user_id else "test-user"
