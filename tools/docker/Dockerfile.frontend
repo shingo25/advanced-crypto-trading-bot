@@ -8,13 +8,13 @@ RUN apk add --no-cache curl
 WORKDIR /app
 
 # package.jsonとpackage-lock.jsonをコピー
-COPY frontend/package*.json ./
+COPY packages/frontend/package*.json ./
 
 # 依存関係をインストール（dev依存関係も含める - ビルドに必要）
 RUN npm ci
 
 # アプリケーションコードをコピー
-COPY frontend/ ./
+COPY packages/frontend/ ./
 
 # Next.jsアプリケーションをビルド
 RUN npm run build
