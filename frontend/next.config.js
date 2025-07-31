@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Vercel デプロイ最適化
+  output: 'standalone',
+
   // 開発環境でのAPIプロキシ
   ...(process.env.NODE_ENV === 'development'
     ? {
@@ -21,10 +24,11 @@ const nextConfig = {
       (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000'),
   },
 
-  // 画像最適化
+  // 画像最適化（Vercel対応）
   images: {
     domains: [],
     formats: ['image/webp', 'image/avif'],
+    unoptimized: process.env.NODE_ENV === 'production',
   },
 
   // Webpackのカスタム設定
@@ -46,7 +50,7 @@ const nextConfig = {
     return config;
   },
 
-  // サーバーサイドで外部パッケージを利用する場合に設定 (Next.js 14.1+ 推奨)
+  // サーバーサイドで外部パッケージを利用する場合に設定
   serverExternalPackages: [],
 };
 
