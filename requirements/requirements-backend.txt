@@ -5,7 +5,7 @@ uvicorn[standard]==0.35.0
 # Auth & Security
 python-jose[cryptography]==3.5.0
 passlib[bcrypt]==1.7.4
-cryptography>=42.0.5
+cryptography==42.0.8
 slowapi==0.1.9
 
 # Config & Utilities
