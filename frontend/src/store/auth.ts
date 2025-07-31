@@ -20,6 +20,7 @@ interface AuthState {
 
   // アクション
   login: (username: string, password: string) => Promise<void>;
+  autoLogin: () => Promise<void>;
   logout: () => void;
   initialize: () => void;
   clearError: () => void;
@@ -58,6 +59,40 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         error: errorMessage,
       });
       throw error;
+    }
+  },
+
+  autoLogin: async () => {
+    const { isAuthenticated } = get();
+
+    // 既に認証済みの場合は何もしない
+    if (isAuthenticated) return;
+
+    set({ isLoading: true, error: null });
+
+    try {
+      // デモユーザーで自動ログイン
+      const response = await authApi.login('demo', 'demo');
+
+      setAuthenticatedState(true);
+
+      set({
+        user: response.user,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+
+      console.log('自動ログイン成功: デモユーザーでログインしました');
+    } catch (error: any) {
+      console.warn('自動ログインに失敗:', error);
+      // 自動ログインの失敗は通常のエラーとして扱わない
+      set({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: null, // エラーをユーザーに表示しない
+      });
     }
   },
 

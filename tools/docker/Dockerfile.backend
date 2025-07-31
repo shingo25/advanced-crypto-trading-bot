@@ -40,12 +40,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Python依存関係をコピーしてインストール
-COPY tools/ci/requirements-ci.txt packages/backend/requirements.txt ./
+COPY requirements/requirements-ci.txt requirements/requirements-backend.txt ./
 RUN pip install --no-cache-dir -r requirements-ci.txt && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir -r requirements-backend.txt
 
 # アプリケーションコードをコピー
-COPY packages/backend/src/crypto_bot/ ./backend/
+COPY src/backend/ ./backend/
 COPY config/ ./config/
 
 # 非rootユーザーを作成してセキュリティ向上

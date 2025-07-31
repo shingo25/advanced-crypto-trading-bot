@@ -1,9 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Vercel最適化
-  output: 'export',
+  // Vercel Functions対応（静的エクスポートを無効化）
+  // output: 'export', // コメントアウト：APIルート使用のため
   trailingSlash: true,
-  distDir: 'out',
 
   // 開発環境でのAPI proxy設定 (export モードでは無効)
   ...(process.env.NODE_ENV === 'development'
@@ -21,7 +20,9 @@ const nextConfig = {
 
   // 環境変数の設定
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+    NEXT_PUBLIC_API_URL:
+      process.env.NEXT_PUBLIC_API_URL ||
+      (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000'),
   },
 
   // Webpack設定
