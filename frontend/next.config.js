@@ -20,7 +20,9 @@ const nextConfig = {
 
   // 環境変数の設定
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000'),
+    NEXT_PUBLIC_API_URL:
+      process.env.NEXT_PUBLIC_API_URL ||
+      (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000'),
   },
 
   // Webpack設定

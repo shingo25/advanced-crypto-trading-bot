@@ -64,7 +64,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   autoLogin: async () => {
     const { isAuthenticated } = get();
-    
+
     // 既に認証済みの場合は何もしない
     if (isAuthenticated) return;
 
@@ -82,7 +82,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isLoading: false,
         error: null,
       });
-      
+
       console.log('自動ログイン成功: デモユーザーでログインしました');
     } catch (error: any) {
       console.warn('自動ログインに失敗:', error);
