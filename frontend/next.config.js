@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Vercel デプロイ最適化
-  output: 'standalone',
+  // Vercel デプロイ最適化 - Vercel自動最適化を使用
+  // output: 'standalone', // Vercel用に無効化
 
   // 開発環境でのAPIプロキシ
   ...(process.env.NODE_ENV === 'development'
