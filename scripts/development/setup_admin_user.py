@@ -7,10 +7,9 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from dotenv import load_dotenv
-
 from backend.core.config import settings
 from backend.core.supabase_db import get_supabase_connection
+from dotenv import load_dotenv
 
 
 def create_admin_user():

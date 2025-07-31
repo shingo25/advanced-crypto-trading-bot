@@ -29,7 +29,7 @@ import {
   CheckCircle as CheckCircleIcon,
   Error as ErrorIcon,
 } from '@mui/icons-material';
-import { api } from '@/lib/api';
+import api from '@/lib/api';
 
 interface TradingModeResponse {
   current_mode: string;

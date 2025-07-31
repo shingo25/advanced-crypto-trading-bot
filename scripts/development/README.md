@@ -5,16 +5,13 @@
 ## ファイル一覧
 
 ### セットアップスクリプト
-
 - `setup_admin_user.py` - 管理者ユーザーセットアップ
 
 ### 起動スクリプト
-
 - `start_backend.py` - バックエンドサーバー起動
 - `start_demo.py` - デモ環境起動
 
 ### API関連
-
 - `simple_api.py` - シンプルなAPI実装（デモ用）
 
 ## 使用方法

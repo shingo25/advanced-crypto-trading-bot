@@ -1,22 +1,33 @@
 {
   "version": 2,
-  "name": "crypto-bot",
+  "public": true,
   "buildCommand": "./scripts/vercel-build.sh",
   "outputDirectory": "frontend/out",
+  "framework": null,
   "builds": [
     {
       "src": "frontend/package.json",
-      "use": "@vercel/next"
+      "use": "@vercel/next",
+      "config": {
+        "distDir": "out"
+      }
     },
     {
-      "src": "src/vercel_api/index.py",
-      "use": "@vercel/python"
+      "src": "api/**/*.py",
+      "use": "@vercel/python",
+      "config": {
+        "runtime": "python3.11"
+      }
     }
   ],
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api"
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/$1"
     }
   ],
   "headers": [
@@ -39,7 +50,17 @@
     }
   ],
   "env": {
-    "ENVIRONMENT": "production"
+    "ENVIRONMENT": "production",
+    "USE_REAL_DATA": "true",
+    "RATE_LIMIT_ENABLED": "true",
+    "MAX_REQUESTS_PER_MINUTE": "60",
+    "ENABLE_PRICE_STREAMING": "false",
+    "JWT_SECRET_KEY": "prod-jwt-secret-key-vercel-crypto-trading-bot-32-chars-long",
+    "JWT_ALGORITHM": "HS256",
+    "JWT_EXPIRATION": "86400",
+    "SUPABASE_URL": "https://huuimmgmxtqigbjfpudo.supabase.co",
+    "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1dWltbWdteHRxaWdiamZwdWRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1NDg4NjAsImV4cCI6MjA2ODEyNDg2MH0.WCi5T4msYId8UmzhYr2LFkf9uxWFuPNTUdX1TRrxyRE",
+    "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1dWltbWdteHRxaWdiamZwdWRvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MjU0ODg2MCwiZXhwIjoyMDY4MTI0ODYwfQ.2jSretdMXpiOLW3GQ4n46GHivWHthYOQlYF3X3L5NqA"
   },
   "github": {
     "silent": false

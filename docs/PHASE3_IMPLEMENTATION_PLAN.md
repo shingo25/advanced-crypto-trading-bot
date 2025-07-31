@@ -14,7 +14,6 @@
 Phase 3では、Phase 2で構築したリアルタイムデータ基盤の上に、実際の取引執行が可能な高度なトレーディングシステムを構築します。
 
 ### 主要目標
-
 1. **🤖 高度トレーディング戦略** - RSI、MACD、複合戦略
 2. **💼 ポートフォリオ管理** - 資金管理・リスク分散
 3. **⚠️ リスク管理システム** - ストップロス・ポジション制御
@@ -28,7 +27,6 @@ Phase 3では、Phase 2で構築したリアルタイムデータ基盤の上に
 ### 🗓️ Week 1: 2025-07-21 ～ 2025-07-27
 
 #### Day 1-2: 高度トレーディング戦略 (Phase3-1)
-
 - **RSI戦略実装**
   - RSI計算エンジン
   - オーバーボート・オーバーソールド戦略
@@ -45,7 +43,6 @@ Phase 3では、Phase 2で構築したリアルタイムデータ基盤の上に
   - 平均回帰戦略
 
 #### Day 3-4: ポートフォリオ管理システム (Phase3-2)
-
 - **資金管理エンジン**
   - 資金配分アルゴリズム
   - レバレッジ制御
@@ -62,7 +59,6 @@ Phase 3では、Phase 2で構築したリアルタイムデータ基盤の上に
   - リスクパリティ
 
 #### Day 5: リスク管理 & セーフティ (Phase3-3)
-
 - **リスク管理システム**
   - ポジションサイジング
   - 最大ドローダウン制御
@@ -79,7 +75,6 @@ Phase 3では、Phase 2で構築したリアルタイムデータ基盤の上に
   - 緊急ポジション決済
 
 #### Day 6: アラート・通知システム (Phase3-4)
-
 - **リアルタイムアラート**
   - 価格アラート
   - 取引実行通知
@@ -96,7 +91,6 @@ Phase 3では、Phase 2で構築したリアルタイムデータ基盤の上に
   - エラー監視
 
 #### Day 7: 統合テスト & デプロイ (Phase3-5)
-
 - **包括的テスト**
   - ライブトレーディングテスト (Paper Trading)
   - ストレステスト
@@ -114,7 +108,6 @@ Phase 3では、Phase 2で構築したリアルタイムデータ基盤の上に
 ### 新規コンポーネント設計
 
 #### 1. 高度戦略エンジン
-
 ```python
 # backend/strategies/implementations/
 ├── rsi_strategy.py           # RSI戦略
@@ -125,7 +118,6 @@ Phase 3では、Phase 2で構築したリアルタイムデータ基盤の上に
 ```
 
 #### 2. ポートフォリオ管理
-
 ```python
 # backend/portfolio/
 ├── manager.py               # ポートフォリオ管理
@@ -135,7 +127,6 @@ Phase 3では、Phase 2で構築したリアルタイムデータ基盤の上に
 ```
 
 #### 3. リスク管理システム
-
 ```python
 # backend/risk/
 ├── position_sizing.py       # ポジションサイジング
@@ -145,7 +136,6 @@ Phase 3では、Phase 2で構築したリアルタイムデータ基盤の上に
 ```
 
 #### 4. 通知・アラートシステム
-
 ```python
 # backend/notifications/
 ├── alert_manager.py        # アラート管理
@@ -157,7 +147,6 @@ Phase 3では、Phase 2で構築したリアルタイムデータ基盤の上に
 ### データベース拡張
 
 #### 新規テーブル
-
 ```sql
 -- portfolio_allocations: ポートフォリオ配分
 CREATE TABLE portfolio_allocations (
@@ -207,7 +196,6 @@ CREATE TABLE notifications (
 ### API エンドポイント拡張
 
 #### Portfolio API
-
 ```python
 # /api/portfolio/
 GET    /                     # ポートフォリオ概要
@@ -218,7 +206,6 @@ GET    /risk-metrics        # リスク指標
 ```
 
 #### Risk Management API
-
 ```python
 # /api/risk/
 GET    /metrics             # リスク指標取得
@@ -229,7 +216,6 @@ POST   /emergency-stop      # 緊急停止
 ```
 
 #### Alerts API
-
 ```python
 # /api/alerts/
 GET    /                    # アラート一覧
@@ -240,7 +226,6 @@ GET    /notifications       # 通知履歴
 ```
 
 #### Advanced Trading API
-
 ```python
 # /api/trading/
 POST   /orders              # 注文執行
@@ -258,50 +243,50 @@ POST   /auto-trade/stop     # 自動取引停止
 ### 新規ページ・コンポーネント
 
 #### 1. ポートフォリオダッシュボード
-
 ```tsx
 // frontend/src/app/portfolio/page.tsx
--ポートフォリオ円グラフ -
-  資産配分表 -
-  パフォーマンス推移チャート -
-  リスク指標表示;
+- ポートフォリオ円グラフ
+- 資産配分表
+- パフォーマンス推移チャート
+- リスク指標表示
 ```
 
 #### 2. 高度トレーディング画面
-
 ```tsx
 // frontend/src/app/trading/advanced/page.tsx
--複数戦略選択UI -
-  リアルタイム戦略パフォーマンス -
-  注文執行インターフェース -
-  ポジション管理画面;
+- 複数戦略選択UI
+- リアルタイム戦略パフォーマンス
+- 注文執行インターフェース
+- ポジション管理画面
 ```
 
 #### 3. リスク管理ダッシュボード
-
 ```tsx
 // frontend/src/app/risk/page.tsx
--VaRメーター - ドローダウンチャート - ポジションサイズ計算機 - リスク警告表示;
+- VaRメーター
+- ドローダウンチャート
+- ポジションサイズ計算機
+- リスク警告表示
 ```
 
 #### 4. アラート・通知センター
-
 ```tsx
 // frontend/src/app/alerts/page.tsx
--アラート設定フォーム - 通知履歴一覧 - リアルタイム通知表示 - 通知設定管理;
+- アラート設定フォーム
+- 通知履歴一覧
+- リアルタイム通知表示
+- 通知設定管理
 ```
 
 ### UI/UX 改善
 
 #### Material-UI v7 高度コンポーネント
-
 - **DataGrid Pro**: 高度なテーブル機能
 - **Charts**: 統合チャートライブラリ
 - **DatePickers**: 期間選択UI
 - **Autocomplete**: 高度検索機能
 
 #### ダークテーマ対応
-
 - 完全なダークモード実装
 - テーマ切り替え機能
 - アクセシビリティ対応
@@ -313,19 +298,16 @@ POST   /auto-trade/stop     # 自動取引停止
 ### セキュリティ強化
 
 #### API認証・認可
-
 - **Role-based Access Control (RBAC)**
 - **API Rate Limiting** (詳細設定)
 - **Audit Logging** (取引ログ)
 
 #### 取引セキュリティ
-
 - **Two-Factor Authentication (2FA)**
 - **取引承認フロー**
 - **異常検知システム**
 
 #### データ保護
-
 - **PII暗号化**
 - **取引データ匿名化**
 - **GDPR対応**
@@ -333,13 +315,11 @@ POST   /auto-trade/stop     # 自動取引停止
 ### コンプライアンス
 
 #### 金融規制対応
-
 - **KYC (Know Your Customer)**
 - **AML (Anti-Money Laundering)**
 - **取引報告機能**
 
 #### リスク開示
-
 - **投資リスク警告**
 - **免責事項表示**
 - **利用規約更新**
@@ -351,13 +331,11 @@ POST   /auto-trade/stop     # 自動取引停止
 ### バックエンド最適化
 
 #### データベース最適化
-
 - **クエリ最適化** (インデックス追加)
 - **コネクションプーリング**
 - **キャッシュ戦略** (Redis導入)
 
 #### 並列処理強化
-
 - **Async/Await最適化**
 - **バックグラウンドタスク** (Celery導入)
 - **WebSocket最適化**
@@ -365,13 +343,11 @@ POST   /auto-trade/stop     # 自動取引停止
 ### フロントエンド最適化
 
 #### React最適化
-
 - **React.memo** による再レンダリング防止
 - **useMemo/useCallback** 最適化
 - **Code Splitting** による読み込み高速化
 
 #### バンドル最適化
-
 - **Tree Shaking** 強化
 - **Dynamic Import**
 - **WebP画像対応**
@@ -383,25 +359,21 @@ POST   /auto-trade/stop     # 自動取引停止
 ### Phase 3 テスト計画
 
 #### 単体テスト (Unit Tests)
-
 - **戦略ロジック**: 各戦略の計算精度
 - **リスク計算**: VaR、ドローダウン計算
 - **ポートフォリオ**: 資金配分ロジック
 
 #### 統合テスト (Integration Tests)
-
 - **API統合**: フロントエンド ↔ バックエンド
 - **データベース統合**: CRUD操作
 - **WebSocket統合**: リアルタイム通信
 
 #### E2Eテスト (End-to-End Tests)
-
 - **取引フロー**: 注文から決済まで
 - **ポートフォリオ管理**: 全体ワークフロー
 - **アラートシステム**: 通知配信
 
 #### ライブテスト (Paper Trading)
-
 - **仮想取引**: 実際の市場データで仮想取引
 - **ストレステスト**: 高負荷時の動作確認
 - **長時間テスト**: 24時間連続動作
@@ -409,7 +381,6 @@ POST   /auto-trade/stop     # 自動取引停止
 ### テスト自動化
 
 #### CI/CDパイプライン強化
-
 ```yaml
 # .github/workflows/phase3-tests.yml
 - Unit Tests (90%+ coverage)
@@ -424,21 +395,18 @@ POST   /auto-trade/stop     # 自動取引停止
 ## 📈 成功指標 (KPI)
 
 ### 技術指標
-
 - **システム稼働率**: 99.9%以上
 - **レスポンス時間**: API < 100ms, WebSocket < 50ms
 - **テストカバレッジ**: 90%以上
 - **バグ発生率**: < 1 bug/1000 lines
 
 ### 機能指標
-
 - **戦略数**: 5+の実装戦略
 - **同時接続**: 500+のWebSocket接続
 - **取引速度**: < 1秒での注文執行
 - **通知配信**: < 5秒での即時通知
 
 ### ユーザビリティ指標
-
 - **画面遷移**: < 2秒での表示
 - **エラー率**: < 1%のユーザーエラー
 - **機能完了率**: 95%以上の機能完了
@@ -450,19 +418,16 @@ POST   /auto-trade/stop     # 自動取引停止
 ### Phase 3 デプロイ計画
 
 #### ステージング環境
-
 - **Vercel Preview**: 機能ごとのプレビューデプロイ
 - **Supabase Staging**: 専用ステージング環境
 - **Paper Trading**: 実市場データでの仮想取引テスト
 
 #### 本番デプロイ
-
 - **段階的ロールアウト**: 機能ごとの段階的公開
 - **Blue-Green Deployment**: ダウンタイムゼロデプロイ
 - **フィーチャーフラグ**: 機能の段階的有効化
 
 #### 監視・アラート
-
 - **Vercel Analytics**: パフォーマンス監視
 - **Supabase Monitoring**: データベース監視
 - **Custom Metrics**: 取引・リスク指標監視
@@ -474,14 +439,12 @@ POST   /auto-trade/stop     # 自動取引停止
 ### 開発体制
 
 #### 役割分担
-
 - **アーキテクト**: Claude Code
 - **実装**: Claude Code + User
 - **テスト**: 自動化 + 手動確認
 - **デプロイ**: Claude Code
 
 #### 進捗管理
-
 - **Daily Standups**: 毎日の進捗確認
 - **Feature Demos**: 機能完成時のデモ
 - **Code Reviews**: 重要機能のレビュー
@@ -489,13 +452,11 @@ POST   /auto-trade/stop     # 自動取引停止
 ### リスク管理
 
 #### 技術リスク
-
 - **複雑性増大**: モジュール化による対応
 - **パフォーマンス**: 早期最適化
 - **依存関係**: 外部API依存の最小化
 
 #### スケジュールリスク
-
 - **機能優先度**: MVP機能の明確化
 - **バッファ時間**: 15%のバッファ確保
 - **段階的実装**: 機能ごとの完了確認
@@ -505,7 +466,6 @@ POST   /auto-trade/stop     # 自動取引停止
 ## 🏆 Phase 3 完了条件
 
 ### 必須機能 (Must Have)
-
 - [x] RSI戦略実装
 - [x] MACD戦略実装
 - [x] ポートフォリオ管理基本機能
@@ -514,7 +474,6 @@ POST   /auto-trade/stop     # 自動取引停止
 - [x] Paper Trading機能
 
 ### 推奨機能 (Should Have)
-
 - [x] Bollinger Bands戦略
 - [x] 複合戦略
 - [x] 高度リスク指標
@@ -522,7 +481,6 @@ POST   /auto-trade/stop     # 自動取引停止
 - [x] パフォーマンス最適化
 
 ### 将来機能 (Could Have)
-
 - [ ] 機械学習戦略
 - [ ] HFT (高頻度取引)
 - [ ] クロス取引所アービトラージ
@@ -533,14 +491,12 @@ POST   /auto-trade/stop     # 自動取引停止
 ## 📚 関連ドキュメント
 
 ### Phase 3 技術文書
-
 - `PHASE3_API_REFERENCE.md` - API詳細仕様
 - `PHASE3_ARCHITECTURE.md` - システム設計
 - `PHASE3_TESTING_GUIDE.md` - テスト手順
 - `PHASE3_DEPLOYMENT_GUIDE.md` - デプロイ手順
 
 ### 運用文書
-
 - `TRADING_OPERATIONS.md` - 取引運用マニュアル
 - `RISK_MANAGEMENT_GUIDE.md` - リスク管理ガイド
 - `ALERT_CONFIGURATION.md` - アラート設定ガイド
