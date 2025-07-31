@@ -1,14 +1,12 @@
 # Supabase認証システム完全セットアップガイド
 
 ## 概要
-
 この実装は、Vercelサーバーレス環境でステートレスなSupabase認証を提供します。
 メモリベースの認証問題を完全に解決し、demo/demoログインと新規アカウント作成を確実に動作させます。
 
 ## 🔧 Vercel環境変数の設定
 
 ### 必須環境変数
-
 Vercel Dashboard または CLI で以下の環境変数を設定してください：
 
 ```bash
@@ -25,7 +23,6 @@ ENVIRONMENT=production
 ```
 
 ### Vercel CLI での設定例
-
 ```bash
 # 本番環境の環境変数設定
 vercel env add supabase-url production
@@ -41,7 +38,6 @@ vercel env add supabase-service-role-key preview
 ## 🗄️ Supabaseデータベース設定
 
 ### プロファイルテーブルの確認
-
 既存の `profiles` テーブルが以下の構造であることを確認：
 
 ```sql
@@ -65,7 +61,6 @@ CREATE POLICY "ユーザーは自分のプロファイルを作成可能" ON pro
 ```
 
 ### 新規ユーザー作成トリガー（推奨）
-
 新規ユーザー登録時に自動でプロファイルを作成するトリガー：
 
 ```sql
@@ -93,20 +88,17 @@ CREATE TRIGGER on_auth_user_created
 ## 🔐 認証フロー
 
 ### 1. デモユーザー (demo/demo)
-
 - Username: `demo`
 - Password: `demo`
 - Email: `demo@cryptobot.local` (内部変換)
 - 自動作成: アプリケーション起動時に作成
 
 ### 2. 新規ユーザー登録
-
 - Username → `{username}@cryptobot.local` に自動変換
 - 表示用Emailは別途保存
 - プロファイルテーブルに自動登録
 
 ### 3. ログイン処理
-
 1. Username → Email変換
 2. Supabase Auth でパスワード認証
 3. JWTトークンをhttpOnlyクッキーに設定
@@ -115,13 +107,11 @@ CREATE TRIGGER on_auth_user_created
 ## 🧪 テスト方法
 
 ### 1. ヘルスチェック
-
 ```bash
 curl https://your-app.vercel.app/api/auth/health
 ```
 
 期待される応答:
-
 ```json
 {
   "status": "healthy",
@@ -133,7 +123,6 @@ curl https://your-app.vercel.app/api/auth/health
 ```
 
 ### 2. デモログインテスト
-
 ```bash
 curl -X POST https://your-app.vercel.app/api/auth/login \
   -H "Content-Type: application/json" \
@@ -142,7 +131,6 @@ curl -X POST https://your-app.vercel.app/api/auth/login \
 ```
 
 ### 3. 新規アカウント作成テスト
-
 ```bash
 curl -X POST https://your-app.vercel.app/api/auth/register \
   -H "Content-Type: application/json" \
@@ -150,7 +138,6 @@ curl -X POST https://your-app.vercel.app/api/auth/register \
 ```
 
 ### 4. ユーザー情報取得テスト
-
 ```bash
 curl https://your-app.vercel.app/api/auth/me \
   -b cookies.txt
@@ -159,22 +146,18 @@ curl https://your-app.vercel.app/api/auth/me \
 ## 🚨 トラブルシューティング
 
 ### エラー: "Supabase configuration missing"
-
 - Vercel環境変数が正しく設定されていない
 - `SUPABASE_URL` と `SUPABASE_ANON_KEY` を確認
 
 ### エラー: "User profile not found"
-
 - プロファイルテーブルのトリガーが動作していない
 - 手動でプロファイルエントリを作成
 
 ### エラー: "Invalid username or password"
-
 - デモユーザーが作成されていない可能性
 - Supabase Dashboard で `auth.users` テーブルを確認
 
 ### デモユーザーの手動作成
-
 ```sql
 -- Supabase SQL エディタで実行
 INSERT INTO auth.users (
