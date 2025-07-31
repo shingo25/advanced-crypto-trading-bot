@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "public": true,
   "builds": [
     {
       "src": "frontend/next.config.js",
@@ -15,12 +14,6 @@
       "config": {
         "runtime": "python3.11"
       }
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/index.py"
     }
   ],
   "headers": [
