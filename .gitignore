@@ -61,4 +61,10 @@ coverage/
 # Security scan reports
 bandit-report.json
 **/bandit-report.json
+
+# Generated reports and cache files
+coverage.xml
+ruff-backend-check.json
+*.tsbuildinfo
+
 __pycache__
