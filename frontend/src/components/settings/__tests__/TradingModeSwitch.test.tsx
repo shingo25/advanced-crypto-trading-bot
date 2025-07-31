@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import TradingModeSwitch from '../TradingModeSwitch';
-import { api } from '@/lib/api';
+import api from '@/lib/api';
 
 // APIモック
 jest.mock('@/lib/api', () => ({
@@ -17,7 +17,7 @@ const mockApi = api as jest.Mocked<typeof api>;
 
 // 共通のAPIモック設定
 const setupApiMocks = (currentMode: 'paper' | 'live' = 'paper') => {
-  mockApi.get.mockImplementation((url) => {
+  mockApi.get.mockImplementation((url: string) => {
     if (url === '/auth/trading-mode') {
       return Promise.resolve({
         data: {
