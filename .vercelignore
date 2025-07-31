@@ -1,23 +1,41 @@
-# Dependencies
-node_modules/
-frontend/node_modules/
-
-# Build artifacts
-.next/
-dist/
-build/
-
-# Logs
-*.log
+# Python backend files
+src/
+tests/
+scripts/
+config/
+data/
 logs/
+packages/
+tools/
+venv/
+*.py
+*.pyc
+__pycache__/
+*.egg-info/
 
-# Environment files
+# Documentation
+docs/
+*.md
+!README.md
+
+# Configuration files that should not be deployed
 .env.local
 .env.*.local
+docker-compose.yml
+Dockerfile.*
+pyproject.toml
+pytest.ini
+requirements/
+requirements.txt
+runtime.txt
+bandit-report.json
 
-# Cache
-.cache/
-.vercel/
+# Old frontend structure
+frontend/
+
+# Git
+.git/
+.github/
 
 # IDE
 .vscode/
@@ -26,21 +44,3 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
-
-# Git
-.git/
-.gitignore
-
-# Documentation
-README.md
-*.md
-
-# Python cache
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Temporary files
-tmp/
-temp/
