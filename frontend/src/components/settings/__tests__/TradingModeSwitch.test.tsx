@@ -7,7 +7,8 @@ import api from '@/lib/api';
 
 // APIモック
 jest.mock('@/lib/api', () => ({
-  api: {
+  __esModule: true,
+  default: {
     get: jest.fn(),
     post: jest.fn(),
   },
