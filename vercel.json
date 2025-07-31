@@ -1,12 +1,7 @@
 {
   "version": 2,
   "public": true,
-  "framework": "nextjs",
   "builds": [
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/next"
-    },
     {
       "src": "api/index.py",
       "use": "@vercel/python",
