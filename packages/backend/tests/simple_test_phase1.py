@@ -7,12 +7,12 @@ import sys
 from datetime import datetime, timezone
 
 # テスト用のパスを追加
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from backend.data_pipeline.collector import DataCollector
-from backend.data_pipeline.onchain import OnChainDataCollector
-from backend.exchanges.base import OHLCV, TimeFrame
-from backend.exchanges.factory import ExchangeFactory
+from crypto_bot.data_pipeline.collector import DataCollector
+from crypto_bot.data_pipeline.onchain import OnChainDataCollector
+from crypto_bot.exchanges.base import OHLCV, TimeFrame
+from crypto_bot.exchanges.factory import ExchangeFactory
 
 
 def test_timeframe_enum():
@@ -75,13 +75,16 @@ def test_directory_structure():
     from pathlib import Path
 
     # 基本的なディレクトリ構造の確認
-    backend_dir = Path("backend")
-    assert backend_dir.exists(), "backend directory should exist"
+    src_dir = Path("src")
+    assert src_dir.exists(), "src directory should exist"
 
-    exchanges_dir = backend_dir / "exchanges"
+    crypto_bot_dir = src_dir / "crypto_bot"
+    assert crypto_bot_dir.exists(), "crypto_bot directory should exist"
+
+    exchanges_dir = crypto_bot_dir / "exchanges"
     assert exchanges_dir.exists(), "exchanges directory should exist"
 
-    data_pipeline_dir = backend_dir / "data_pipeline"
+    data_pipeline_dir = crypto_bot_dir / "data_pipeline"
     assert data_pipeline_dir.exists(), "data_pipeline directory should exist"
 
     print("✓ Directory structure test passed")
@@ -93,12 +96,12 @@ def test_imports():
 
     try:
         # テストでインポートできることを確認（実際の使用はtest_basic_functionality内）
-        import backend.data_pipeline.collector  # noqa: F401
-        import backend.data_pipeline.onchain  # noqa: F401
-        import backend.exchanges.base  # noqa: F401
-        import backend.exchanges.binance  # noqa: F401
-        import backend.exchanges.bybit  # noqa: F401
-        import backend.exchanges.factory  # noqa: F401
+        import crypto_bot.data_pipeline.collector  # noqa: F401
+        import crypto_bot.data_pipeline.onchain  # noqa: F401
+        import crypto_bot.exchanges.base  # noqa: F401
+        import crypto_bot.exchanges.binance  # noqa: F401
+        import crypto_bot.exchanges.bybit  # noqa: F401
+        import crypto_bot.exchanges.factory  # noqa: F401
 
         print("✓ All required imports successful")
     except ImportError as e:
