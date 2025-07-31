@@ -2,7 +2,7 @@
 const nextConfig = {
   // Vercel Functions対応
   trailingSlash: true,
-  
+
   // Vercel最適化設定
   output: 'standalone',
   poweredByHeader: false,
@@ -41,7 +41,7 @@ const nextConfig = {
       ...config.resolve.alias,
       '@': require('path').resolve(__dirname, 'src'),
     };
-    
+
     // サーバーサイドでのfs使用を許可
     if (!isServer) {
       config.resolve.fallback = {
@@ -49,14 +49,12 @@ const nextConfig = {
         fs: false,
       };
     }
-    
+
     return config;
   },
 
-  // 実験的機能（必要に応じて）
-  experimental: {
-    serverComponentsExternalPackages: [],
-  },
+  // Next.js 15対応: serverExternalPackagesに移行
+  serverExternalPackages: [],
 };
 
 module.exports = nextConfig;
