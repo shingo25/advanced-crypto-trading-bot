@@ -1,11 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Vercelへのデプロイに最適化された設定
-  trailingSlash: true,
-  output: 'standalone',
-  poweredByHeader: false,
-  compress: true,
-
   // 開発環境でのAPIプロキシ
   ...(process.env.NODE_ENV === 'development'
     ? {
