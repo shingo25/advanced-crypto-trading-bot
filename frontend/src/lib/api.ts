@@ -224,18 +224,30 @@ export const portfolioApi = {
       console.warn('Portfolio API call failed, using mock data');
       // フォールバック用モックデータ
       return {
-        id: 'mock-portfolio',
         name: 'Personal Portfolio',
-        total_value: 25847.30,
-        total_pnl: 2847.30,
-        total_pnl_percent: 12.34,
-        holdings: [
-          { symbol: 'BTC', amount: 0.5, value: 21625.25, pnl: 1825.25, pnl_percent: 9.2 },
-          { symbol: 'ETH', amount: 1.2, value: 3216.90, pnl: 416.90, pnl_percent: 14.9 },
-        ],
-        change_24h: 1.34,
-        last_updated: new Date().toISOString(),
-      } as Portfolio;
+        total_value: 25847.3,
+        asset_count: 2,
+        created_at: new Date().toISOString(),
+        last_rebalance: null,
+        assets: {
+          BTC: {
+            balance: 0.5,
+            current_price: 43250.5,
+            market_value: 21625.25,
+            target_weight: 0.7,
+            actual_weight: 0.836,
+            asset_type: 'crypto',
+          },
+          ETH: {
+            balance: 1.2,
+            current_price: 2680.75,
+            market_value: 3216.9,
+            target_weight: 0.3,
+            actual_weight: 0.124,
+            asset_type: 'crypto',
+          },
+        },
+      };
     }
   },
 
