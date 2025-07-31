@@ -42,7 +42,7 @@ async def test_backtest_models():
     try:
         print("\n🔍 Testing BacktestRequest model creation...")
 
-        from src.backend.api.backtest import BacktestRequest
+        from backend.api.backtest import BacktestRequest
 
         # テスト用のリクエストを作成
         test_request = BacktestRequest(
@@ -76,7 +76,7 @@ async def test_data_validation_logic():
     try:
         print("\n🔍 Testing data validation logic...")
 
-        from src.backend.backtesting.engine import DataValidator
+        from backend.backtesting.engine import DataValidator
         import pandas as pd
 
         # テスト用のOHLCVデータを作成
@@ -114,7 +114,7 @@ async def test_strategy_loader():
     try:
         print("\n🔍 Testing strategy loader...")
 
-        from src.backend.strategies.loader import StrategyLoader
+        from backend.strategies.loader import StrategyLoader
 
         loader = StrategyLoader()
 

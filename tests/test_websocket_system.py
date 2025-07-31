@@ -27,7 +27,7 @@ async def test_websocket_manager_import():
     try:
         print("🔍 Testing WebSocket manager import...")
 
-        from src.backend.websocket.manager import ChannelType, MessageType
+        from backend.websocket.manager import ChannelType, MessageType
 
         print("✅ WebSocket manager imported successfully")
 
@@ -52,7 +52,7 @@ async def test_websocket_message_creation():
     try:
         print("\n🔍 Testing WebSocket message creation...")
 
-        from src.backend.websocket.manager import ChannelType, MessageType, WebSocketMessage
+        from backend.websocket.manager import ChannelType, MessageType, WebSocketMessage
 
         # 基本メッセージの作成
         message = WebSocketMessage(
@@ -91,7 +91,7 @@ async def test_connection_management():
     try:
         print("\n🔍 Testing connection management...")
 
-        from src.backend.websocket.manager import ClientConnection, WebSocketManager
+        from backend.websocket.manager import ClientConnection, WebSocketManager
 
         # テスト用マネージャーを作成
         manager = WebSocketManager()
@@ -136,7 +136,7 @@ async def test_connection_management():
         print(f"   - Channel subscribers: {manager.channel_subscribers}")
 
         # メッセージ送信テスト
-        from src.backend.websocket.manager import ChannelType, MessageType, WebSocketMessage
+        from backend.websocket.manager import ChannelType, MessageType, WebSocketMessage
 
         test_message = WebSocketMessage(
             type=MessageType.SYSTEM_ALERT,
@@ -166,7 +166,7 @@ async def test_websocket_routes_import():
     try:
         print("\n🔍 Testing WebSocket routes import...")
 
-        from src.backend.websocket.routes import router
+        from backend.websocket.routes import router
 
         print("✅ WebSocket routes imported successfully")
 
@@ -192,7 +192,7 @@ async def test_main_app_integration():
     try:
         print("\n🔍 Testing main app integration...")
 
-        from src.backend.main import app
+        from backend.main import app
 
         print("✅ Main app with WebSocket integration imported")
 
@@ -221,7 +221,7 @@ async def test_rate_limiting():
     try:
         print("\n🔍 Testing rate limiting...")
 
-        from src.backend.websocket.manager import ClientConnection, WebSocketManager
+        from backend.websocket.manager import ClientConnection, WebSocketManager
 
         manager = WebSocketManager()
         manager.rate_limit_requests = 5  # テスト用に制限を低く設定
