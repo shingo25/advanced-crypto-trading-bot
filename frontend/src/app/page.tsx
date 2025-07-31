@@ -7,23 +7,27 @@ import { Box, CircularProgress } from '@mui/material';
 
 export default function Home() {
   const router = useRouter();
-  const { isAuthenticated, initialize } = useAuthStore();
+  const { isAuthenticated, isLoading } = useAuthStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    initialize();
-  }, [initialize]);
+  }, []);
 
   useEffect(() => {
-    if (mounted) {
+    if (mounted && !isLoading) {
       if (isAuthenticated) {
         router.push('/dashboard');
       } else {
-        router.push('/login');
+        // 自動ログインが失敗した場合のみログインページに遷移
+        setTimeout(() => {
+          if (!isAuthenticated) {
+            router.push('/login');
+          }
+        }, 2000); // 2秒待って自動ログインの完了を待つ
       }
     }
-  }, [isAuthenticated, router, mounted]);
+  }, [isAuthenticated, isLoading, router, mounted]);
 
   if (!mounted) {
     return null;
