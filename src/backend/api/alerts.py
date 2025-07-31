@@ -12,7 +12,6 @@ from typing import Any, Dict, List, Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
-
 from src.backend.core.messaging import AlertPublisher
 from src.backend.core.redis import RedisManager
 from src.backend.core.security import get_current_user

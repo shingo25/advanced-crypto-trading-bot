@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
 
-from fastapi import Depends, HTTPException, Request, status
-from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
+from fastapi import Depends, HTTPException, Request, status
+from fastapi.security import OAuth2PasswordBearer
 from src.backend.core.config import settings
 from src.backend.core.local_database import get_local_db
 

@@ -13,7 +13,6 @@ from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Set
 
 from fastapi import WebSocket
-
 from src.backend.core.security import decode_token
 
 logger = logging.getLogger(__name__)

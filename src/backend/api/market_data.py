@@ -9,9 +9,9 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 import cachetools
+
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
-
 from src.backend.core.supabase_db import get_supabase_client
 
 logger = logging.getLogger(__name__)

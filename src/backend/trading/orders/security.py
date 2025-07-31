@@ -16,7 +16,6 @@ from ipaddress import AddressValueError, IPv4Address, IPv6Address
 from typing import Dict, List, Optional, Tuple
 
 from cryptography.fernet import Fernet
-
 from src.backend.trading.orders.models import Order, OrderSide
 
 logger = logging.getLogger(__name__)

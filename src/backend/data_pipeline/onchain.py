@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import httpx
-
 from src.backend.core.config import settings
 from src.backend.core.database import get_db
 

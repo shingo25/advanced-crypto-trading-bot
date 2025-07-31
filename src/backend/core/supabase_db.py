@@ -6,9 +6,8 @@ SQLAlchemyの代替として、Supabase SDKを使用したデータベース操�
 import logging
 from typing import Any, Dict, List, Optional
 
-from supabase import Client, create_client
-
 from src.backend.core.config import settings
+from supabase import Client, create_client
 
 logger = logging.getLogger(__name__)
 

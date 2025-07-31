@@ -5,7 +5,6 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
-
 from src.backend.core.database import get_db
 from src.backend.core.security import get_current_user
 

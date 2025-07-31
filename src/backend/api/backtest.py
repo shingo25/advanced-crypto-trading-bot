@@ -5,7 +5,6 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
-
 from src.backend.backtesting.engine import BacktestEngine
 from src.backend.core.security import get_current_user, require_admin
 from src.backend.strategies.loader import StrategyLoader
