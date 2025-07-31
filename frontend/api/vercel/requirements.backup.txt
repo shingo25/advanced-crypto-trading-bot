@@ -1,0 +1,16 @@
+# Crypto Bot API v4.0.0 - Supabase認証システム (Python 3.11 対応)
+fastapi==0.109.1
+uvicorn[standard]==0.25.0
+
+# Supabase認証
+supabase==2.4.2
+gotrue==2.4.2
+
+# JWT認証
+PyJWT==2.10.1
+
+# バリデーション (Python 3.11 対応)
+pydantic==2.5.3
+
+# CORS & ミドルウェア
+python-multipart==0.0.6
