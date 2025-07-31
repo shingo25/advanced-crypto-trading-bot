@@ -10,7 +10,6 @@ from typing import Any, Dict, List
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
-
 from src.backend.core.security import get_current_user
 from src.backend.streaming.price_streamer import price_stream_manager
 

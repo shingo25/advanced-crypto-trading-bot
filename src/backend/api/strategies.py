@@ -3,7 +3,6 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-
 from src.backend.core.security import get_current_user
 from src.backend.models.trading import get_strategies_model
 

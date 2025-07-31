@@ -4,7 +4,6 @@ from typing import Any, Dict
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-
 from src.backend.core.database import get_db
 from src.backend.core.security import get_current_user, require_admin
 

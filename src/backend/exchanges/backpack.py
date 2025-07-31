@@ -6,13 +6,14 @@ from datetime import datetime, timezone
 from typing import Dict, List, Optional
 from urllib.parse import urlencode
 
-import aiohttp
 from tenacity import (
     retry,
     retry_if_exception_type,
     stop_after_attempt,
     wait_exponential,
 )
+
+import aiohttp
 
 from .base import (
     OHLCV,
