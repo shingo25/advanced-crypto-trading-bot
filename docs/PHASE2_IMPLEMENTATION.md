@@ -27,7 +27,6 @@ Phase 2では、リアルタイムデータ収集と処理基盤の構築に焦�
 #### 実装内容
 
 ##### **DataCollectorクラス** (`backend/data_pipeline/collector.py`)
-
 ```python
 class DataCollector:
     """データ収集クラス"""
@@ -51,7 +50,6 @@ class DataCollector:
 ```
 
 ##### **主な特徴**
-
 - 非同期処理による高速データ収集
 - バッチ処理対応（複数シンボル・タイムフレーム）
 - Parquetファイルへのバックアップ保存
@@ -60,7 +58,6 @@ class DataCollector:
 #### Supabase連携
 
 ##### **price_dataテーブル**
-
 ```sql
 CREATE TABLE public.price_data (
     id bigserial NOT NULL PRIMARY KEY,
@@ -79,7 +76,6 @@ CREATE TABLE public.price_data (
 ```
 
 ##### **バッチ保存の最適化**
-
 - 1000件/バッチのサイズ制限
 - upsert処理による重複データ回避
 - 進捗ログ出力
@@ -107,39 +103,33 @@ python scripts/test_data_pipeline.py
 #### 1. API エンドポイント実データ対応 (優先度: 高)
 
 **実装内容**:
-
 - `/api/market-data/ohlcv` エンドポイントの実データ対応
 - キャッシュ戦略の実装（Redis検討）
 - ページネーション対応
 
 **ファイル**:
-
 - `backend/api/routes/market_data.py`
 - `backend/services/market_data_service.py`
 
 #### 2. バックテスト機能改善 (優先度: 高)
 
 **実装内容**:
-
 - 実データを使用したバックテストエンジン
 - パフォーマンス指標の計算精度向上
 - バックテスト結果の可視化改善
 
 **ファイル**:
-
 - `backend/services/backtest_service.py`
 - `backend/models/backtest_result.py`
 
 #### 3. リアルタイム価格更新 (優先度: 中)
 
 **実装内容**:
-
 - WebSocket接続管理
 - リアルタイム価格配信
 - フロントエンドとの連携
 
 **ファイル**:
-
 - `backend/websocket/price_stream.py`
 - `backend/api/websocket_handler.py`
 
@@ -178,7 +168,6 @@ python scripts/test_data_pipeline.py
 ### コーディング規約
 
 1. **非同期処理優先**
-
    ```python
    # 良い例
    async def fetch_data():
@@ -191,7 +180,6 @@ python scripts/test_data_pipeline.py
    ```
 
 2. **エラーハンドリング**
-
    ```python
    try:
        data = await fetch_ohlcv()

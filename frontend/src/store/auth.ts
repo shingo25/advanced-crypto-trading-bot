@@ -25,14 +25,72 @@ interface AuthState {
   clearError: () => void;
 }
 
-// 個人利用版：常に認証済み状態を返すように無効化
-export const useAuthStore = create<AuthState>((set) => ({
-  user: { id: 'local-user', username: 'local', email: 'local@example.com' }, // ダミーユーザー情報
-  isAuthenticated: true, // 常に認証済み
+export const useAuthStore = create<AuthState>((set, get) => ({
+  user: null,
+  isAuthenticated: false,
   isLoading: false,
   error: null,
-  login: async () => {}, // 何もしない
-  logout: () => {}, // 何もしない
-  initialize: () => {}, // 何もしない
-  clearError: () => {}, // 何もしない
+
+  login: async (username: string, password: string) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const response = await authApi.login(username, password);
+
+      setAuthenticatedState(true);
+
+      set({
+        user: response.user,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+    } catch (error: any) {
+      const errorMessage =
+        typeof error === 'string'
+          ? error
+          : error?.response?.data?.detail || error?.message || 'ログインに失敗しました';
+
+      set({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: errorMessage,
+      });
+      throw error;
+    }
+  },
+
+  logout: () => {
+    clearAuthenticatedState();
+    set({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+      error: null,
+    });
+  },
+
+  initialize: () => {
+    if (typeof window !== 'undefined') {
+      const isAuth = getAuthenticatedState();
+      if (isAuth) {
+        // 実際の実装では、認証状態の有効性を確認する
+        set({
+          user: {
+            id: '1',
+            username: 'admin',
+            email: 'admin@example.com',
+          },
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+        });
+      }
+    }
+  },
+
+  clearError: () => {
+    set({ error: null });
+  },
 }));

@@ -92,7 +92,6 @@ docker-compose logs -f
 ### よくある問題と解決方法
 
 1. **「ModuleNotFoundError: No module named 'pandas'」**
-
    ```bash
    pip install -r requirements.txt  # 依存関係の再インストール
    ```

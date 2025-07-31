@@ -21,7 +21,9 @@ import {
 } from '@/lib/mockData';
 
 // API設定
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  'http://localhost:8000';
 
 // Axiosインスタンス作成
 const apiClient = axios.create({
@@ -30,45 +32,92 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: false, // 個人利用版では認証不要
+  withCredentials: true, // httpOnlyクッキーを送信するために必要
 });
 
-// 個人利用版では認証機能を無効化
-export const setAuthenticatedState = (authenticated: boolean) => {};
-export const getAuthenticatedState = (): boolean => true; // 常に認証済み
-export const clearAuthenticatedState = () => {};
+// 認証状態管理（httpOnlyクッキー使用のため、トークンは直接管理しない）
+let isAuthenticated = false;
 
-// 個人利用版では認証エラー処理を無効化
+export const setAuthenticatedState = (authenticated: boolean) => {
+  isAuthenticated = authenticated;
+};
+
+export const getAuthenticatedState = (): boolean => {
+  return isAuthenticated;
+};
+
+export const clearAuthenticatedState = () => {
+  isAuthenticated = false;
+};
+
+// レスポンスインターセプター
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    // 401エラーでもリダイレクトしない（個人利用版）
+    if (error.response?.status === 401) {
+      clearAuthenticatedState();
+      // リダイレクト処理は呼び出し元で行う
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+    }
     return Promise.reject(error);
   }
 );
 
-// 個人利用版では認証APIを無効化（互換性のため空の実装を提供）
+// 認証API
 export const authApi = {
   async login(username: string, password: string): Promise<AuthResponse> {
-    // 個人利用版では常に成功
-    return {
-      access_token: 'mock-access-token',
-      token_type: 'Bearer',
-      expires_in: 3600,
-      user: { id: 'local-user', username: 'local', email: 'local@example.com' },
-    } as AuthResponse;
+    try {
+      const response = await apiClient.post('/api/auth/login', {
+        username,
+        password,
+      });
+
+      setAuthenticatedState(true);
+      return response.data;
+    } catch (error) {
+      clearAuthenticatedState();
+      throw error;
+    }
   },
+
   async logout(): Promise<void> {
-    // 何もしない
+    try {
+      await apiClient.post('/api/auth/logout');
+    } catch (error) {
+      console.warn('Logout request failed:', error);
+    } finally {
+      clearAuthenticatedState();
+    }
   },
+
   async getProfile(): Promise<any> {
-    return { id: 'local-user', username: 'local', email: 'local@example.com' };
+    const response = await apiClient.get('/api/auth/me');
+    return response.data;
   },
+
   async refreshToken(): Promise<void> {
-    // 何もしない
+    try {
+      await apiClient.post('/api/auth/refresh');
+      setAuthenticatedState(true);
+    } catch (error) {
+      clearAuthenticatedState();
+      throw error;
+    }
   },
+
   async register(username: string, email: string, password: string): Promise<any> {
-    return { user: { id: 'local-user', username: username, email: email } };
+    try {
+      const response = await apiClient.post('/api/auth/register', {
+        username,
+        email,
+        password,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   },
 };
 
@@ -554,6 +603,4 @@ export class WebSocketManager {
   }
 }
 
-// デフォルトエクスポートと名前付きエクスポートの両方を提供
-export const api = apiClient;
 export default apiClient;

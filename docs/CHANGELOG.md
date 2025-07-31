@@ -1,124 +1,89 @@
 # Changelog
 
-All notable changes to the Advanced Crypto Trading Bot project will be documented in this file.
+All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Phase 2 - Data Pipeline Implementation
+### Added
+- 企業レベル開発運用体制の構築
+- GitHub Issue/PR テンプレート
+- セキュリティポリシー (SECURITY.md)
+- コードオーナーシップ (CODEOWNERS)
+- エディタ設定統一 (.editorconfig)
 
-#### Added - 2025-01-20
+## [1.0.0] - 2025-07-15
 
-- **Data Pipeline Infrastructure**
-  - `DataCollector` class for fetching OHLCV data from Binance API
-  - Batch collection support for multiple symbols and timeframes
-  - Parallel processing with asyncio for improved performance
-  - Parquet file backup storage
+### Added
+- **Phase 1 完了**: データベース基盤構築
+- Supabase PostgreSQL 統合
+- JWT認証システム (httpOnly cookies)
+- FastAPI バックエンドAPI
+- Next.js フロントエンドアプリケーション
+- Vercel 本番環境デプロイ
+- 包括的プロジェクトドキュメンテーション
 
-- **Database Enhancement**
-  - New `price_data` table in Supabase for storing OHLCV data
-  - Optimized indexes for time-series queries
-  - Unique constraints to prevent duplicate data
+#### Backend Features
+- 戦略管理 API (`/api/strategies/`)
+- 認証 API (`/api/auth/`)
+- Supabase SDK統合
+- Row Level Security (RLS)
+- 7テーブル完全スキーマ
 
-- **Supabase Integration**
-  - Batch upsert functionality with 1000 records per batch
-  - Error handling that allows pipeline to continue on failures
-  - Progress logging for batch operations
+#### Frontend Features
+- Next.js 15 + TypeScript
+- Material-UI コンポーネント
+- Zustand 状態管理
+- レスポンシブデザイン
+- 認証フロー実装
 
-- **Testing Suite**
-  - 9 comprehensive unit tests for data pipeline
-  - Integration tests for data flow validation
-  - Functional test script for real API testing
+#### Infrastructure
+- Vercel Functions (Python 3.12)
+- Supabase Database hosting
+- 環境変数管理
+- CI/CD デプロイパイプライン
 
-- **Documentation**
-  - Phase 2 implementation guide (`docs/PHASE2_IMPLEMENTATION.md`)
-  - Updated database schema documentation
-  - Enhanced API documentation
+### Security
+- API キー暗号化保存
+- CORS設定
+- 入力値検証
+- XSS/SQLインジェクション対策
 
-#### Changed
+### Documentation
+- PROJECT_STATUS.md - 実装状況記録
+- ROADMAP.md - 開発計画
+- docs/GETTING_STARTED.md - 環境構築ガイド
+- docs/ARCHITECTURE.md - システム設計
+- docs/API_REFERENCE.md - API仕様書
+- docs/DATABASE_SCHEMA.md - データベース設計
+- CONTRIBUTING.md - 開発ガイドライン
 
-- Extended `backend/data_pipeline/collector.py` with Supabase save functionality
-- Updated `docs/DATABASE_SCHEMA.md` with Phase 2 table definitions
+### Changed
+- DuckDB から Supabase PostgreSQL に移行
+- 開発環境から本番環境へのデプロイ完了
 
-#### Technical Details
-
-- SQLAlchemy ORM model for `price_data` table
-- Decimal precision (20,8) for cryptocurrency prices
-- Timezone-aware timestamps for global market data
-
----
-
-## [0.2.0] - 2025-01-18
-
-### Phase 1 Completion - Project Restructuring
-
-#### Added
-
-- Organized documentation structure in `docs/` directory
-- Comprehensive documentation index (`docs/README.md`)
-
-#### Changed
-
-- Moved all documentation files from root to `docs/`
-- Updated all cross-references in documentation files
-- Preserved git history with `git mv` commands
-
-#### Removed
-
-- Scattered markdown files from project root (except README.md and LICENSE)
-
----
-
-## [0.1.0] - 2025-01-15
-
-### Initial Release - Phase 1 Foundation
-
-#### Added
-
-- **Backend Infrastructure**
-  - FastAPI application with modular architecture
-  - Supabase database integration
-  - JWT authentication system
-  - RESTful API endpoints
-
-- **Frontend Application**
-  - Next.js 13+ with App Router
-  - Tailwind CSS styling
-  - Responsive design
-  - Real-time chart components
-
-- **Core Features**
-  - User authentication (login/register)
-  - Strategy management
-  - Portfolio tracking
-  - Basic backtesting
-
-- **Development Tools**
-  - Docker containerization
-  - GitHub Actions CI/CD
-  - Pre-commit hooks
-  - Comprehensive test suite
+### Technical Details
+- **Backend**: FastAPI + Supabase SDK
+- **Frontend**: Next.js 15 + TypeScript
+- **Database**: Supabase PostgreSQL
+- **Hosting**: Vercel (Frontend + Functions)
+- **Authentication**: Supabase Auth + JWT
 
 ---
 
-## Upcoming Releases
+## バージョニング規則
 
-### [0.3.0] - Phase 2 Completion (Planned)
+- **Major (X.0.0)**: 破壊的変更
+- **Minor (0.X.0)**: 新機能追加（後方互換性あり）
+- **Patch (0.0.X)**: バグ修正
 
-- Real-time WebSocket price updates
-- Enhanced backtesting with real data
-- API endpoints using live market data
-- Performance optimizations
+## 変更カテゴリ
 
-### [0.4.0] - Phase 3 (Planned)
-
-- Machine learning integration
-- Advanced trading strategies
-- Risk management system
-- Multi-exchange support
-
----
-
-**Note**: Dates are in YYYY-MM-DD format. For detailed commit history, see [GitHub commits](https://github.com/shingo25/advanced-crypto-trading-bot/commits/main).
+- **Added**: 新機能
+- **Changed**: 既存機能の変更
+- **Deprecated**: 非推奨機能
+- **Removed**: 削除された機能
+- **Fixed**: バグ修正
+- **Security**: セキュリティ関連の変更

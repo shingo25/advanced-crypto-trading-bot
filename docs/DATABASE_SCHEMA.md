@@ -148,14 +148,14 @@ CREATE TABLE profiles (
 
 #### カラム詳細
 
-| カラム       | 型           | 制約             | 説明                                 |
-| ------------ | ------------ | ---------------- | ------------------------------------ |
-| `id`         | UUID         | PK, FK           | auth.users.id への外部キー           |
-| `username`   | VARCHAR(50)  | UNIQUE, NOT NULL | 一意のユーザー名                     |
-| `email`      | VARCHAR(255) | -                | メールアドレス（認証用）             |
-| `role`       | VARCHAR(20)  | CHECK            | ユーザーロール (admin/trader/viewer) |
-| `created_at` | TIMESTAMPTZ  | DEFAULT NOW()    | 作成日時                             |
-| `updated_at` | TIMESTAMPTZ  | DEFAULT NOW()    | 更新日時                             |
+| カラム | 型 | 制約 | 説明 |
+|--------|----|----- |------|
+| `id` | UUID | PK, FK | auth.users.id への外部キー |
+| `username` | VARCHAR(50) | UNIQUE, NOT NULL | 一意のユーザー名 |
+| `email` | VARCHAR(255) | - | メールアドレス（認証用） |
+| `role` | VARCHAR(20) | CHECK | ユーザーロール (admin/trader/viewer) |
+| `created_at` | TIMESTAMPTZ | DEFAULT NOW() | 作成日時 |
+| `updated_at` | TIMESTAMPTZ | DEFAULT NOW() | 更新日時 |
 
 #### RLS ポリシー
 
@@ -191,14 +191,14 @@ CREATE TABLE exchanges (
 
 #### カラム詳細
 
-| カラム                 | 型          | 制約         | 説明                             |
-| ---------------------- | ----------- | ------------ | -------------------------------- |
-| `id`                   | UUID        | PK           | 一意識別子                       |
-| `user_id`              | UUID        | FK, NOT NULL | プロファイルへの外部キー         |
-| `name`                 | VARCHAR(50) | CHECK        | 取引所名 (binance/bybit/okx/ftx) |
-| `api_key_encrypted`    | TEXT        | NOT NULL     | 暗号化されたAPIキー              |
-| `api_secret_encrypted` | TEXT        | NOT NULL     | 暗号化されたAPIシークレット      |
-| `is_active`            | BOOLEAN     | DEFAULT TRUE | 有効/無効フラグ                  |
+| カラム | 型 | 制約 | 説明 |
+|--------|----|----- |------|
+| `id` | UUID | PK | 一意識別子 |
+| `user_id` | UUID | FK, NOT NULL | プロファイルへの外部キー |
+| `name` | VARCHAR(50) | CHECK | 取引所名 (binance/bybit/okx/ftx) |
+| `api_key_encrypted` | TEXT | NOT NULL | 暗号化されたAPIキー |
+| `api_secret_encrypted` | TEXT | NOT NULL | 暗号化されたAPIシークレット |
+| `is_active` | BOOLEAN | DEFAULT TRUE | 有効/無効フラグ |
 
 #### セキュリティ考慮事項
 
@@ -244,8 +244,15 @@ CREATE TABLE strategies (
     "stop_loss_pct": 0.02,
     "take_profit_pct": 0.04
   },
-  "entry_conditions": ["ema_cross_up", "rsi_oversold"],
-  "exit_conditions": ["ema_cross_down", "stop_loss", "take_profit"]
+  "entry_conditions": [
+    "ema_cross_up",
+    "rsi_oversold"
+  ],
+  "exit_conditions": [
+    "ema_cross_down",
+    "stop_loss",
+    "take_profit"
+  ]
 }
 ```
 
@@ -282,20 +289,20 @@ CREATE TABLE trades (
 
 #### カラム詳細
 
-| カラム        | 型            | 制約         | 説明                           |
-| ------------- | ------------- | ------------ | ------------------------------ |
-| `id`          | UUID          | PK           | 一意識別子                     |
-| `user_id`     | UUID          | FK, NOT NULL | ユーザーID                     |
-| `strategy_id` | UUID          | FK           | 戦略ID（手動取引の場合はNULL） |
-| `exchange_id` | UUID          | FK           | 取引所ID                       |
-| `symbol`      | VARCHAR(20)   | NOT NULL     | 通貨ペア (BTCUSDT等)           |
-| `side`        | VARCHAR(10)   | CHECK        | 売買方向 (buy/sell)            |
-| `type`        | VARCHAR(20)   | CHECK        | 注文タイプ                     |
-| `amount`      | DECIMAL(20,8) | CHECK > 0    | 取引量                         |
-| `price`       | DECIMAL(20,8) | CHECK > 0    | 約定価格                       |
-| `fee`         | DECIMAL(20,8) | DEFAULT 0    | 手数料                         |
-| `order_id`    | VARCHAR(100)  | -            | 取引所注文ID                   |
-| `timestamp`   | TIMESTAMPTZ   | NOT NULL     | 約定日時                       |
+| カラム | 型 | 制約 | 説明 |
+|--------|----|----- |------|
+| `id` | UUID | PK | 一意識別子 |
+| `user_id` | UUID | FK, NOT NULL | ユーザーID |
+| `strategy_id` | UUID | FK | 戦略ID（手動取引の場合はNULL） |
+| `exchange_id` | UUID | FK | 取引所ID |
+| `symbol` | VARCHAR(20) | NOT NULL | 通貨ペア (BTCUSDT等) |
+| `side` | VARCHAR(10) | CHECK | 売買方向 (buy/sell) |
+| `type` | VARCHAR(20) | CHECK | 注文タイプ |
+| `amount` | DECIMAL(20,8) | CHECK > 0 | 取引量 |
+| `price` | DECIMAL(20,8) | CHECK > 0 | 約定価格 |
+| `fee` | DECIMAL(20,8) | DEFAULT 0 | 手数料 |
+| `order_id` | VARCHAR(100) | - | 取引所注文ID |
+| `timestamp` | TIMESTAMPTZ | NOT NULL | 約定日時 |
 
 #### パフォーマンス最適化
 
@@ -414,8 +421,8 @@ CREATE TABLE backtest_results (
     "alpha": 0.045
   },
   "monthly_returns": [
-    { "month": "2024-01", "return": 0.023 },
-    { "month": "2024-02", "return": -0.011 }
+    {"month": "2024-01", "return": 0.023},
+    {"month": "2024-02", "return": -0.011}
   ]
 }
 ```
@@ -707,19 +714,19 @@ CREATE INDEX idx_price_data_composite ON price_data(exchange, symbol, timeframe,
 
 #### カラム詳細
 
-| カラム        | 型            | 制約          | 説明                        |
-| ------------- | ------------- | ------------- | --------------------------- |
-| `id`          | BIGSERIAL     | PK            | 自動増分ID                  |
-| `exchange`    | VARCHAR(20)   | NOT NULL      | 取引所名 (binance, bybit)   |
-| `symbol`      | VARCHAR(20)   | NOT NULL      | 取引ペア (BTCUSDT, ETHUSDT) |
-| `timeframe`   | VARCHAR(10)   | NOT NULL      | 時間足 (1m, 5m, 1h, 1d)     |
-| `timestamp`   | TIMESTAMPTZ   | NOT NULL      | データ時刻                  |
-| `open_price`  | NUMERIC(20,8) | NOT NULL      | 開始価格                    |
-| `high_price`  | NUMERIC(20,8) | NOT NULL      | 最高価格                    |
-| `low_price`   | NUMERIC(20,8) | NOT NULL      | 最低価格                    |
-| `close_price` | NUMERIC(20,8) | NOT NULL      | 終了価格                    |
-| `volume`      | NUMERIC(20,8) | NOT NULL      | 出来高                      |
-| `created_at`  | TIMESTAMPTZ   | DEFAULT NOW() | 作成日時                    |
+| カラム | 型 | 制約 | 説明 |
+|--------|----|----- |------|
+| `id` | BIGSERIAL | PK | 自動増分ID |
+| `exchange` | VARCHAR(20) | NOT NULL | 取引所名 (binance, bybit) |
+| `symbol` | VARCHAR(20) | NOT NULL | 取引ペア (BTCUSDT, ETHUSDT) |
+| `timeframe` | VARCHAR(10) | NOT NULL | 時間足 (1m, 5m, 1h, 1d) |
+| `timestamp` | TIMESTAMPTZ | NOT NULL | データ時刻 |
+| `open_price` | NUMERIC(20,8) | NOT NULL | 開始価格 |
+| `high_price` | NUMERIC(20,8) | NOT NULL | 最高価格 |
+| `low_price` | NUMERIC(20,8) | NOT NULL | 最低価格 |
+| `close_price` | NUMERIC(20,8) | NOT NULL | 終了価格 |
+| `volume` | NUMERIC(20,8) | NOT NULL | 出来高 |
+| `created_at` | TIMESTAMPTZ | DEFAULT NOW() | 作成日時 |
 
 #### 特徴
 
