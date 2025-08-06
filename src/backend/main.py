@@ -19,12 +19,12 @@ from src.backend.api import (
 from src.backend.core.config import settings
 from src.backend.core.local_database import init_local_db
 from src.backend.core.logging import setup_logging
-from src.backend.streaming import price_stream_manager
-
-# Streaming system
-from src.backend.streaming import router as streaming_router
 
 # from src.backend.api import config, trades
+# Streaming system
+from src.backend.streaming import price_stream_manager
+from src.backend.streaming import router as streaming_router
+
 # WebSocket system
 from src.backend.websocket import router as websocket_router
 
