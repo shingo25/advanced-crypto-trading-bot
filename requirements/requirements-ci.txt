@@ -1,15 +1,15 @@
 # CI/CD用の最小限の依存関係
 # Python 3.12互換性を重視した安定版組み合わせ
 
-# Core Framework - 互換性確認済み
-fastapi==0.109.1
-uvicorn==0.25.0
+# Core Framework - Python 3.12 完全互換版
+fastapi==0.104.1
+uvicorn==0.24.0
 gunicorn==21.2.0
 python-multipart==0.0.6
 
-# Auth & Security - Python 3.12 + CI/CD 確実動作版
+# Auth & Security - Python 3.12 安定版（非Rust）
 PyJWT==2.10.1
-cryptography==3.4.8
+cryptography==41.0.7
 passlib[bcrypt]==1.7.4
 
 # Config & Utilities - 安定版
@@ -28,12 +28,12 @@ asyncpg==0.29.0
 pandas==2.1.4
 numpy==1.26.4
 
-# Trading & Market Data (テスト用必須) - cryptography 3.4.8互換版
-ccxt==4.0.70
+# Trading & Market Data (テスト用必須) - Python 3.12 互換版  
+ccxt==4.1.49
 
-# Async & Networking - ccxt 4.0.70 + cryptography 3.4.8互換版
-httpx==0.24.1
-aiohttp==3.8.5
+# Async & Networking - Python 3.12 + 最新安定版
+httpx==0.25.2
+aiohttp==3.9.5
 websockets==12.0
 tenacity==8.2.3
 

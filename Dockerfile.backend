@@ -1,7 +1,7 @@
 # Stage 1: Builder stage for compiling TA-Lib
-# MULTI-STAGE BUILD VERSION: v2.1 - Dependency conflict fixes
+# MULTI-STAGE BUILD VERSION: v3.0 - Python 3.11 unified dependencies  
 # Build with: docker build --no-cache -f Dockerfile.backend -t crypto-bot-backend .
-FROM python:3.9-slim as builder
+FROM python:3.11-slim as builder
 
 # TA-Libのビルドに必要なツールをインストール
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -19,7 +19,7 @@ RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
     make install
 
 # Stage 2: Final application stage
-FROM python:3.9-slim
+FROM python:3.11-slim
 
 # Python環境変数設定
 ENV PYTHONUNBUFFERED=1
@@ -40,11 +40,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Python依存関係をコピーしてインストール
-COPY requirements/requirements-ci.txt requirements/requirements-backend.txt ./
-# 統合インストールで依存関係競合を回避
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements-ci.txt -r requirements-backend.txt
+# Python依存関係をコピーしてインストール - 統一版使用
+COPY requirements/requirements-ci.txt ./requirements.txt
+# Python 3.11 + 統一バージョンでクリーンインストール
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir -r requirements.txt
 
 # アプリケーションコードをコピー
 COPY src/backend/ ./backend/
