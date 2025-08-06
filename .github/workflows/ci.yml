@@ -60,19 +60,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential libssl-dev libffi-dev pkg-config python3-dev
-          # Skip ta-lib installation for CI/CD - use requirements-minimal.txt instead
-          # Force use of older cryptography without Rust backend
-          export CRYPTOGRAPHY_DONT_BUILD_RUST=1
+          # cryptography 41.0.7を使用（Python 3.12と互換性あり、Rustビルド不要）
 
       - name: 📦 Install dependencies
         run: |
           python -m pip install --upgrade pip
           # CI/CDとVercelの整合性を保つため requirements-ci.txt を使用
-          # --no-cache-dir: キャッシュを無効にし、クリーンなインストールを保証
-          # --force-reinstall: 既存のパッケージを強制的に再インストール
-          # CRYPTOGRAPHY_DONT_BUILD_RUST: Rustバックエンドを無効化
-          export CRYPTOGRAPHY_DONT_BUILD_RUST=1
-          pip install --no-cache-dir --force-reinstall -r requirements/requirements-ci.txt
+          pip install --no-cache-dir -r requirements/requirements-ci.txt
 
       - name: 🎨 Code formatting check (Ruff)
         run: |
@@ -289,8 +283,7 @@ jobs:
 
       - name: 📦 Install dependencies
         run: |
-          export CRYPTOGRAPHY_DONT_BUILD_RUST=1
-          pip install --no-cache-dir --force-reinstall -r requirements/requirements-ci.txt
+          pip install --no-cache-dir -r requirements/requirements-ci.txt
           cd frontend && npm install
 
       - name: 🌐 Run E2E tests
