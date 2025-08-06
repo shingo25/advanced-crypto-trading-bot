@@ -91,8 +91,9 @@ jobs:
           echo "📦 Step 2: Installing unified dependency versions..."
           pip install --no-cache-dir -r requirements/requirements-ci.txt
           
-          # インストール完了確認
+          # インストール完了確認（ローカルディレクトリとの競合を回避）
           echo "🔍 Verifying critical imports..."
+          export PYTHONPATH="$(python -c 'import site; print(":".join(site.getsitepackages()))')":$(pwd)
           python -c "import sys; print(f'Python: {sys.version}')"
           python -c "import fastapi; print(f'✅ FastAPI {fastapi.__version__}')"
           python -c "import cryptography; print(f'✅ Cryptography {cryptography.__version__}')" 
@@ -142,13 +143,15 @@ jobs:
           CI: "true"
           ENVIRONMENT: "test"
         run: |
-          export PYTHONPATH=$PYTHONPATH:$(pwd)
+          # 重要：ローカルfastapi/pydanticディレクトリとの競合を避けるため、site-packagesを優先
+          export PYTHONPATH="$(python -c 'import site; print(":".join(site.getsitepackages()))')":$(pwd)
           
           echo "🧪 Running comprehensive test suite with Python 3.11"
           echo "🔍 Environment diagnostics:"
           python --version
           python -c "import sys; print(f'Python executable: {sys.executable}')"
           python -c "import site; print(f'Site packages: {site.getsitepackages()}')"
+          echo "PYTHONPATH: $PYTHONPATH"
           
           # 段階的ライブラリテスト
           echo "📦 Testing core library imports..."
