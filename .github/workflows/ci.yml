@@ -97,6 +97,10 @@ jobs:
           mv pydantic pydantic.local.backup || echo "No pydantic directory to rename"
           mv pydantic_core pydantic_core.local.backup || echo "No pydantic_core directory to rename"
           
+          # 重要：競合解決後、Ruffのimport並び順も修正
+          echo "🔧 Fixing import order issues after conflict resolution..."
+          ruff check src/backend/ --fix || echo "Ruff auto-fix completed"
+          
           # インストール完了確認
           echo "🔍 Verifying critical imports..."
           python -c "import sys; print(f'Python: {sys.version}')"
