@@ -100,3 +100,11 @@ coverage/
 .cache/
 *.tgz
 *.tar.gz
+
+# Local package directories (conflict prevention)
+fastapi/
+pydantic/
+pydantic_core/
+fastapi.local.backup/
+pydantic.local.backup/
+pydantic_core.local.backup/
