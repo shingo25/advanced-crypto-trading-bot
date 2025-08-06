@@ -1,63 +1,49 @@
 # CI/CD用の最小限の依存関係
-# 重いパッケージ (ta-lib, duckdb, freqtrade) は除外
+# Python 3.12互換性を重視した安定版組み合わせ
 
-# Core Framework
+# Core Framework - 互換性確認済み
 fastapi==0.109.1
-uvicorn[standard]==0.25.0
+uvicorn==0.25.0
 gunicorn==21.2.0
 python-multipart==0.0.6
 
-# Auth & Security
-python-jose==3.2.0
-cryptography==41.0.7
+# Auth & Security - 互換性確認済み
+PyJWT==2.10.1
+cryptography==42.0.8
 passlib[bcrypt]==1.7.4
-age==0.5.1
 
-# Config & Utilities
+# Config & Utilities - 安定版
 python-dotenv==1.0.0
 pydantic[email]==2.5.3
 pydantic-settings==2.1.0
 PyYAML==6.0.1
-orjson==3.9.15
+orjson==3.9.10
 click==8.1.7
-cachetools==5.3.2
 
-# Database & Supabase (required for tests)
-sqlalchemy==2.0.41
+# Database & Supabase (テスト用必須) - 互換性確認済み
 supabase==2.4.2
-duckdb==1.3.2
 asyncpg==0.29.0
-psycopg2-binary==2.9.10
 
-# Data Processing (required for tests)
+# Data Processing (テスト用必須) - Python 3.12互換版
 pandas==2.1.4
 numpy==1.26.4
-pyarrow==21.0.0
-polars==1.31.0
 
-# Trading & Market Data (required for tests)
-ccxt==4.4.96
+# Trading & Market Data (テスト用必須) - 最新安定版
+ccxt==4.4.98
 
-# Technical Analysis (Phase 3) - CI/CD用軽量版
-pandas-ta==0.3.14b
-
-# Async & Networking
+# Async & Networking - ccxt 4.4.98互換版
 httpx==0.26.0
-aiohttp==3.9.1
+aiohttp==3.10.11
 websockets==12.0
 tenacity==8.2.3
 
-# Monitoring & Logging
-prometheus-client==0.19.0
-rich==13.7.0
+# Monitoring & Logging - 安定版
 loguru==0.7.2
 
-# Background Jobs
-rq==1.15.1
+# Background Jobs - 安定版
 redis==5.0.1
-schedule==1.2.0
 
-# Development Tools (CI/CD用)
+# Development Tools (CI/CD用) - Python 3.12互換版
 pytest==7.4.4
 pytest-asyncio==0.21.1
 pytest-cov==4.1.0
@@ -66,27 +52,21 @@ pytest-timeout==2.2.0
 ruff==0.1.9
 mypy==1.8.0
 bandit==1.7.5
-# safety==3.0.1  # 一時的に無効化（Pydantic 2.x非互換）
 
-# Test Dependencies
+# Test Dependencies - 安定版
 python-dateutil==2.8.2
-requests==2.31.0  # API tests need this
-aiosmtplib==3.0.1  # Alert notification tests
+requests==2.31.0
 
-# Cryptocurrency & Blockchain Dependencies (required for tests)
-# 互換性のあるバージョンに更新（競合解決をpipに任せる）
-eth-account>=0.10.0,<0.14.0  # Ethereum account management for Hyperliquid (range for compatibility)
-web3>=6.11.1,<7.0.0  # Web3 interactions (v6.11.1+ for ContractName ImportError fix)
-hyperliquid-python-sdk==0.16.0  # Hyperliquid exchange SDK
-# hexbytesのpip依存関係解決に任せる（明示的指定を除去）
+# Cryptocurrency & Blockchain Dependencies (テスト用必須) - Python 3.12互換版
+eth-account==0.10.0
+web3==6.20.3
+hyperliquid-python-sdk==0.16.0
 
-# FastAPI Rate Limiting
-slowapi>=0.1.9  # Rate limiting for FastAPI (required for test_security_features.py)
+# FastAPI Rate Limiting - 安定版
+slowapi==0.1.9
 
-# API Testing & Security Testing
-# schemathesis>=4.0.13  # API fuzzing and testing (pytest>=8必要だがCI環境はpytest==7.4.4のため無効化)
-hypothesis>=6.96.1  # Property-based testing
+# API Testing & Security Testing - Python 3.12互換版
+hypothesis==6.96.1
 
-# Additional dependencies for E2E and integration tests
-# starlette version is managed by FastAPI dependency
-typing-extensions==4.9.0  # Required for Pydantic compatibility
+# 互換性のための追加パッケージ
+typing-extensions==4.9.0
