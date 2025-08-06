@@ -20,6 +20,12 @@ JWT_SECRET = os.getenv("JWT_SECRET_KEY", "dev-jwt-secret-key-for-advanced-crypto
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION = int(os.getenv("JWT_EXPIRATION", "86400"))  # 24時間
 
+# 個人モード設定
+PERSONAL_MODE = os.getenv("PERSONAL_MODE", "false").lower() == "true"
+PERSONAL_MODE_AUTO_LOGIN = os.getenv("PERSONAL_MODE_AUTO_LOGIN", "false").lower() == "true"
+PERSONAL_MODE_DEFAULT_USER = os.getenv("PERSONAL_MODE_DEFAULT_USER", "demo")
+PERSONAL_MODE_SKIP_LIVE_TRADING_AUTH = os.getenv("PERSONAL_MODE_SKIP_LIVE_TRADING_AUTH", "false").lower() == "true"
+
 app = FastAPI(title="Crypto Bot Simple Auth API", version="2.0.0")
 
 # 本番環境では適切なオリジンを指定
@@ -180,6 +186,45 @@ async def register(request: RegisterRequest):
         raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
 
 
+@app.post("/api/auth/auto-login", response_model=AuthResponse)
+async def auto_login(response: Response):
+    """個人モード用自動ログイン"""
+    try:
+        # 個人モードが有効でない場合はエラー
+        if not PERSONAL_MODE:
+            raise HTTPException(status_code=403, detail="Personal mode not enabled")
+        
+        # デフォルトユーザーでのログイン
+        user = get_user(PERSONAL_MODE_DEFAULT_USER)
+        if not user:
+            raise HTTPException(status_code=404, detail=f"Default user '{PERSONAL_MODE_DEFAULT_USER}' not found")
+
+        # JWTトークン生成
+        access_token = create_access_token(user)
+
+        # httpOnlyクッキーに設定
+        is_production = os.getenv("ENVIRONMENT") == "production"
+        response.set_cookie(
+            key="access_token",
+            value=access_token,
+            httponly=True,
+            secure=is_production,
+            samesite="lax",
+            max_age=JWT_EXPIRATION,
+        )
+
+        return AuthResponse(
+            success=True,
+            message="Auto-login successful (Personal mode)",
+            user={"id": user["id"], "username": user["username"], "email": user["email"], "role": user["role"]},
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Auto-login failed: {str(e)}")
+
+
 @app.post("/api/auth/logout")
 async def logout(response: Response):
     """ログアウト処理"""
@@ -214,6 +259,18 @@ async def get_current_user(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/api/auth/personal-mode-info")
+async def get_personal_mode_info():
+    """個人モード設定情報を取得"""
+    return {
+        "personal_mode": PERSONAL_MODE,
+        "auto_login": PERSONAL_MODE_AUTO_LOGIN,
+        "default_user": PERSONAL_MODE_DEFAULT_USER,
+        "skip_live_trading_auth": PERSONAL_MODE_SKIP_LIVE_TRADING_AUTH,
+        "available_users": list(DEMO_USERS.keys()),
+    }
+
+
 @app.get("/api/auth/health")
 async def health_check():
     """ヘルスチェック"""
@@ -223,7 +280,8 @@ async def health_check():
         "version": "2.0.0",
         "environment": os.getenv("ENVIRONMENT", "unknown"),
         "demo_user_available": "demo" in DEMO_USERS,
-        "endpoints": ["/api/auth/login", "/api/auth/register", "/api/auth/logout", "/api/auth/me", "/api/auth/health"],
+        "personal_mode": PERSONAL_MODE,
+        "endpoints": ["/api/auth/login", "/api/auth/register", "/api/auth/logout", "/api/auth/me", "/api/auth/auto-login", "/api/auth/personal-mode-info", "/api/auth/health"],
     }
 
 

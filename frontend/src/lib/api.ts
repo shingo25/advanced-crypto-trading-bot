@@ -95,6 +95,22 @@ export const authApi = {
     return response.data;
   },
 
+  async autoLogin(): Promise<AuthResponse> {
+    try {
+      const response = await apiClient.post('/api/auth/auto-login');
+      setAuthenticatedState(true);
+      return response.data;
+    } catch (error) {
+      clearAuthenticatedState();
+      throw error;
+    }
+  },
+
+  async getPersonalModeInfo(): Promise<any> {
+    const response = await apiClient.get('/api/auth/personal-mode-info');
+    return response.data;
+  },
+
   async refreshToken(): Promise<void> {
     try {
       await apiClient.post('/api/auth/refresh');
