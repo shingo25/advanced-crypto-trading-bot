@@ -5,7 +5,8 @@ gunicorn==21.2.0
 python-multipart==0.0.18
 
 # Auth & Security
-python-jose[cryptography]==3.5.0
+python-jose==3.2.0
+cryptography==3.4.8
 passlib[bcrypt]==1.7.4
 
 # Config & Utilities
