@@ -26,14 +26,16 @@ PERSONAL_MODE_AUTO_LOGIN = os.getenv("PERSONAL_MODE_AUTO_LOGIN", "false").lower(
 PERSONAL_MODE_DEFAULT_USER = os.getenv("PERSONAL_MODE_DEFAULT_USER", "demo")
 PERSONAL_MODE_SKIP_LIVE_TRADING_AUTH = os.getenv("PERSONAL_MODE_SKIP_LIVE_TRADING_AUTH", "false").lower() == "true"
 
-app = FastAPI(title="Crypto Bot Simple Auth API", version="2.0.0")
+app = FastAPI(
+    title="Crypto Bot Simple Auth API", 
+    version="2.0.0",
+    docs_url="/api/auth/docs",  # Vercel環境での docs URL
+    redoc_url="/api/auth/redoc"  # Vercel環境での redoc URL
+)
 
 # 本番環境では適切なオリジンを指定
-allowed_origins = (
-    ["*"]
-    if os.getenv("ENVIRONMENT") == "development"
-    else ["https://*.vercel.app", "https://advanced-crypto-trading-bot.vercel.app"]
-)
+# Vercel環境対応のためのCORS設定を緩和
+allowed_origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -268,13 +270,35 @@ async def get_personal_mode_info():
         "default_user": PERSONAL_MODE_DEFAULT_USER,
         "skip_live_trading_auth": PERSONAL_MODE_SKIP_LIVE_TRADING_AUTH,
         "available_users": list(DEMO_USERS.keys()),
+        "environment_debug": {
+            "PERSONAL_MODE_RAW": os.getenv("PERSONAL_MODE", "not_set"),
+            "PERSONAL_MODE_AUTO_LOGIN_RAW": os.getenv("PERSONAL_MODE_AUTO_LOGIN", "not_set"),
+            "ENVIRONMENT": os.getenv("ENVIRONMENT", "not_set"),
+            "VERCEL": os.getenv("VERCEL", "not_set"),
+            "VERCEL_ENV": os.getenv("VERCEL_ENV", "not_set")
+        }
     }
 
 
 @app.get("/api/auth/test")
 async def test_endpoint():
     """Vercel環境テスト用エンドポイント"""
-    return {"status": "ok", "message": "API is working"}
+    import sys
+    return {
+        "status": "ok", 
+        "message": "API is working",
+        "environment": os.getenv("ENVIRONMENT", "unknown"),
+        "personal_mode": PERSONAL_MODE,
+        "auto_login": PERSONAL_MODE_AUTO_LOGIN,
+        "default_user": PERSONAL_MODE_DEFAULT_USER,
+        "python_version": sys.version,
+        "vercel_region": os.getenv("VERCEL_REGION", "unknown")
+    }
+
+@app.options("/api/auth/{path:path}")
+async def options_handler():
+    """CORS プリフライトリクエストを処理"""
+    return {"message": "CORS preflight OK"}
 
 
 @app.get("/api/auth/health")
