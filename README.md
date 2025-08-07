@@ -4,6 +4,8 @@
 
 5つの主要取引所対応、包括的なセキュリティシステム、Paper/Live Trading完全分離アーキテクチャを実装した本格的なトレーディングプラットフォームです。
 
+> **Phase A: 個人利用向け認証簡素化機能** - 完全実装済み ✅
+
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.12-blue.svg)
 ![Next.js](https://img.shields.io/badge/next.js-14-black.svg)
