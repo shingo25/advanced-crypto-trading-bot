@@ -66,16 +66,16 @@ class AuthResponse(BaseModel):
     user: Optional[Dict] = None
 
 
-# メモリベースの簡易ユーザーストレージ（実際にはRedisやSupabaseを使用）
-# デモ用のハードコードされたユーザー
+# メモリベースの簡易ユーザーストレージ（実際にはRedisやSupabaseを使用）  
+# デモ用のハードコードされたユーザー（Vercel対応: 静的初期化）
 DEMO_USERS = {
     "demo": {
-        "id": "demo-user-id",
+        "id": "demo-user-id", 
         "username": "demo",
         "email": "demo@example.com",
         "password_hash": hashlib.pbkdf2_hmac("sha256", "demo".encode(), b"salt", 100000).hex(),
         "role": "viewer",
-        "created_at": datetime.now().isoformat(),
+        "created_at": "2025-01-01T00:00:00",  # Cold Start対応で静的日時
     }
 }
 
@@ -261,6 +261,11 @@ async def get_current_user(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/api/auth/ping")
+async def ping():
+    """最小限の動作確認エンドポイント"""
+    return {"status": "ok", "message": "pong"}
+
 @app.get("/api/auth/personal-mode-info")
 async def get_personal_mode_info():
     """個人モード設定情報を取得"""
@@ -284,15 +289,26 @@ async def get_personal_mode_info():
 async def test_endpoint():
     """Vercel環境テスト用エンドポイント"""
     import sys
+    try:
+        import jwt as jwt_lib
+        jwt_available = True
+        jwt_version = getattr(jwt_lib, '__version__', 'unknown')
+    except ImportError as e:
+        jwt_available = False
+        jwt_version = f"Import Error: {str(e)}"
+    
     return {
         "status": "ok", 
         "message": "API is working",
         "environment": os.getenv("ENVIRONMENT", "unknown"),
         "personal_mode": PERSONAL_MODE,
-        "auto_login": PERSONAL_MODE_AUTO_LOGIN,
+        "auto_login": PERSONAL_MODE_AUTO_LOGIN, 
         "default_user": PERSONAL_MODE_DEFAULT_USER,
         "python_version": sys.version,
-        "vercel_region": os.getenv("VERCEL_REGION", "unknown")
+        "vercel_region": os.getenv("VERCEL_REGION", "unknown"),
+        "jwt_available": jwt_available,
+        "jwt_version": jwt_version,
+        "demo_users_count": len(DEMO_USERS)
     }
 
 @app.options("/api/auth/{path:path}")
