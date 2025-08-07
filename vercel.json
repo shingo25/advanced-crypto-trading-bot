@@ -1,33 +1,12 @@
 {
   "version": 2,
-  "public": true,
-  "buildCommand": "./scripts/vercel-build.sh",
-  "outputDirectory": "out",
-  "framework": null,
   "builds": [
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/next",
-      "config": {
-        "distDir": "out"
-      }
-    },
     {
       "src": "api/**/*.py",
       "use": "@vercel/python",
       "config": {
-        "runtime": "python3.11"
+        "runtime": "python3.9"
       }
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/$1"
     }
   ],
   "headers": [
@@ -60,7 +39,11 @@
     "JWT_EXPIRATION": "86400",
     "SUPABASE_URL": "https://huuimmgmxtqigbjfpudo.supabase.co",
     "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1dWltbWdteHRxaWdiamZwdWRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1NDg4NjAsImV4cCI6MjA2ODEyNDg2MH0.WCi5T4msYId8UmzhYr2LFkf9uxWFuPNTUdX1TRrxyRE",
-    "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1dWltbWdteHRxaWdiamZwdWRvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MjU0ODg2MCwiZXhwIjoyMDY4MTI0ODYwfQ.2jSretdMXpiOLW3GQ4n46GHivWHthYOQlYF3X3L5NqA"
+    "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1dWltbWdteHRxaWdiamZwdWRvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MjU0ODg2MCwiZXhwIjoyMDY4MTI0ODYwfQ.2jSretdMXpiOLW3GQ4n46GHivWHthYOQlYF3X3L5NqA",
+    "PERSONAL_MODE": "true",
+    "PERSONAL_MODE_AUTO_LOGIN": "true",
+    "PERSONAL_MODE_DEFAULT_USER": "demo",
+    "PERSONAL_MODE_SKIP_LIVE_TRADING_AUTH": "false"
   },
   "github": {
     "silent": false

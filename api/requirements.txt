@@ -1,2 +1,1 @@
-# Vercel Functions最小限依存関係
-fastapi==0.109.1
+# Empty requirements for basic testing
