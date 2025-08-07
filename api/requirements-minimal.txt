@@ -1,0 +1,2 @@
+# Vercel Functions最小限依存関係 - テスト用
+# 基本的なHTTPレスポンスのみ
