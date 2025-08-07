@@ -78,6 +78,22 @@ async def root():
         "features": ["Supabase認証", "デモユーザー(demo/demo)", "新規アカウント作成", "JWT認証"],
     }
 
+@app.get("/api/debug")
+async def debug_endpoint():
+    """デバッグ用エンドポイント - 最小限"""
+    return {"status": "ok", "message": "debug endpoint working"}
+
+@app.get("/api/test")
+async def test_endpoint():
+    """テスト用エンドポイント"""
+    import sys
+    return {
+        "status": "healthy",
+        "python_version": sys.version,
+        "environment": os.getenv("ENVIRONMENT", "unknown"),
+        "vercel": os.getenv("VERCEL", "unknown"),
+    }
+
 
 @app.get("/api/health")
 async def health_check():
