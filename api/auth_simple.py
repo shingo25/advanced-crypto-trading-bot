@@ -108,8 +108,8 @@ def create_access_token(user_data: Dict) -> str:
         "sub": user_data["username"],
         "user_id": user_data["id"],
         "role": user_data["role"],
-        "exp": datetime.utcnow() + timedelta(seconds=JWT_EXPIRATION),
-        "iat": datetime.utcnow(),
+        "exp": datetime.now() + timedelta(seconds=JWT_EXPIRATION),
+        "iat": datetime.now(),
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
