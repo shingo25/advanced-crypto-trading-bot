@@ -36,21 +36,26 @@ app.add_middleware(
     allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
 )
 
-# 認証ルーターをインポート（相対インポート）
+# 個人モード対応認証システムをインポート（auth_simple.py）
 try:
-    from .auth import auth_router
-
-    app.include_router(auth_router)
-    logger.info("認証ルーター統合完了")
+    from .auth_simple import app as auth_app
+    # auth_simple.pyのルートをマウント
+    app.mount("/api/auth", auth_app)
+    logger.info("個人モード認証システム統合完了")
 except ImportError:
-    # 絶対インポートを試す
     try:
-        from api.auth import auth_router
-
-        app.include_router(auth_router)
-        logger.info("認証ルーター統合完了")
+        from api.auth_simple import app as auth_app
+        app.mount("/api/auth", auth_app) 
+        logger.info("個人モード認証システム統合完了")
     except ImportError as e:
-        logger.warning(f"認証ルーターの読み込みに失敗: {e}")
+        logger.warning(f"個人モード認証システムの読み込みに失敗: {e}")
+        # フォールバック: 従来の認証システム
+        try:
+            from .auth import auth_router
+            app.include_router(auth_router)
+            logger.info("フォールバック認証ルーター統合完了")
+        except ImportError as e2:
+            logger.error(f"全認証システム読み込み失敗: {e2}")
 
 
 # ヘルスチェック（基本機能）
