@@ -5,7 +5,7 @@ Supabase認証システム - APIRouter実装
 
 import logging
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import Dict, Optional
 
 import jwt
@@ -106,8 +106,8 @@ def create_jwt_token(user_data: Dict) -> str:
         "sub": user_data["id"],
         "username": user_data.get("username", ""),
         "email": user_data.get("email", ""),
-        "exp": datetime.utcnow() + timedelta(hours=JWT_EXPIRATION_HOURS),
-        "iat": datetime.utcnow(),
+        "exp": datetime.now() + timedelta(hours=JWT_EXPIRATION_HOURS),
+        "iat": datetime.now(),
     }
     return jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
 
@@ -192,7 +192,7 @@ def ensure_demo_user():
             profile_data = {
                 "id": response.user.id,
                 "username": "demo",
-                "created_at": datetime.now(timezone.utc).isoformat(),
+                "created_at": datetime.now().isoformat(),
             }
             admin_client.table("profiles").upsert(profile_data).execute()
             logger.info("デモユーザーを作成しました")
@@ -238,7 +238,7 @@ async def login(request: LoginRequest, response: Response):
             profile_data = {
                 "id": auth_response.user.id,
                 "username": request.username,
-                "created_at": datetime.now(timezone.utc).isoformat(),
+                "created_at": datetime.now().isoformat(),
             }
             admin_client = get_supabase_admin_client()
             admin_client.table("profiles").upsert(profile_data).execute()
@@ -304,7 +304,7 @@ async def register(request: RegisterRequest):
         profile_data = {
             "id": auth_response.user.id,
             "username": request.username,
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now().isoformat(),
         }
         logger.info(f"Creating profile for user: {profile_data}")
 
@@ -374,7 +374,7 @@ async def auth_health_check():
 
         return {
             "status": "healthy",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now().isoformat(),
             "version": "4.0.0",
             "supabase_connection": supabase_status,
             "demo_user_available": demo_user_exists,
@@ -389,7 +389,7 @@ async def auth_health_check():
         logger.error(f"認証ヘルスチェックエラー: {e}")
         return {
             "status": "unhealthy",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now().isoformat(),
             "version": "4.0.0",
             "error": str(e),
         }

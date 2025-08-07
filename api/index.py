@@ -5,13 +5,12 @@
 
 import logging
 import os
-from datetime import datetime, timezone
+from datetime import datetime
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# ログ設定
-logging.basicConfig(level=logging.INFO)
+# Vercel Functions対応: ログ設定を簡略化
 logger = logging.getLogger(__name__)
 
 # FastAPIアプリケーション作成
@@ -65,7 +64,7 @@ async def root():
     return {
         "message": "Crypto Bot API v4.0.0 - 統合認証システム",
         "status": "healthy",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now().isoformat(),
         "features": ["Supabase認証", "デモユーザー(demo/demo)", "新規アカウント作成", "JWT認証"],
     }
 
@@ -81,7 +80,7 @@ async def health_check():
 
         health_status = {
             "status": "healthy",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now().isoformat(),
             "version": "4.0.0",
             "environment": os.getenv("ENVIRONMENT", "unknown"),
             "configuration": {
@@ -108,7 +107,7 @@ async def health_check():
         logger.error(f"ヘルスチェックエラー: {e}")
         return {
             "status": "unhealthy",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now().isoformat(),
             "version": "4.0.0",
             "error": str(e),
         }
