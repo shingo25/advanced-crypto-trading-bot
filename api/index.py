@@ -36,26 +36,35 @@ app.add_middleware(
     allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
 )
 
-# 個人モード対応認証システムをインポート（auth_simple.py）
+# 個人モード対応認証エンドポイントを直接追加（Vercel Functions対応）
 try:
-    from .auth_simple import app as auth_app
-    # auth_simple.pyのルートをマウント
-    app.mount("/api/auth", auth_app)
-    logger.info("個人モード認証システム統合完了")
-except ImportError:
-    try:
-        from api.auth_simple import app as auth_app
-        app.mount("/api/auth", auth_app) 
-        logger.info("個人モード認証システム統合完了")
-    except ImportError as e:
-        logger.warning(f"個人モード認証システムの読み込みに失敗: {e}")
-        # フォールバック: 従来の認証システム
-        try:
-            from .auth import auth_router
-            app.include_router(auth_router)
-            logger.info("フォールバック認証ルーター統合完了")
-        except ImportError as e2:
-            logger.error(f"全認証システム読み込み失敗: {e2}")
+    # 最小限の動作確認エンドポイント
+    @app.get("/api/auth/ping")
+    async def auth_ping():
+        """最小限の動作確認 - Vercel対応"""
+        return {"status": "ok", "message": "pong", "source": "index.py"}
+    
+    # 個人モード情報エンドポイント
+    @app.get("/api/auth/personal-mode-info")
+    async def auth_personal_mode_info():
+        """個人モード設定情報を取得"""
+        import os
+        return {
+            "personal_mode": os.getenv("PERSONAL_MODE", "false").lower() == "true",
+            "auto_login": os.getenv("PERSONAL_MODE_AUTO_LOGIN", "false").lower() == "true",
+            "default_user": os.getenv("PERSONAL_MODE_DEFAULT_USER", "demo"),
+            "environment_debug": {
+                "PERSONAL_MODE_RAW": os.getenv("PERSONAL_MODE", "not_set"),
+                "PERSONAL_MODE_AUTO_LOGIN_RAW": os.getenv("PERSONAL_MODE_AUTO_LOGIN", "not_set"),
+                "ENVIRONMENT": os.getenv("ENVIRONMENT", "not_set"),
+                "VERCEL": os.getenv("VERCEL", "not_set"),
+            }
+        }
+    
+    logger.info("個人モード認証エンドポイント直接統合完了")
+    
+except Exception as e:
+    logger.error(f"個人モード認証エンドポイント統合失敗: {e}")
 
 
 # ヘルスチェック（基本機能）

@@ -263,8 +263,13 @@ async def get_current_user(request: Request):
 
 @app.get("/api/auth/ping")
 async def ping():
-    """最小限の動作確認エンドポイント"""
-    return {"status": "ok", "message": "pong"}
+    """最小限の動作確認エンドポイント - Vercel対応"""
+    try:
+        # 最小限のレスポンス
+        return {"status": "ok", "message": "pong", "timestamp": "2025-01-01T00:00:00"}
+    except Exception as e:
+        # エラーハンドリング
+        return {"status": "error", "message": str(e)}
 
 @app.get("/api/auth/personal-mode-info")
 async def get_personal_mode_info():
