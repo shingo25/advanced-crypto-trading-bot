@@ -17,12 +17,15 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  personalModeInfo: any;
 
   // アクション
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
   initialize: () => void;
   clearError: () => void;
+  autoLogin: () => Promise<void>;
+  getPersonalModeInfo: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -30,6 +33,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: false,
   isLoading: false,
   error: null,
+  personalModeInfo: null,
 
   login: async (username: string, password: string) => {
     set({ isLoading: true, error: null });
@@ -71,22 +75,74 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     });
   },
 
-  initialize: () => {
+  initialize: async () => {
     if (typeof window !== 'undefined') {
-      const isAuth = getAuthenticatedState();
-      if (isAuth) {
-        // 実際の実装では、認証状態の有効性を確認する
-        set({
-          user: {
-            id: '1',
-            username: 'admin',
-            email: 'admin@example.com',
-          },
-          isAuthenticated: true,
-          isLoading: false,
-          error: null,
-        });
+      try {
+        // 個人モード情報を取得
+        await get().getPersonalModeInfo();
+
+        const personalModeInfo = get().personalModeInfo;
+
+        // 個人モードで自動ログインが有効な場合
+        if (personalModeInfo?.personal_mode && personalModeInfo?.auto_login) {
+          await get().autoLogin();
+        } else {
+          // 通常の認証状態確認
+          const isAuth = getAuthenticatedState();
+          if (isAuth) {
+            set({
+              user: {
+                id: '1',
+                username: 'admin',
+                email: 'admin@example.com',
+              },
+              isAuthenticated: true,
+              isLoading: false,
+              error: null,
+            });
+          }
+        }
+      } catch (error) {
+        console.log('Initialize auth failed (possibly normal):', error);
       }
+    }
+  },
+
+  autoLogin: async () => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const response = await authApi.autoLogin();
+
+      set({
+        user: response.user,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+    } catch (error: any) {
+      const errorMessage =
+        typeof error === 'string'
+          ? error
+          : error?.response?.data?.detail || error?.message || '自動ログインに失敗しました';
+
+      set({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: errorMessage,
+      });
+      throw error;
+    }
+  },
+
+  getPersonalModeInfo: async () => {
+    try {
+      const personalModeInfo = await authApi.getPersonalModeInfo();
+      set({ personalModeInfo });
+    } catch (error) {
+      console.log('Failed to get personal mode info:', error);
+      set({ personalModeInfo: { personal_mode: false, auto_login: false } });
     }
   },
 

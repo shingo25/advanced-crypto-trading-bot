@@ -59,6 +59,12 @@ class Settings(BaseSettings):
     NTFY_TOPIC: str = "crypto-bot-alerts"
     NTFY_SERVER: str = "https://ntfy.sh"
 
+    # Personal Mode Settings
+    PERSONAL_MODE: bool = False
+    PERSONAL_MODE_AUTO_LOGIN: bool = False
+    PERSONAL_MODE_DEFAULT_USER: str = "demo"
+    PERSONAL_MODE_SKIP_LIVE_TRADING_AUTH: bool = False
+
     class Config:
         env_file = ".env"
         case_sensitive = True
