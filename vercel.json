@@ -1,35 +1,9 @@
 {
-  "version": 2,
-  "public": true,
-  "buildCommand": "./scripts/vercel-build.sh",
-  "outputDirectory": "out",
-  "framework": null,
-  "builds": [
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/next",
-      "config": {
-        "distDir": "out"
-      }
-    },
-    {
-      "src": "api/**/*.py",
-      "use": "@vercel/python",
-      "config": {
-        "runtime": "python3.11"
-      }
+  "functions": {
+    "api/*.py": {
+      "runtime": "python3.11"
     }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/$1"
-    }
-  ],
+  },
   "headers": [
     {
       "source": "/api/(.*)",
