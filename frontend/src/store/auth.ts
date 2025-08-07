@@ -80,9 +80,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       try {
         // 個人モード情報を取得
         await get().getPersonalModeInfo();
-        
+
         const personalModeInfo = get().personalModeInfo;
-        
+
         // 個人モードで自動ログインが有効な場合
         if (personalModeInfo?.personal_mode && personalModeInfo?.auto_login) {
           await get().autoLogin();
@@ -110,10 +110,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   autoLogin: async () => {
     set({ isLoading: true, error: null });
-    
+
     try {
       const response = await authApi.autoLogin();
-      
+
       set({
         user: response.user,
         isAuthenticated: true,
@@ -121,11 +121,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         error: null,
       });
     } catch (error: any) {
-      const errorMessage = 
+      const errorMessage =
         typeof error === 'string'
           ? error
           : error?.response?.data?.detail || error?.message || '自動ログインに失敗しました';
-      
+
       set({
         user: null,
         isAuthenticated: false,
