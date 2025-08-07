@@ -271,6 +271,12 @@ async def get_personal_mode_info():
     }
 
 
+@app.get("/api/auth/test")
+async def test_endpoint():
+    """Vercel環境テスト用エンドポイント"""
+    return {"status": "ok", "message": "API is working"}
+
+
 @app.get("/api/auth/health")
 async def health_check():
     """ヘルスチェック"""
@@ -281,7 +287,7 @@ async def health_check():
         "environment": os.getenv("ENVIRONMENT", "unknown"),
         "demo_user_available": "demo" in DEMO_USERS,
         "personal_mode": PERSONAL_MODE,
-        "endpoints": ["/api/auth/login", "/api/auth/register", "/api/auth/logout", "/api/auth/me", "/api/auth/auto-login", "/api/auth/personal-mode-info", "/api/auth/health"],
+        "endpoints": ["/api/auth/login", "/api/auth/register", "/api/auth/logout", "/api/auth/me", "/api/auth/auto-login", "/api/auth/personal-mode-info", "/api/auth/health", "/api/auth/test"],
     }
 
 
